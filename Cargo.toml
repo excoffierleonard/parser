@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4.9.0"
+pdf-extract = "0.7.11"
 serde = { version = "1.0.216", features = ["derive"] }
