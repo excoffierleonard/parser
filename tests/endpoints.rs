@@ -1,6 +1,5 @@
 use actix_web::{test, App};
 use parser::routes::{greet, parse_file};
-
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -54,10 +53,12 @@ async fn post_parse_pdf_1() {
     // Get response
     let resp = test::call_service(&app, req).await;
     let status = resp.status();
-    let body: ParseResponse = test::read_body_json(resp).await;
 
     // Assert the results
     assert!(status.is_success());
+
+    let body: ParseResponse = test::read_body_json(resp).await;
+
     assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
 
@@ -80,10 +81,12 @@ async fn post_parse_pdf_2() {
     // Get response
     let resp = test::call_service(&app, req).await;
     let status = resp.status();
-    let body: ParseResponse = test::read_body_json(resp).await;
 
     // Assert the results
     assert!(status.is_success());
+
+    let body: ParseResponse = test::read_body_json(resp).await;
+
     assert_eq!(
         body.text,
         "Hello, this is another test pdf for the parsing API."
