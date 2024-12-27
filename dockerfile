@@ -1,11 +1,7 @@
 # Step 1: Build the application with musl target
 FROM rust:alpine AS builder
 
-RUN apk add --no-cache \
-    musl-dev \
-    pkgconfig \
-    openssl-dev \
-    openssl-libs-static
+RUN apk add --no-cache musl-dev
 
 WORKDIR /app
 
