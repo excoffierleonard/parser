@@ -85,7 +85,6 @@ async fn post_parse_pdf_1() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
-    println!("{:?}", resp);
 
     // Assert the results
     let status = resp.status();
@@ -113,7 +112,6 @@ async fn post_parse_pdf_2() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
-    println!("{:?}", resp);
 
     // Assert the results
     let status = resp.status();
