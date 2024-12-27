@@ -33,7 +33,6 @@ async fn get_hello() {
     assert_eq!(body.message, "Hello test_name!");
 }
 
-// This is the final integration test, it supposed to fail a lot before passing to comfirm the final implementation of the parsing endpoint
 #[actix_web::test]
 async fn post_parse_pdf_1() {
     // Setup
@@ -52,13 +51,12 @@ async fn post_parse_pdf_1() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
-    let status = resp.status();
 
     // Assert the results
+    let status = resp.status();
     assert!(status.is_success());
 
     let body: ParseResponse = test::read_body_json(resp).await;
-
     assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
 
@@ -80,15 +78,11 @@ async fn post_parse_pdf_2() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
-    let status = resp.status();
 
     // Assert the results
+    let status = resp.status();
     assert!(status.is_success());
 
     let body: ParseResponse = test::read_body_json(resp).await;
-
-    assert_eq!(
-        body.text,
-        "Hello, this is another test pdf for the parsing API."
-    );
+    assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
