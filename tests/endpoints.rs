@@ -25,11 +25,12 @@ async fn get_hello() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
-    let status = resp.status();
-    let body: HelloResponse = test::read_body_json(resp).await;
 
     // Assert the results
+    let status = resp.status();
     assert!(status.is_success());
+
+    let body: HelloResponse = test::read_body_json(resp).await;
     assert_eq!(body.message, "Hello test_name!");
 }
 
