@@ -33,12 +33,12 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
         .ok_or_else(|| actix_web::error::ErrorInternalServerError("Invalid temporary file path"))?;
 
     // Parse the PDF file
-    let parsed_text = parse_pdf(temp_file_path).await?;
+    let parsed_text = parse_pdf(temp_file_path)?;
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
 
-async fn parse_pdf(file_path: &str) -> Result<String, Error> {
+fn parse_pdf(file_path: &str) -> Result<String, Error> {
     match extract_text(file_path) {
         Ok(text) => Ok(text.trim().to_string()),
         Err(e) => Err(actix_web::error::ErrorInternalServerError(e)),
@@ -52,7 +52,7 @@ mod tests {
     #[actix_web::test]
     async fn parse_a_pdf() {
         let file_path = "tests/inputs/test_pdf_1.pdf";
-        let result = parse_pdf(file_path).await.unwrap();
+        let result = parse_pdf(file_path).unwrap();
 
         assert_eq!(
             result,
