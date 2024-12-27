@@ -1,5 +1,5 @@
 use actix_web::{test, App};
-use parser::{greet, parse};
+use parser::routes::{greet, parse_file};
 
 // Tests the default route
 #[actix_web::test]
@@ -24,7 +24,7 @@ async fn get_hello() {
 #[actix_web::test]
 async fn post_parse_pdf() {
     // Setup
-    let app = test::init_service(App::new().service(parse)).await;
+    let app = test::init_service(App::new().service(parse_file)).await;
 
     // NOTE: Maybe create a temporary pdf rather than having stored one in inputs
     // Read file
