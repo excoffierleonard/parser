@@ -47,11 +47,11 @@ async fn post_parse_pdf() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
+    let status = resp.status();
+    let body: Response = test::read_body_json(resp).await;
 
     // Assert the results
-    assert!(resp.status().is_success());
-
-    let body: Response = test::read_body_json(resp).await;
+    assert!(status.is_success());
     assert_eq!(body.name, "test_pdf.pdf");
     assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
