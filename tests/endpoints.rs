@@ -1,6 +1,14 @@
 use actix_web::{test, App};
 use parser::routes::{greet, parse_file};
 
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct Response {
+    name: String,
+    text: String,
+}
+
 // Tests the default route
 #[actix_web::test]
 async fn get_hello() {
@@ -42,8 +50,8 @@ async fn post_parse_pdf() {
 
     // Assert the results
     assert!(resp.status().is_success());
-    assert_eq!(
-        test::read_body(resp).await,
-        "Hello, this is a test pdf for the parsing API."
-    );
+
+    let body: Response = test::read_body_json(resp).await;
+    assert_eq!(body.name, "test_pdf.pdf");
+    assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
