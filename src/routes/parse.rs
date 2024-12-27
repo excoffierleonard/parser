@@ -3,16 +3,12 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 struct Response {
-    name: String,
     text: String,
 }
 
 #[post("/parse")]
 async fn parse_file() -> Result<HttpResponse, Error> {
-    let response = Response {
-        name: "test_pdf.pdf".to_string(),
+    Ok(HttpResponse::Ok().json(Response {
         text: "Hello, this is a test pdf for the parsing API.".to_string(),
-    };
-
-    Ok(HttpResponse::Ok().json(response))
+    }))
 }

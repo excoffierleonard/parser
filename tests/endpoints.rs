@@ -10,7 +10,6 @@ struct HelloResponse {
 
 #[derive(Deserialize)]
 struct ParseResponse {
-    name: String,
     text: String,
 }
 
@@ -59,6 +58,5 @@ async fn post_parse_pdf() {
 
     // Assert the results
     assert!(status.is_success());
-    assert_eq!(body.name, "test_pdf.pdf");
     assert_eq!(body.text, "Hello, this is a test pdf for the parsing API.");
 }
