@@ -1067,6 +1067,7 @@ dependencies = [
  "actix-multipart",
  "actix-web",
  "futures-util",
+ "mime",
  "pdf-extract",
  "serde",
  "tempfile",

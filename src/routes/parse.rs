@@ -1,6 +1,7 @@
 use actix_multipart::Multipart;
 use actix_web::{post, Error, HttpResponse};
 use futures_util::TryStreamExt;
+use mime::{Mime, APPLICATION_PDF};
 use pdf_extract::extract_text;
 use serde::Serialize;
 use std::io::Write;
@@ -13,19 +14,40 @@ struct Response {
 
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
-    let temp_file = create_temp_file(&mut payload).await?;
+    let (temp_file, content_type) = create_temp_file(&mut payload).await?;
     let temp_file_path = get_temp_file_path(&temp_file)?;
-    let parsed_text = parse_pdf(temp_file_path)?;
+
+    let parsed_text = match content_type.as_ref() {
+        Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
+        Some(mime) => {
+            return Err(actix_web::error::ErrorBadRequest(format!(
+                "Unsupported mime type: {}",
+                mime
+            )))
+        }
+        None => return Err(actix_web::error::ErrorBadRequest("Missing content type")),
+    };
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
 
-async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, Error> {
-    // Create a temporary file that will be automatically cleaned up when it goes out of scope
+async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Option<Mime>), Error> {
     let mut temp_file = NamedTempFile::new().map_err(actix_web::error::ErrorInternalServerError)?;
+    let mut content_type = None;
 
-    // Process the multipart form data
+    // TODO: Need to implement a function whose only goal is to determine the MIME Type.
+
     while let Some(mut field) = payload.try_next().await? {
+        if content_type.is_none() {
+            if let Some(cd) = field.content_disposition() {
+                if let Some(filename) = cd.get_filename() {
+                    if filename.ends_with(".pdf") {
+                        content_type = Some(APPLICATION_PDF);
+                    }
+                }
+            }
+        }
+
         while let Some(chunk) = field.try_next().await? {
             temp_file
                 .write_all(&chunk)
@@ -33,7 +55,7 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, Erro
         }
     }
 
-    Ok(temp_file)
+    Ok((temp_file, content_type))
 }
 
 fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, Error> {
