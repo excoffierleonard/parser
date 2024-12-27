@@ -26,13 +26,14 @@ async fn post_parse_pdf() {
     // Setup
     let app = test::init_service(App::new().service(parse)).await;
 
+    // NOTE: Maybe create a temporary pdf rather than having stored one in inputs
     // Read file
-    let file_bytes = include_bytes!("../tests/inputs/test_pdf.pdf");
+    let file_bytes = std::fs::read("tests/inputs/test_pdf.pdf").unwrap();
 
     // Create request
     let req = test::TestRequest::post()
         .uri("/parse")
-        .set_payload(file_bytes.to_vec())
+        .set_payload(file_bytes)
         .insert_header(("content-type", "multipart/form-data"))
         .to_request();
 
