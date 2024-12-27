@@ -27,15 +27,19 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
     }
 
     // Get the path of our temporary file
-    let temp_file_path = temp_file
-        .path()
-        .to_str()
-        .ok_or_else(|| actix_web::error::ErrorInternalServerError("Invalid temporary file path"))?;
+    let temp_file_path = get_temp_file_path(&temp_file)?;
 
     // Parse the PDF file
     let parsed_text = parse_pdf(temp_file_path)?;
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
+}
+
+fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, Error> {
+    temp_file
+        .path()
+        .to_str()
+        .ok_or_else(|| actix_web::error::ErrorInternalServerError("Invalid temporary file path"))
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, Error> {
@@ -50,10 +54,20 @@ mod tests {
     use super::*;
 
     #[actix_web::test]
-    async fn parse_a_pdf() {
+    async fn get_temp_file_path_success() {
+        let temp_file = NamedTempFile::new().unwrap();
+        let result = get_temp_file_path(&temp_file).unwrap();
+
+        assert!(result.len() > 0);
+        assert!(result.starts_with("/tmp"));
+    }
+
+    #[actix_web::test]
+    async fn parse_pdf_success() {
         let file_path = "tests/inputs/test_pdf_1.pdf";
         let result = parse_pdf(file_path).unwrap();
 
+        assert!(result.len() > 0);
         assert_eq!(
             result,
             "Hello, this is a test pdf for the parsing API.".to_string()
