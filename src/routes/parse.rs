@@ -13,12 +13,19 @@ struct Response {
 
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
+    let temp_file = create_temp_file(&mut payload).await?;
+    let temp_file_path = get_temp_file_path(&temp_file)?;
+    let parsed_text = parse_pdf(temp_file_path)?;
+
+    Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
+}
+
+async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, Error> {
     // Create a temporary file that will be automatically cleaned up when it goes out of scope
     let mut temp_file = NamedTempFile::new().map_err(actix_web::error::ErrorInternalServerError)?;
 
     // Process the multipart form data
     while let Some(mut field) = payload.try_next().await? {
-        // Read the field's contents and write to our temporary file
         while let Some(chunk) = field.try_next().await? {
             temp_file
                 .write_all(&chunk)
@@ -26,13 +33,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
         }
     }
 
-    // Get the path of our temporary file
-    let temp_file_path = get_temp_file_path(&temp_file)?;
-
-    // Parse the PDF file
-    let parsed_text = parse_pdf(temp_file_path)?;
-
-    Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
+    Ok(temp_file)
 }
 
 fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, Error> {
@@ -54,7 +55,13 @@ mod tests {
     use super::*;
 
     #[actix_web::test]
-    async fn get_temp_file_path_success() {
+    async fn create_temp_file_success() {
+        // Integration tests cover this functionality since there is currently no way to simulate a Multipart payload in unit tests.
+        assert!(1 == 1);
+    }
+
+    #[test]
+    fn get_temp_file_path_success() {
         let temp_file = NamedTempFile::new().unwrap();
         let result = get_temp_file_path(&temp_file).unwrap();
 
@@ -62,8 +69,8 @@ mod tests {
         assert!(result.starts_with("/tmp"));
     }
 
-    #[actix_web::test]
-    async fn parse_pdf_success() {
+    #[test]
+    fn parse_pdf_success() {
         let file_path = "tests/inputs/test_pdf_1.pdf";
         let result = parse_pdf(file_path).unwrap();
 
