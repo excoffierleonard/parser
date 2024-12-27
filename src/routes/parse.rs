@@ -1,7 +1,7 @@
 use actix_web::{post, Error, HttpResponse};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Serialize)]
 struct Response {
     name: String,
     text: String,
@@ -13,5 +13,6 @@ async fn parse_file() -> Result<HttpResponse, Error> {
         name: "test_pdf.pdf".to_string(),
         text: "Hello, this is a test pdf for the parsing API.".to_string(),
     };
+
     Ok(HttpResponse::Ok().json(response))
 }

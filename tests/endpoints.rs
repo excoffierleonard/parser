@@ -4,7 +4,12 @@ use parser::routes::{greet, parse_file};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-struct Response {
+struct HelloResponse {
+    message: String,
+}
+
+#[derive(Deserialize)]
+struct ParseResponse {
     name: String,
     text: String,
 }
@@ -22,10 +27,12 @@ async fn get_hello() {
 
     // Get response
     let resp = test::call_service(&app, req).await;
+    let status = resp.status();
+    let body: HelloResponse = test::read_body_json(resp).await;
 
     // Assert the results
-    assert!(resp.status().is_success());
-    assert_eq!(test::read_body(resp).await, "Hello test_name!");
+    assert!(status.is_success());
+    assert_eq!(body.message, "Hello test_name!");
 }
 
 // This is the final integration test, it supposed to fail a lot before passing to comfirm the final implementation of the parsing endpoint
@@ -48,7 +55,7 @@ async fn post_parse_pdf() {
     // Get response
     let resp = test::call_service(&app, req).await;
     let status = resp.status();
-    let body: Response = test::read_body_json(resp).await;
+    let body: ParseResponse = test::read_body_json(resp).await;
 
     // Assert the results
     assert!(status.is_success());
