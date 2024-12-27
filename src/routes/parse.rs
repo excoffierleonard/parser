@@ -1,5 +1,8 @@
 use actix_multipart::Multipart;
-use actix_web::{post, Error, HttpResponse};
+use actix_web::{
+    error::{ErrorBadRequest, ErrorInternalServerError},
+    post, Error, HttpResponse,
+};
 use futures_util::TryStreamExt;
 use mime::{Mime, APPLICATION_PDF};
 use pdf_extract::extract_text;
@@ -12,6 +15,11 @@ struct Response {
     text: String,
 }
 
+#[derive(Serialize)]
+struct ErrorResponse {
+    message: String,
+}
+
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
     let (temp_file, content_type) = create_temp_file(&mut payload).await?;
@@ -19,20 +27,15 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
 
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
-        Some(mime) => {
-            return Err(actix_web::error::ErrorBadRequest(format!(
-                "Unsupported mime type: {}",
-                mime
-            )))
-        }
-        None => return Err(actix_web::error::ErrorBadRequest("Missing content type")),
+        Some(mime) => return Err(ErrorBadRequest(format!("Unsupported mime type: {}", mime))),
+        None => return Err(ErrorBadRequest("Missing content type")),
     };
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
 
 async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Option<Mime>), Error> {
-    let mut temp_file = NamedTempFile::new().map_err(actix_web::error::ErrorInternalServerError)?;
+    let mut temp_file = NamedTempFile::new().map_err(ErrorInternalServerError)?;
     let mut content_type = None;
 
     // TODO: Need to implement a function whose only goal is to determine the MIME Type.
@@ -51,7 +54,7 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Opt
         while let Some(chunk) = field.try_next().await? {
             temp_file
                 .write_all(&chunk)
-                .map_err(actix_web::error::ErrorInternalServerError)?;
+                .map_err(ErrorInternalServerError)?;
         }
     }
 
@@ -62,13 +65,13 @@ fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, Error> {
     temp_file
         .path()
         .to_str()
-        .ok_or_else(|| actix_web::error::ErrorInternalServerError("Invalid temporary file path"))
+        .ok_or_else(|| ErrorInternalServerError("Invalid temporary file path"))
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, Error> {
     match extract_text(file_path) {
         Ok(text) => Ok(text.trim().to_string()),
-        Err(e) => Err(actix_web::error::ErrorInternalServerError(e)),
+        Err(e) => Err(ErrorInternalServerError(e)),
     }
 }
 
