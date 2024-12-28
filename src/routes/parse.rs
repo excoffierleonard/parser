@@ -1,8 +1,5 @@
 use actix_multipart::Multipart;
-use actix_web::{
-    error::{ErrorBadRequest, ErrorInternalServerError},
-    post, Error, HttpResponse,
-};
+use actix_web::{error::ResponseError, http::StatusCode, post, Error, HttpResponse};
 use futures_util::TryStreamExt;
 use mime::{Mime, APPLICATION_PDF};
 use pdf_extract::extract_text;
@@ -20,27 +17,72 @@ struct ErrorResponse {
     message: String,
 }
 
+#[derive(Debug)]
+enum ApiError {
+    BadRequest(String),
+    InternalError(String),
+}
+
+impl ResponseError for ApiError {
+    fn error_response(&self) -> HttpResponse {
+        let error_response = ErrorResponse {
+            message: self.to_string(),
+        };
+
+        match self {
+            ApiError::BadRequest(_) => HttpResponse::BadRequest().json(error_response),
+            ApiError::InternalError(_) => HttpResponse::InternalServerError().json(error_response),
+        }
+    }
+
+    fn status_code(&self) -> StatusCode {
+        match self {
+            ApiError::BadRequest(_) => StatusCode::BAD_REQUEST,
+            ApiError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
+
+impl std::fmt::Display for ApiError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ApiError::BadRequest(msg) | ApiError::InternalError(msg) => write!(f, "{}", msg),
+        }
+    }
+}
+
 #[post("/parse")]
-async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
+async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let (temp_file, content_type) = create_temp_file(&mut payload).await?;
     let temp_file_path = get_temp_file_path(&temp_file)?;
 
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
-        Some(mime) => return Err(ErrorBadRequest(format!("Unsupported mime type: {}", mime))),
-        None => return Err(ErrorBadRequest("Missing content type")),
+        Some(mime) => {
+            return Err(ApiError::BadRequest(format!(
+                "Unsupported mime type: {}",
+                mime
+            )))
+        }
+        None => return Err(ApiError::BadRequest("Missing content type".to_string())),
     };
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
 
-async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Option<Mime>), Error> {
-    let mut temp_file = NamedTempFile::new().map_err(ErrorInternalServerError)?;
+async fn create_temp_file(
+    payload: &mut Multipart,
+) -> Result<(NamedTempFile, Option<Mime>), ApiError> {
+    let mut temp_file = NamedTempFile::new()
+        .map_err(|e| ApiError::InternalError(format!("Failed to create temp file: {}", e)))?;
     let mut content_type = None;
 
     // TODO: Need to implement a function whose only goal is to determine the MIME Type.
-
-    while let Some(mut field) = payload.try_next().await? {
+    while let Some(mut field) = payload
+        .try_next()
+        .await
+        .map_err(|e| ApiError::InternalError(format!("Failed to process multipart: {}", e)))?
+    {
         if content_type.is_none() {
             if let Some(cd) = field.content_disposition() {
                 if let Some(filename) = cd.get_filename() {
@@ -51,9 +93,13 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Opt
             }
         }
 
-        while let Some(chunk) = field.try_next().await? {
+        while let Some(chunk) = field
+            .try_next()
+            .await
+            .map_err(|e| ApiError::InternalError(format!("Failed to read chunk: {}", e)))?
+        {
             temp_file.write_all(&chunk).map_err(|e| {
-                ErrorInternalServerError(format!("Failed to write to temp file: {}", e))
+                ApiError::InternalError(format!("Failed to write to temp file: {}", e))
             })?;
         }
     }
@@ -61,18 +107,17 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Opt
     Ok((temp_file, content_type))
 }
 
-fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, Error> {
+fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
     temp_file
         .path()
         .to_str()
-        .ok_or_else(|| ErrorInternalServerError("Invalid temporary file path"))
+        .ok_or_else(|| ApiError::InternalError("Invalid temporary file path".to_string()))
 }
 
-fn parse_pdf(file_path: &str) -> Result<String, Error> {
-    match extract_text(file_path) {
-        Ok(text) => Ok(text.trim().to_string()),
-        Err(e) => Err(ErrorInternalServerError(e)),
-    }
+fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
+    extract_text(file_path)
+        .map(|text| text.trim().to_string())
+        .map_err(|e| ApiError::InternalError(format!("Failed to parse PDF: {}", e)))
 }
 
 #[cfg(test)]
