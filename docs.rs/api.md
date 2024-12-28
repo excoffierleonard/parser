@@ -1,26 +1,24 @@
 # Parser API Documentation
 
-## Endpoints
+## Parse the text of a document
 
-### Parse the text of a document
+### Request
 
-#### Request
-
-##### Endpoint
+#### Endpoint
 
 ```http
 POST /parse
 ```
 
-##### Body (form-data)
+#### Body (form-data)
 
 | Key | Value |
 |-|-|
 | file | *The document to parse* |
 
-#### Response
+### Response
 
-##### Status Codes
+#### Status Codes
 
 | Code | Name |  Description |
 |-|-|-|
@@ -28,7 +26,7 @@ POST /parse
 | `400` | `Bad Request` | Invalid request |
 | `500` | `Internal Server Error` | Parsing failed |
 
-##### Body
+#### Body
 
 **Success**
 ```json
@@ -44,15 +42,15 @@ POST /parse
 }
 ```
 
-#### Examples
+### Examples
 
-##### Request
+#### Request
 
 ```bash
 curl -X POST -F "file=@tests/inputs/test_pdf_1.pdf" http://localhost:8080/parse
 ```
 
-##### Response
+#### Response
 
 ```json
 {
