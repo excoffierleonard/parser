@@ -3,7 +3,6 @@ use actix_web::{
     App, HttpServer,
 };
 use env_logger::Env;
-use num_cpus;
 use parser::routes::{greet, parse_file};
 
 #[actix_web::main]
