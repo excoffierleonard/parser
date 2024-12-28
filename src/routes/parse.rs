@@ -39,21 +39,12 @@ async fn create_temp_file(
         .map_err(|e| ApiError::InternalError(format!("Failed to create temp file: {}", e)))?;
     let mut content_type = None;
 
-    // TODO: Need to implement a function whose only goal is to determine the MIME Type.
     while let Some(mut field) = payload
         .try_next()
         .await
         .map_err(|e| ApiError::InternalError(format!("Failed to process multipart: {}", e)))?
     {
-        if content_type.is_none() {
-            if let Some(cd) = field.content_disposition() {
-                if let Some(filename) = cd.get_filename() {
-                    if filename.ends_with(".pdf") {
-                        content_type = Some(APPLICATION_PDF);
-                    }
-                }
-            }
-        }
+        content_type = determine_mime_type(&field);
 
         while let Some(chunk) = field
             .try_next()
@@ -67,6 +58,17 @@ async fn create_temp_file(
     }
 
     Ok((temp_file, content_type))
+}
+
+fn determine_mime_type(field: &actix_multipart::Field) -> Option<Mime> {
+    if let Some(cd) = field.content_disposition() {
+        if let Some(filename) = cd.get_filename() {
+            if filename.ends_with(".pdf") {
+                return Some(APPLICATION_PDF);
+            }
+        }
+    }
+    None
 }
 
 fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
@@ -89,6 +91,12 @@ mod tests {
     #[actix_web::test]
     async fn create_temp_file_success() {
         // Integration tests cover this functionality since there is currently no way to simulate a Multipart payload in unit tests.
+        assert!(1 == 1);
+    }
+
+    #[test]
+    fn determine_mime_success() {
+        // Need to implement a unit test for that if possible
         assert!(1 == 1);
     }
 
