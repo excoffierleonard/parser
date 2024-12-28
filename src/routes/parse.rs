@@ -52,9 +52,9 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<(NamedTempFile, Opt
         }
 
         while let Some(chunk) = field.try_next().await? {
-            temp_file
-                .write_all(&chunk)
-                .map_err(ErrorInternalServerError)?;
+            temp_file.write_all(&chunk).map_err(|e| {
+                ErrorInternalServerError(format!("Failed to write to temp file: {}", e))
+            })?;
         }
     }
 
