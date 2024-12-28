@@ -53,7 +53,9 @@ POST /parse
 #### Request
 
 ```bash
-curl -X POST -F "file=@tests/inputs/test_pdf_1.pdf" http://localhost:8080/parse
+curl --request POST \
+     --url "http://localhost:8080/parse" \
+     --form "file=@tests/inputs/test_pdf_1.pdf"
 ```
 
 #### Response
