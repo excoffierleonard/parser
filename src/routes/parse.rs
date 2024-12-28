@@ -72,6 +72,7 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
+    // TOFIX: Need to find a way to silence the output of that function since on unkown characters it prints a lot of errors, cluttering the logs.
     pdf_extract::extract_text(file_path)
         .map(|text| text.trim().to_string())
         .map_err(|e| ApiError::InternalError(format!("Failed to parse PDF: {}", e)))
