@@ -1,5 +1,5 @@
 use actix_multipart::Multipart;
-use actix_web::{error::ResponseError, http::StatusCode, post, Error, HttpResponse};
+use actix_web::{error::ResponseError, http::StatusCode, post, HttpResponse};
 use futures_util::TryStreamExt;
 use mime::{Mime, APPLICATION_PDF};
 use pdf_extract::extract_text;
