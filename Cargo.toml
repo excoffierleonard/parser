@@ -6,9 +6,11 @@ edition = "2021"
 [dependencies]
 actix-multipart = "0.7.2"
 actix-web = "4.9.0"
+env_logger = "0.11.6"
 futures-util = "0.3.31"
 infer = "0.16.0"
 mime = "0.3.17"
+num_cpus = "1.16.0"
 pdf-extract = "0.7.11"
 serde = { version = "1.0.216", features = ["derive"] }
 tempfile = "3.14.0"
