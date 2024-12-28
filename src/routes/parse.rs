@@ -2,9 +2,9 @@ use crate::errors::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{post, HttpResponse};
 use futures_util::TryStreamExt;
-use infer::get_from_path;
+use infer;
 use mime::{Mime, APPLICATION_PDF};
-use pdf_extract::extract_text;
+use pdf_extract;
 use serde::Serialize;
 use std::io::Write;
 use tempfile::NamedTempFile;
@@ -65,14 +65,14 @@ fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
 }
 
 fn determine_mime_type(file_path: &str) -> Option<Mime> {
-    get_from_path(file_path)
+    infer::get_from_path(file_path)
         .ok()
         .flatten()
         .and_then(|kind| kind.mime_type().parse().ok())
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
-    extract_text(file_path)
+    pdf_extract::extract_text(file_path)
         .map(|text| text.trim().to_string())
         .map_err(|e| ApiError::InternalError(format!("Failed to parse PDF: {}", e)))
 }
