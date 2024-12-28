@@ -1,5 +1,9 @@
 # Parser API Documentation
 
+## Endpoints
+
+1. [Parse the text of a document](#parse-the-text-of-a-document)
+
 ## Parse the text of a document
 
 ### Request
@@ -28,14 +32,16 @@ POST /parse
 
 #### Body
 
-**Success**
+##### Success
+
 ```json
 {
     "text": "*Parsed text*"
 }
 ```
 
-**Error**
+##### Error
+
 ```json
 {
     "message": "*Description of the error.*"
