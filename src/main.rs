@@ -2,12 +2,19 @@ use actix_web::{
     middleware::{Compress, Logger},
     App, HttpServer,
 };
-use env_logger::Env;
-use parser::routes::{greet, parse_file};
+use env_logger::{init_from_env, Env};
+use num_cpus::get;
+use parser::{
+    config::Config,
+    routes::{greet, parse_file},
+};
+use std::io::{Error, ErrorKind, Result};
 
 #[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+async fn main() -> Result<()> {
+    init_from_env(Env::default().default_filter_or("info"));
+
+    let config = Config::build().map_err(|e| Error::new(ErrorKind::Other, e))?;
 
     HttpServer::new(|| {
         App::new()
@@ -16,8 +23,8 @@ async fn main() -> std::io::Result<()> {
             .service(greet)
             .service(parse_file)
     })
-    .bind(("0.0.0.0", 8080))?
-    .workers(num_cpus::get())
+    .bind(("0.0.0.0", config.port))?
+    .workers(get())
     .run()
     .await
 }
