@@ -6,7 +6,7 @@ use env_logger::{init_from_env, Env};
 use num_cpus::get;
 use parser::{
     config::Config,
-    routes::{greet, parse_file, serve_index},
+    routes::{greet, parse_file, serve_files},
 };
 use std::io::{Error, ErrorKind, Result};
 
@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
             .wrap(Logger::default())
             .service(greet)
             .service(parse_file)
-            .service(serve_index)
+            .service(serve_files)
     })
     .bind(("0.0.0.0", config.port))?
     .workers(get())

@@ -1,9 +1,25 @@
-use actix_web::{get, HttpResponse, Responder};
+use actix_web::{get, web, HttpResponse, Responder};
+use rust_embed::RustEmbed;
 
-#[get("/")]
-pub async fn serve_index() -> impl Responder {
-    let index_html = include_str!("../../static/index.html");
-    HttpResponse::Ok()
-        .content_type("text/html; charset=utf-8")
-        .body(index_html)
+#[derive(RustEmbed)]
+#[folder = "static/"]
+struct Assets;
+
+#[get("/{filename:.*}")]
+async fn serve_files(filename: web::Path<String>) -> impl Responder {
+    let path = if filename.is_empty() {
+        "index.html"
+    } else {
+        filename.as_str()
+    };
+
+    match Assets::get(path) {
+        Some(content) => {
+            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            HttpResponse::Ok()
+                .content_type(mime)
+                .body(content.data.to_vec())
+        }
+        None => HttpResponse::NotFound().finish(),
+    }
 }
