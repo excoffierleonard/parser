@@ -46,12 +46,11 @@ API documentation and examples are available in [docs/api.md](docs/api.md).
 
 Useful commands for development:
 
+- Full build:
+
 ```bash
-cargo check && \
-cargo clippy && \
-cargo fmt && \
-cargo test && \
-docker compose build
+chmod +x ./scripts/build.sh && \
+./scripts/build.sh
 ```
 
 ## 📜 License
