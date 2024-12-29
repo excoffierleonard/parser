@@ -1,6 +1,8 @@
-# Parser
+# [Parser](https://parser.excoffierleonard.com)
 
 REST API service in Rust that takes in any file and returns its parsed content.
+
+Demonstration URL: [https://parser.excoffierleonard.com](https://parser.excoffierleonard.com)
 
 ## 📚 Table of Contents
 
