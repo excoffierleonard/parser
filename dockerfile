@@ -16,6 +16,9 @@ RUN mkdir src && \
 
 COPY src src/
 
+# Since we are embedding static files we need to add that directory to the buid
+COPY static static/
+
 RUN touch src/main.rs && \
     cargo build --target x86_64-unknown-linux-musl --release
 
