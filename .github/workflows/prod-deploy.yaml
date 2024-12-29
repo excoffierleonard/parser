@@ -1,7 +1,6 @@
 name: Deploy to production server
 
 permissions:
-  packages: write
   contents: read
 
 on:
