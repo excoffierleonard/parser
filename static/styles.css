@@ -1,0 +1,112 @@
+/* Modern CSS reset and global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Main container styles */
+.container {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Upload area styles */
+.upload-area {
+    border: 2px dashed #c3cfe2;
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+    border-color: #6c63ff;
+    background: #f8f9fa;
+}
+
+.upload-area.drag-over {
+    border-color: #6c63ff;
+    background: #f0f3ff;
+}
+
+/* Button styles */
+.upload-button {
+    background: #6c63ff;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+}
+
+.upload-button:hover {
+    background: #5a52cc;
+}
+
+/* Response area styles */
+.response-area {
+    margin-top: 2rem;
+    padding: 1rem;
+    border-radius: 6px;
+    background: #f8f9fa;
+    white-space: pre-wrap;
+    display: none;
+}
+
+.response-area.success {
+    border-left: 4px solid #28a745;
+    background: #f8fff9;
+}
+
+.response-area.error {
+    border-left: 4px solid #dc3545;
+    background: #fff8f8;
+}
+
+/* Loading spinner */
+.spinner {
+    display: none;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #6c63ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 1rem auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* File name display */
+.file-name {
+    margin-top: 1rem;
+    color: #666;
+    font-size: 0.9rem;
+}

@@ -5,127 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Parser Interface</title>
-    <style>
-        /* Modern CSS reset and global styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            padding: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Main container styles */
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-
-        /* Upload area styles */
-        .upload-area {
-            border: 2px dashed #c3cfe2;
-            border-radius: 8px;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .upload-area:hover {
-            border-color: #6c63ff;
-            background: #f8f9fa;
-        }
-
-        .upload-area.drag-over {
-            border-color: #6c63ff;
-            background: #f0f3ff;
-        }
-
-        /* Button styles */
-        .upload-button {
-            background: #6c63ff;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s ease;
-        }
-
-        .upload-button:hover {
-            background: #5a52cc;
-        }
-
-        /* Response area styles */
-        .response-area {
-            margin-top: 2rem;
-            padding: 1rem;
-            border-radius: 6px;
-            background: #f8f9fa;
-            white-space: pre-wrap;
-            display: none;
-        }
-
-        .response-area.success {
-            border-left: 4px solid #28a745;
-            background: #f8fff9;
-        }
-
-        .response-area.error {
-            border-left: 4px solid #dc3545;
-            background: #fff8f8;
-        }
-
-        /* Loading spinner */
-        .spinner {
-            display: none;
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #6c63ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 1rem auto;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* File name display */
-        .file-name {
-            margin-top: 1rem;
-            color: #666;
-            font-size: 0.9rem;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="container">
         <div class="upload-area" id="uploadArea">
             <h2>Upload File</h2>
+            <br>
             <p>Drag and drop a file here or click to select</p>
+            <br>
             <input type="file" id="fileInput" style="display: none">
             <button class="upload-button" id="uploadButton">Choose File</button>
             <div class="file-name" id="fileName"></div>
@@ -134,98 +23,7 @@
         <div class="response-area" id="responseArea"></div>
     </div>
 
-    <script>
-        // Get DOM elements
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const uploadButton = document.getElementById('uploadButton');
-        const fileName = document.getElementById('fileName');
-        const spinner = document.getElementById('spinner');
-        const responseArea = document.getElementById('responseArea');
-
-        // Handle drag and drop events
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, preventDefaults);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Add visual feedback for drag and drop
-        ['dragenter', 'dragover'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.add('drag-over');
-            });
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            uploadArea.addEventListener(eventName, () => {
-                uploadArea.classList.remove('drag-over');
-            });
-        });
-
-        // Handle file drop
-        uploadArea.addEventListener('drop', handleDrop);
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const file = dt.files[0];
-            handleFile(file);
-        }
-
-        // Handle file selection via button
-        uploadButton.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            handleFile(e.target.files[0]);
-        });
-
-        // Process the selected file
-        function handleFile(file) {
-            if (!file) return;
-
-            // Display file name
-            fileName.textContent = `Selected file: ${file.name}`;
-
-            // Create FormData and append file
-            const formData = new FormData();
-            formData.append('file', file);
-
-            // Show loading spinner
-            spinner.style.display = 'block';
-            responseArea.style.display = 'none';
-
-            // Send POST request
-            // TOFIX: Find right method here.
-            fetch('/parse', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Handle successful response
-                    spinner.style.display = 'none';
-                    responseArea.style.display = 'block';
-
-                    if (data.text) {
-                        // Success response
-                        responseArea.className = 'response-area success';
-                        responseArea.textContent = data.text;
-                    } else if (data.message) {
-                        // Error response
-                        responseArea.className = 'response-area error';
-                        responseArea.textContent = `Error: ${data.message}`;
-                    }
-                })
-                .catch(error => {
-                    // Handle network or other errors
-                    spinner.style.display = 'none';
-                    responseArea.style.display = 'block';
-                    responseArea.className = 'response-area error';
-                    responseArea.textContent = `Error: ${error.message}`;
-                });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
