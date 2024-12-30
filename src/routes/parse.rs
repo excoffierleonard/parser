@@ -163,27 +163,35 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
         .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
-// TODO: Need to be able to parse multiple worksheets excel files, currently only handles the first worksheet.
-// use the name of the worksheets as delimiter
+// TODO: Need proper logic to escape commas and quotes
 fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
     let mut excel: Xlsx<_> = open_workbook(file_path)
         .map_err(|e| ApiError::InternalError(format!("Failed to read XLSX based file: {}", e)))?;
 
-    if let Some(Ok(range)) = excel.worksheet_range_at(0) {
-        let text = range
-            .rows()
-            .map(|row| {
-                row.iter()
-                    .map(|cell| cell.to_string())
-                    .collect::<Vec<String>>()
-                    .join("\t")
-            })
-            .collect::<Vec<String>>()
-            .join("\n");
-        Ok(text)
-    } else {
-        Ok("".to_string())
+    let mut csv_data = String::new();
+
+    for name in excel.sheet_names() {
+        if let Some(Ok(range)) = excel.worksheet_range(&name) {
+            if !csv_data.is_empty() {
+                csv_data.push_str("\n--- Sheet: ");
+                csv_data.push_str(&name);
+                csv_data.push_str(" ---\n");
+            }
+            let sheet_csv = range
+                .rows()
+                .map(|row| {
+                    row.iter()
+                        .map(|cell| cell.to_string())
+                        .collect::<Vec<String>>()
+                        .join(",")
+                })
+                .collect::<Vec<String>>()
+                .join("\n");
+            csv_data.push_str(&sheet_csv);
+        }
     }
+
+    Ok(csv_data)
 }
 
 #[cfg(test)]
