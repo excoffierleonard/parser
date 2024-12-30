@@ -4,6 +4,7 @@
 set -e
 
 # Clean and check
+cargo update
 cargo clean
 cargo check
 cargo clippy -- -D warnings
