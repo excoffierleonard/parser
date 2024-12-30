@@ -82,6 +82,8 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
         }
     }
 
+    // TODO: Add specific function for special text data that needs formatting like CSV etc..
+
     // If no specific type was detected, check if it's readable as text
     read_to_string(file_path).ok().map(|_| TEXT_PLAIN)
 }
