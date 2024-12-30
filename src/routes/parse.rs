@@ -4,10 +4,13 @@ use actix_web::{post, HttpResponse};
 use docx_rs::read_docx;
 use futures_util::TryStreamExt;
 use infer;
-use mime::{Mime, APPLICATION_PDF};
+use mime::{Mime, APPLICATION_PDF, TEXT_PLAIN_UTF_8};
 use pdf_extract;
 use serde::Serialize;
-use std::{fs::read, io::Write};
+use std::{
+    fs::{read, read_to_string},
+    io::Write,
+};
 use tempfile::NamedTempFile;
 
 // Docx mime type was not defined in the mime package
@@ -28,6 +31,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
+        Some(mime) if *mime == TEXT_PLAIN_UTF_8 => parse_txt(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -71,10 +75,15 @@ fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
 }
 
 fn determine_mime_type(file_path: &str) -> Option<Mime> {
-    infer::get_from_path(file_path)
-        .ok()
-        .flatten()
-        .and_then(|kind| kind.mime_type().parse().ok())
+    // First try to detect using file signatures
+    if let Some(kind) = infer::get_from_path(file_path).ok().flatten() {
+        if let Ok(mime) = kind.mime_type().parse() {
+            return Some(mime);
+        }
+    }
+
+    // If no specific type was detected, check if it's readable as text
+    read_to_string(file_path).ok().map(|_| TEXT_PLAIN_UTF_8)
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
@@ -127,6 +136,11 @@ fn parse_docx(file_path: &str) -> Result<String, ApiError> {
     Ok(text)
 }
 
+fn parse_txt(file_path: &str) -> Result<String, ApiError> {
+    read_to_string(file_path)
+        .map_err(|e| ApiError::InternalError(format!("Failed to parse TXT: {}", e)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -148,11 +162,26 @@ mod tests {
 
     #[test]
     fn determine_mime_success() {
-        let file_path = "tests/inputs/test_pdf_1.pdf";
-        let result = determine_mime_type(file_path);
+        // Testing for pdf detection
+        let file_path_pdf = "tests/inputs/test_pdf_1.pdf";
+        let result_pdf = determine_mime_type(file_path_pdf);
 
-        assert!(result.is_some());
-        assert_eq!(result.unwrap(), APPLICATION_PDF);
+        assert!(result_pdf.is_some());
+        assert_eq!(result_pdf.unwrap(), APPLICATION_PDF);
+
+        // Testing for docx detection
+        let file_path_docx = "tests/inputs/test_docx_1.docx";
+        let result_docx = determine_mime_type(file_path_docx);
+
+        assert!(result_docx.is_some());
+        assert_eq!(result_docx.unwrap(), APPLICATION_DOCX);
+
+        // Testing for txt detection
+        let file_path_txt = "tests/inputs/test_txt_1.txt";
+        let result_txt = determine_mime_type(file_path_txt);
+
+        assert!(result_txt.is_some());
+        assert_eq!(result_txt.unwrap(), TEXT_PLAIN_UTF_8);
     }
 
     #[test]
@@ -176,6 +205,18 @@ mod tests {
         assert_eq!(
             result,
             "Hello, this is a test docx for the parsing API.".to_string()
+        );
+    }
+
+    #[test]
+    fn parse_txt_success() {
+        let file_path = "tests/inputs/test_txt_1.txt";
+        let result = parse_txt(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "Hello, this is a test txt for the parsing API.".to_string()
         );
     }
 }

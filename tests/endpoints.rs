@@ -140,3 +140,21 @@ async fn test_parse_docx_files() {
         test_parse_file(test_case).await;
     }
 }
+
+#[actix_web::test]
+async fn test_parse_txt_files() {
+    let test_cases = vec![
+        ParseTestCase {
+            file_path: "tests/inputs/test_txt_1.txt",
+            expected_text: "Hello, this is a test txt for the parsing API.",
+        },
+        ParseTestCase {
+            file_path: "tests/inputs/test_txt_2.txt",
+            expected_text: "Hello, this is another test txt for the parsing API.",
+        },
+    ];
+
+    for test_case in test_cases {
+        test_parse_file(test_case).await;
+    }
+}
