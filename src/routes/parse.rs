@@ -1,6 +1,7 @@
 use crate::errors::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{post, HttpResponse};
+use calamine::{open_workbook, Reader, Xlsx};
 use docx_rs::read_docx;
 use futures_util::TryStreamExt;
 use infer;
@@ -162,8 +163,27 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
         .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
+// TODO: Need to be able to parse multiple worksheets excel files, currently only handles the first worksheet.
+// use the name of the worksheets as delimiter
 fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
-    Ok("".to_string())
+    let mut excel: Xlsx<_> = open_workbook(file_path)
+        .map_err(|e| ApiError::InternalError(format!("Failed to read XLSX based file: {}", e)))?;
+
+    if let Some(Ok(range)) = excel.worksheet_range_at(0) {
+        let text = range
+            .rows()
+            .map(|row| {
+                row.iter()
+                    .map(|cell| cell.to_string())
+                    .collect::<Vec<String>>()
+                    .join("\t")
+            })
+            .collect::<Vec<String>>()
+            .join("\n");
+        Ok(text)
+    } else {
+        Ok("".to_string())
+    }
 }
 
 #[cfg(test)]

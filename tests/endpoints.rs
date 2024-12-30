@@ -192,7 +192,7 @@ async fn test_parse_json_files() {
 #[actix_web::test]
 async fn test_parse_xlsx_files() {
     let test_cases = vec![ParseTestCase {
-        file_path: "tests/inputs/test_xlsx_1.json",
+        file_path: "tests/inputs/test_xlsx_1.xlsx",
         expected_text: "username	identifier	first_name
 johndoe123	4281	John
 alice23	8425	Alice",
