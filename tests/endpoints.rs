@@ -158,3 +158,17 @@ async fn test_parse_txt_files() {
         test_parse_file(test_case).await;
     }
 }
+
+#[actix_web::test]
+async fn test_parse_csv_files() {
+    let test_cases = vec![ParseTestCase {
+        file_path: "tests/inputs/test_csv_1.csv",
+        expected_text: "Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey",
+    }];
+
+    for test_case in test_cases {
+        test_parse_file(test_case).await;
+    }
+}
