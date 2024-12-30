@@ -47,7 +47,8 @@ The service can be configured using the following environment variables.
 ## 🚀 Deployment
 
 ```bash
-curl -o compose.yaml https://raw.githubusercontent.com/excoffierleonard/parser/refs/heads/main/compose.yaml && docker compose up -d
+curl -o compose.yaml https://raw.githubusercontent.com/excoffierleonard/parser/refs/heads/main/compose.yaml && \
+docker compose up -d
 ```
 
 ## 📖 API Documentation
