@@ -6,6 +6,8 @@ Demonstration URL: [https://parser.excoffierleonard.com](https://parser.excoffie
 
 Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://parser.excoffierleonard.com/parse)
 
+![Website Preview](website_preview.png)
+
 ## 📚 Table of Contents
 
 - [Features](#-features)
