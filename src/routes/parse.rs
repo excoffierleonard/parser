@@ -171,7 +171,7 @@ fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
     let mut csv_data = String::new();
 
     for name in excel.sheet_names() {
-        if let Some(Ok(range)) = excel.worksheet_range(&name) {
+        if let Ok(range) = excel.worksheet_range(&name) {
             if !csv_data.is_empty() {
                 csv_data.push_str("\n--- Sheet: ");
                 csv_data.push_str(&name);
@@ -334,9 +334,9 @@ grey07;2070;Laura;Grey"
         assert!(result.len() > 0);
         assert_eq!(
             result,
-            "username	identifier	first_name
-johndoe123	4281	John
-alice23	8425	Alice"
+            "username,identifier,first_name
+johndoe123,4281,John
+alice23,8425,Alice"
                 .to_string()
         );
     }
