@@ -13,9 +13,11 @@ use std::{
 };
 use tempfile::NamedTempFile;
 
-// Docx mime type was not defined in the mime package
+// Ttypes not defined in the mime package
 const APPLICATION_DOCX: &str =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
 #[derive(Serialize)]
 struct Response {
@@ -29,6 +31,7 @@ struct Response {
 /// - PDF files (application/pdf)
 /// - Word documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
 /// - Text based files (text/plain, text/csv, application/json, etc...)
+/// - Excel documents (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
 ///
 /// # Errors
 /// Returns `ApiError::BadRequest` if:
@@ -46,6 +49,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
         Some(mime) if *mime == TEXT_PLAIN => parse_text(temp_file_path)?,
+        Some(mime) if *mime == APPLICATION_XLSX => parse_xlsx(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -158,6 +162,10 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
         .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
+fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
+    Ok("".to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -213,6 +221,13 @@ mod tests {
 
         assert!(result_json.is_some());
         assert_eq!(result_json.unwrap(), TEXT_PLAIN);
+
+        // Testing for xlsx detection
+        let file_path_xlsx = "tests/inputs/test_xlsx_1.xlsx";
+        let result_xlsx = determine_mime_type(file_path_xlsx);
+
+        assert!(result_xlsx.is_some());
+        assert_eq!(result_xlsx.unwrap(), APPLICATION_XLSX);
     }
 
     #[test]
@@ -280,6 +295,21 @@ grey07;2070;Laura;Grey"
     "email": "john@example.com"
 }"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_xlsx_success() {
+        let file_path = "tests/inputs/test_xlsx_1.xlsx";
+        let result = parse_xlsx(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "username	identifier	first_name
+johndoe123	4281	John
+alice23	8425	Alice"
+                .to_string()
         );
     }
 }
