@@ -21,15 +21,15 @@ Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://pars
 ## 📦 Supported File Types
 
 The API supports the following file formats:
-- PDF (.pdf)
-- Word Documents (.docx)
+- PDF (`.pdf`)
+- Word Documents (`.docx`)
 - All text-based files including but not limited to:
-  - Plain text (.txt)
-  - Source code files (.rs, .py, .js, etc.)
-  - Configuration files (.json, .yaml, .toml, etc.)
-  - Markup files (.html, .md, .xml)
-  - Data files (.csv, .tsv)
-  - Log files (.log)
+  - Plain text (`.txt`)
+  - Source code files (`.rs`, `.py`, `.js`, `etc.`)
+  - Configuration files (`.json`, `.yaml`, `.toml`, `etc.`)
+  - Markup files (`.html`, `.md`, `.xml`)
+  - Data files (`.csv`, `.tsv`)
+  - Log files (`.log`)
 
 ## 🛠 Prerequisites
 
