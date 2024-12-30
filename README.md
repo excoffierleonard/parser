@@ -64,6 +64,13 @@ chmod +x ./scripts/build.sh && \
 ./scripts/build.sh
 ```
 
+- Deployment tests:
+
+```bash
+chmod +x ./scripts/deploy-tests.sh && \
+./scripts/deploy-tests.sh
+```
+
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
