@@ -5,6 +5,8 @@ const uploadButton = document.getElementById('uploadButton');
 const fileName = document.getElementById('fileName');
 const spinner = document.getElementById('spinner');
 const responseArea = document.getElementById('responseArea');
+const responseText = document.getElementById('responseText');
+const copyButton = document.getElementById('copyButton');
 
 // Handle drag and drop events
 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -73,11 +75,11 @@ function handleFile(file) {
             if (data.text) {
                 // Success response
                 responseArea.className = 'response-area success';
-                responseArea.textContent = data.text;
+                responseText.textContent = data.text;
             } else if (data.message) {
                 // Error response
                 responseArea.className = 'response-area error';
-                responseArea.textContent = `Error: ${data.message}`;
+                responseText.textContent = `Error: ${data.message}`;
             }
         })
         .catch(error => {
@@ -88,3 +90,8 @@ function handleFile(file) {
             responseArea.textContent = `Error: ${error.message}`;
         });
 }
+
+// Handles store to clipboard
+copyButton.addEventListener('click', () => {
+    navigator.clipboard.writeText(responseText.textContent);
+});
