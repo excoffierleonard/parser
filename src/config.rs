@@ -4,6 +4,7 @@ use std::env;
 #[derive(Debug)]
 pub struct Config {
     pub port: u16,
+    pub enable_file_serving: bool,
 }
 
 impl Config {
@@ -15,6 +16,14 @@ impl Config {
             .parse()
             .unwrap_or(8080);
 
-        Ok(Self { port })
+        let enable_file_serving = env::var("ENABLE_FILE_SERVING")
+            .unwrap_or_else(|_| "false".to_string())
+            .parse()
+            .unwrap_or(false);
+
+        Ok(Self {
+            port,
+            enable_file_serving,
+        })
     }
 }

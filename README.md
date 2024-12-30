@@ -34,7 +34,8 @@ Currently, the service supports the following file types:
 
 The service can be configured using the following environment variables.
 
-- `PARSER_APP_PORT`: The port on which the program listens on. (default: 8080)
+- `PARSER_APP_PORT`: *INT*, The port on which the program listens on. (default: 8080)
+- `ENABLE_FILE_SERVING`: *BOOL*, Enable serving files for the frontend. (default: false, just the API is enabled)
 
 ## 🚀 Deployment
 

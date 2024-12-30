@@ -16,13 +16,19 @@ async fn main() -> Result<()> {
 
     let config = Config::build().map_err(|e| Error::new(ErrorKind::Other, e))?;
 
-    HttpServer::new(|| {
-        App::new()
+    HttpServer::new(move || {
+        let mut app = App::new()
             .wrap(Compress::default())
             .wrap(Logger::default())
             .service(greet)
-            .service(parse_file)
-            .service(serve_files)
+            .service(parse_file);
+
+        // Conditionally add serve_files service
+        if config.enable_file_serving {
+            app = app.service(serve_files);
+        }
+
+        app
     })
     .bind(("0.0.0.0", config.port))?
     .workers(get())
