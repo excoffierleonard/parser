@@ -328,7 +328,7 @@ grey07;2070;Laura;Grey"
     }
 
     #[test]
-    fn parse_xlsx_success() {
+    fn parse_single_sheet_xlsx_success() {
         let file_path = "tests/inputs/test_xlsx_1.xlsx";
         let result = parse_xlsx(file_path).unwrap();
 
@@ -338,6 +338,25 @@ grey07;2070;Laura;Grey"
             "username,identifier,first_name
 johndoe123,4281,John
 alice23,8425,Alice"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_multiple_sheets_xlsx_success() {
+        let file_path = "tests/inputs/test_xlsx_2.xlsx";
+        let result = parse_xlsx(file_path).unwrap();
+
+        print!("{result}");
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "username,identifier,first_name
+alice23,8425,Alice
+--- Sheet: Sheet2 ---
+username,identifier,first_name
+johndoe123,4281,John"
                 .to_string()
         );
     }
