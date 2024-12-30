@@ -22,6 +22,20 @@ struct Response {
     text: String,
 }
 
+// routes/parse.rs
+/// Parses various document formats into plain text.
+///
+/// # Supported Formats
+/// - PDF files (application/pdf)
+/// - Word documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+/// - Text based files (text/plain, text/csv, application/json, etc...)
+///
+/// # Errors
+/// Returns `ApiError::BadRequest` if:
+/// - The content type is missing
+/// - The file format is unsupported
+///
+/// Returns `ApiError::InternalError` if parsing fails
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let temp_file = create_temp_file(&mut payload).await?;

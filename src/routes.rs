@@ -1,3 +1,8 @@
+//! Routes module for the API.
+//!
+//! This module contains all route handlers for the application,
+//! organizing them by functionality.
+
 mod hello;
 mod parse;
 mod static_files;
