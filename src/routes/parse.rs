@@ -164,6 +164,7 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 }
 
 // TODO: Need proper logic to escape commas and quotes
+// TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
 fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
     let mut excel: Xlsx<_> = open_workbook(file_path)
         .map_err(|e| ApiError::InternalError(format!("Failed to read XLSX based file: {}", e)))?;
