@@ -75,6 +75,7 @@ body {
     background: #f8f9fa;
     white-space: pre-wrap;
     display: none;
+    position: relative;
 }
 
 .response-area.success {
@@ -143,4 +144,29 @@ body {
     background: #e0e0e0;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+#copyButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+}
+
+#copyButton:hover {
+    background: #5a52cc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#copyButton:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
