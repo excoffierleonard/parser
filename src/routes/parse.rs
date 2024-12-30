@@ -4,7 +4,7 @@ use actix_web::{post, HttpResponse};
 use docx_rs::read_docx;
 use futures_util::TryStreamExt;
 use infer;
-use mime::{Mime, APPLICATION_PDF, TEXT_PLAIN_UTF_8};
+use mime::{Mime, APPLICATION_PDF, TEXT_PLAIN};
 use pdf_extract;
 use serde::Serialize;
 use std::{
@@ -31,7 +31,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
-        Some(mime) if *mime == TEXT_PLAIN_UTF_8 => parse_txt(temp_file_path)?,
+        Some(mime) if *mime == TEXT_PLAIN => parse_txt(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -83,7 +83,7 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
     }
 
     // If no specific type was detected, check if it's readable as text
-    read_to_string(file_path).ok().map(|_| TEXT_PLAIN_UTF_8)
+    read_to_string(file_path).ok().map(|_| TEXT_PLAIN)
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
@@ -181,7 +181,7 @@ mod tests {
         let result_txt = determine_mime_type(file_path_txt);
 
         assert!(result_txt.is_some());
-        assert_eq!(result_txt.unwrap(), TEXT_PLAIN_UTF_8);
+        assert_eq!(result_txt.unwrap(), TEXT_PLAIN);
     }
 
     #[test]
