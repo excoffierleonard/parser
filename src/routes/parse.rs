@@ -7,18 +7,21 @@ use futures_util::TryStreamExt;
 use infer;
 use mime::{Mime, APPLICATION_PDF, TEXT_PLAIN};
 use pdf_extract;
+use regex::Regex;
 use serde::Serialize;
 use std::{
     fs::{read, read_to_string},
-    io::Write,
+    io::{Read, Write},
 };
 use tempfile::NamedTempFile;
+use zip::ZipArchive;
 
 // Ttypes not defined in the mime package
 const APPLICATION_DOCX: &str =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-
 const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+const APPLICATION_PPTX: &str =
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 #[derive(Serialize)]
 struct Response {
@@ -30,8 +33,9 @@ struct Response {
 ///
 /// # Supported Formats
 /// - PDF files (application/pdf)
-/// - Word documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
-/// - Excel documents (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
+/// - Word Documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
+/// - Excel Spreadsheets (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
+/// - PowerPoint Presentations (application/vnd.openxmlformats-officedocument.presentationml.presentation)
 /// - Text based files (text/plain, text/csv, application/json, etc...)
 ///
 /// # Errors
@@ -49,8 +53,9 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
-        Some(mime) if *mime == TEXT_PLAIN => parse_text(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_XLSX => parse_xlsx(temp_file_path)?,
+        Some(mime) if *mime == APPLICATION_PPTX => parse_pptx(temp_file_path)?,
+        Some(mime) if *mime == TEXT_PLAIN => parse_text(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -157,12 +162,6 @@ fn parse_docx(file_path: &str) -> Result<String, ApiError> {
     Ok(text)
 }
 
-// Parses all that can be coerced to text
-fn parse_text(file_path: &str) -> Result<String, ApiError> {
-    read_to_string(file_path)
-        .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
-}
-
 // TODO: Need proper logic to escape commas and quotes
 // TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
 fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
@@ -193,6 +192,55 @@ fn parse_xlsx(file_path: &str) -> Result<String, ApiError> {
     }
 
     Ok(csv_data)
+}
+
+fn parse_pptx(file_path: &str) -> Result<String, ApiError> {
+    let file = std::fs::File::open(file_path)
+        .map_err(|e| ApiError::InternalError(format!("Failed to open PPTX: {}", e)))?;
+
+    let mut archive = ZipArchive::new(file)
+        .map_err(|e| ApiError::InternalError(format!("Failed to read PPTX as ZIP: {}", e)))?;
+
+    let mut text = String::new();
+    let mut slide_count = 0;
+
+    for i in 0..archive.len() {
+        let mut file = archive
+            .by_index(i)
+            .map_err(|e| ApiError::InternalError(format!("Failed to read ZIP entry: {}", e)))?;
+
+        // Only process slide XML files
+        if file.name().starts_with("ppt/slides/slide") && file.name().ends_with(".xml") {
+            slide_count += 1;
+            if slide_count > 1 {
+                text.push_str("\n--- Slide ");
+                text.push_str(&slide_count.to_string());
+                text.push_str(" ---\n");
+            }
+
+            let mut content = String::new();
+            file.read_to_string(&mut content).map_err(|e| {
+                ApiError::InternalError(format!("Failed to read slide content: {}", e))
+            })?;
+
+            // Extract text between <a:t> tags (text content in PPTX XML)
+            for cap in Regex::new(r"<a:t[^>]*>([^<]+)</a:t>")
+                .unwrap()
+                .captures_iter(&content)
+            {
+                text.push_str(&cap[1]);
+                text.push('\n');
+            }
+        }
+    }
+
+    Ok(text.trim().to_string())
+}
+
+// Parses all that can be coerced to text
+fn parse_text(file_path: &str) -> Result<String, ApiError> {
+    read_to_string(file_path)
+        .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
 #[cfg(test)]
@@ -230,6 +278,20 @@ mod tests {
         assert!(result_docx.is_some());
         assert_eq!(result_docx.unwrap(), APPLICATION_DOCX);
 
+        // Testing for xlsx detection
+        let file_path_xlsx = "tests/inputs/test_xlsx_1.xlsx";
+        let result_xlsx = determine_mime_type(file_path_xlsx);
+
+        assert!(result_xlsx.is_some());
+        assert_eq!(result_xlsx.unwrap(), APPLICATION_XLSX);
+
+        // Testing for pptx detection
+        let file_path_pptx = "tests/inputs/test_pptx_1.pptx";
+        let result_pptx = determine_mime_type(file_path_pptx);
+
+        assert!(result_pptx.is_some());
+        assert_eq!(result_pptx.unwrap(), APPLICATION_PPTX);
+
         // Testing for txt detection
         let file_path_txt = "tests/inputs/test_txt_1.txt";
         let result_txt = determine_mime_type(file_path_txt);
@@ -250,13 +312,6 @@ mod tests {
 
         assert!(result_json.is_some());
         assert_eq!(result_json.unwrap(), TEXT_PLAIN);
-
-        // Testing for xlsx detection
-        let file_path_xlsx = "tests/inputs/test_xlsx_1.xlsx";
-        let result_xlsx = determine_mime_type(file_path_xlsx);
-
-        assert!(result_xlsx.is_some());
-        assert_eq!(result_xlsx.unwrap(), APPLICATION_XLSX);
     }
 
     #[test]
@@ -280,6 +335,58 @@ mod tests {
         assert_eq!(
             result,
             "Hello, this is a test docx for the parsing API.".to_string()
+        );
+    }
+
+    #[test]
+    fn parse_xlsx_single_sheet_success() {
+        let file_path = "tests/inputs/test_xlsx_1.xlsx";
+        let result = parse_xlsx(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "username,identifier,first_name
+johndoe123,4281,John
+alice23,8425,Alice"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_xlsx_multiple_sheets_success() {
+        let file_path = "tests/inputs/test_xlsx_2.xlsx";
+        let result = parse_xlsx(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "username,identifier,first_name
+alice23,8425,Alice
+--- Sheet: Sheet2 ---
+username,identifier,first_name
+johndoe123,4281,John"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_pptx_success() {
+        let file_path = "tests/inputs/test_pptx_1.pptx";
+        let result = parse_pptx(file_path).unwrap();
+
+        print!("{result}");
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "This is the title
+This is the subtitle
+
+--- Slide 2 ---
+This is the title of the second slide
+This is the text of the second slide"
+                .to_string()
         );
     }
 
@@ -324,40 +431,6 @@ grey07;2070;Laura;Grey"
     "email": "john@example.com"
 }"#
             .to_string()
-        );
-    }
-
-    #[test]
-    fn parse_single_sheet_xlsx_success() {
-        let file_path = "tests/inputs/test_xlsx_1.xlsx";
-        let result = parse_xlsx(file_path).unwrap();
-
-        assert!(result.len() > 0);
-        assert_eq!(
-            result,
-            "username,identifier,first_name
-johndoe123,4281,John
-alice23,8425,Alice"
-                .to_string()
-        );
-    }
-
-    #[test]
-    fn parse_multiple_sheets_xlsx_success() {
-        let file_path = "tests/inputs/test_xlsx_2.xlsx";
-        let result = parse_xlsx(file_path).unwrap();
-
-        print!("{result}");
-
-        assert!(result.len() > 0);
-        assert_eq!(
-            result,
-            "username,identifier,first_name
-alice23,8425,Alice
---- Sheet: Sheet2 ---
-username,identifier,first_name
-johndoe123,4281,John"
-                .to_string()
         );
     }
 }

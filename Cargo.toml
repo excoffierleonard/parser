@@ -16,6 +16,8 @@ mime = "0.3.17"
 mime_guess = "2.0.5"
 num_cpus = "1.16.0"
 pdf-extract = "0.7.11"
+regex = "1.11.1"
 rust-embed = "8.5.0"
 serde = { version = "1.0.216", features = ["derive"] }
 tempfile = "3.14.0"
+zip = "2.2.2"

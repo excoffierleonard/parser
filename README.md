@@ -24,6 +24,7 @@ The API supports the following file formats:
 - PDF (`.pdf`)
 - Word Documents (`.docx`)
 - Excel Spreadsheets (`.xlsx`)
+- PowerPoint Presentations (`.pptx`)
 - All text-based files including but not limited to:
   - Plain text (`.txt`)
   - Source code files (`.rs`, `.py`, `.js`, `etc.`)
