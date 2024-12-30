@@ -23,6 +23,7 @@ Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://pars
 The API supports the following file formats:
 - PDF (`.pdf`)
 - Word Documents (`.docx`)
+- Excel Spreadsheets (`.xlsx`)
 - All text-based files including but not limited to:
   - Plain text (`.txt`)
   - Source code files (`.rs`, `.py`, `.js`, `etc.`)

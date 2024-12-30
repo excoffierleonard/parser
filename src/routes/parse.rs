@@ -31,8 +31,8 @@ struct Response {
 /// # Supported Formats
 /// - PDF files (application/pdf)
 /// - Word documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
-/// - Text based files (text/plain, text/csv, application/json, etc...)
 /// - Excel documents (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
+/// - Text based files (text/plain, text/csv, application/json, etc...)
 ///
 /// # Errors
 /// Returns `ApiError::BadRequest` if:
