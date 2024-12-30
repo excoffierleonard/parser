@@ -116,7 +116,7 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
 }
 
 fn parse_pdf(file_path: &str) -> Result<String, ApiError> {
-    // TOFIX: Need to find a way to silence the output of that function since on unkown characters it prints a lot of errors, cluttering the logs.
+    // TOFIX: Need to find a way to silence the output of that function since on unkown characters it outputs a lot of errors, cluttering the logs.
     pdf_extract::extract_text(file_path)
         .map(|text| text.trim().to_string())
         .map_err(|e| ApiError::InternalError(format!("Failed to parse PDF: {}", e)))
@@ -248,8 +248,10 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 
 // Parses all that can be coerced to an image using OCR
 // TODO: Need to implement image description with AI vision if text density is too low.
-fn parse_image(file_path: &str) -> Result<String, ApiError> {
-    Ok("".to_string())
+fn parse_image(_file_path: &str) -> Result<String, ApiError> {
+    Err(ApiError::InternalError(
+        "OCR Functionality has not been implemented yet".to_string(),
+    ))
 }
 
 #[cfg(test)]
