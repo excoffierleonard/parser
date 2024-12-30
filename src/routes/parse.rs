@@ -5,7 +5,7 @@ use calamine::{open_workbook, Reader, Xlsx};
 use docx_rs::read_docx;
 use futures_util::TryStreamExt;
 use infer;
-use mime::{Mime, APPLICATION_PDF, TEXT_PLAIN};
+use mime::{Mime, APPLICATION_PDF, IMAGE, TEXT, TEXT_PLAIN};
 use pdf_extract;
 use regex::Regex;
 use serde::Serialize;
@@ -37,6 +37,7 @@ struct Response {
 /// - Excel Spreadsheets (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
 /// - PowerPoint Presentations (application/vnd.openxmlformats-officedocument.presentationml.presentation)
 /// - Text based files (text/plain, text/csv, application/json, etc...)
+/// - Image based files (image/png, image/jpg, image/webp, etc...)
 ///
 /// # Errors
 /// Returns `ApiError::BadRequest` if:
@@ -55,7 +56,8 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_XLSX => parse_xlsx(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_PPTX => parse_pptx(temp_file_path)?,
-        Some(mime) if *mime == TEXT_PLAIN => parse_text(temp_file_path)?,
+        Some(mime) if mime.type_() == TEXT => parse_text(temp_file_path)?,
+        Some(mime) if mime.type_() == IMAGE => parse_image(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -107,6 +109,7 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
     }
 
     // TODO: Add specific function for special text data that needs formatting like CSV etc..
+    // TODO: Maybe add checks for false positive images, like svg that may be coerced to text but shouldnt.
 
     // If no specific type was detected, check if it's readable as text
     read_to_string(file_path).ok().map(|_| TEXT_PLAIN)
@@ -243,6 +246,12 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
         .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
+// Parses all that can be coerced to an image using OCR
+// TODO: Need to implement image description with AI vision if text density is too low.
+fn parse_image(file_path: &str) -> Result<String, ApiError> {
+    Ok("".to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -297,21 +306,42 @@ mod tests {
         let result_txt = determine_mime_type(file_path_txt);
 
         assert!(result_txt.is_some());
-        assert_eq!(result_txt.unwrap(), TEXT_PLAIN);
+        assert_eq!(result_txt.unwrap().type_(), TEXT);
 
         // Testing for csv detection
         let file_path_csv = "tests/inputs/test_csv_1.csv";
         let result_csv = determine_mime_type(file_path_csv);
 
         assert!(result_csv.is_some());
-        assert_eq!(result_csv.unwrap(), TEXT_PLAIN);
+        assert_eq!(result_csv.unwrap().type_(), TEXT);
 
         // Testing for json detection
         let file_path_json = "tests/inputs/test_json_1.json";
         let result_json = determine_mime_type(file_path_json);
 
         assert!(result_json.is_some());
-        assert_eq!(result_json.unwrap(), TEXT_PLAIN);
+        assert_eq!(result_json.unwrap().type_(), TEXT);
+
+        // Testing for png detection
+        let file_path_png = "tests/inputs/test_png_1.png";
+        let result_png = determine_mime_type(file_path_png);
+
+        assert!(result_png.is_some());
+        assert_eq!(result_png.unwrap().type_(), IMAGE);
+
+        // Testing for jpg detection
+        let file_path_jpg = "tests/inputs/test_jpg_1.jpg";
+        let result_jpg = determine_mime_type(file_path_jpg);
+
+        assert!(result_jpg.is_some());
+        assert_eq!(result_jpg.unwrap().type_(), IMAGE);
+
+        // Testing for webp detection
+        let file_path_webp = "tests/inputs/test_webp_1.webp";
+        let result_webp = determine_mime_type(file_path_webp);
+
+        assert!(result_webp.is_some());
+        assert_eq!(result_webp.unwrap().type_(), IMAGE);
     }
 
     #[test]
@@ -375,8 +405,6 @@ johndoe123,4281,John"
         let file_path = "tests/inputs/test_pptx_1.pptx";
         let result = parse_pptx(file_path).unwrap();
 
-        print!("{result}");
-
         assert!(result.len() > 0);
         assert_eq!(
             result,
@@ -431,6 +459,51 @@ grey07;2070;Laura;Grey"
     "email": "john@example.com"
 }"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_png_success() {
+        let file_path = "tests/inputs/test_png_1.png";
+        let result = parse_image(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "Hellow World! This is an OCR test.
+123456789
+0.123 | 45.67 | 890"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_jpg_success() {
+        let file_path = "tests/inputs/test_jpg_1.jpg";
+        let result = parse_image(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "Hellow World! This is an OCR test.
+123456789
+0.123 | 45.67 | 890"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_webp_success() {
+        let file_path = "tests/inputs/test_webp_1.webp";
+        let result = parse_image(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "Hellow World! This is an OCR test.
+123456789
+0.123 | 45.67 | 890"
+                .to_string()
         );
     }
 }

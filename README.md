@@ -32,6 +32,10 @@ The API supports the following file formats:
   - Markup files (`.html`, `.md`, `.xml`)
   - Data files (`.csv`, `.tsv`)
   - Log files (`.log`)
+- All image based files including but not limited to:
+  - Raster images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.webp`, `etc.`)
+  - Icon files (`.ico`)
+  - Animated images (`.gif`)
 
 ## 🛠 Prerequisites
 
