@@ -31,7 +31,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
-        Some(mime) if *mime == TEXT_PLAIN => parse_txt(temp_file_path)?,
+        Some(mime) if *mime == TEXT_PLAIN => parse_text(temp_file_path)?,
         Some(mime) => {
             return Err(ApiError::BadRequest(format!(
                 "Unsupported mime type: {}",
@@ -136,9 +136,10 @@ fn parse_docx(file_path: &str) -> Result<String, ApiError> {
     Ok(text)
 }
 
-fn parse_txt(file_path: &str) -> Result<String, ApiError> {
+// Parses all that can be coerced to text
+fn parse_text(file_path: &str) -> Result<String, ApiError> {
     read_to_string(file_path)
-        .map_err(|e| ApiError::InternalError(format!("Failed to parse TXT: {}", e)))
+        .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
 }
 
 #[cfg(test)]
@@ -211,7 +212,7 @@ mod tests {
     #[test]
     fn parse_txt_success() {
         let file_path = "tests/inputs/test_txt_1.txt";
-        let result = parse_txt(file_path).unwrap();
+        let result = parse_text(file_path).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
