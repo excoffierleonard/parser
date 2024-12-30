@@ -185,6 +185,20 @@ mod tests {
 
         assert!(result_txt.is_some());
         assert_eq!(result_txt.unwrap(), TEXT_PLAIN);
+
+        // Testing for csv detection
+        let file_path_csv = "tests/inputs/test_csv_1.csv";
+        let result_csv = determine_mime_type(file_path_csv);
+
+        assert!(result_csv.is_some());
+        assert_eq!(result_csv.unwrap(), TEXT_PLAIN);
+
+        // Testing for json detection
+        let file_path_json = "tests/inputs/test_json_1.json";
+        let result_json = determine_mime_type(file_path_json);
+
+        assert!(result_json.is_some());
+        assert_eq!(result_json.unwrap(), TEXT_PLAIN);
     }
 
     #[test]
@@ -220,6 +234,38 @@ mod tests {
         assert_eq!(
             result,
             "Hello, this is a test txt for the parsing API.".to_string()
+        );
+    }
+
+    #[test]
+    fn parse_csv_success() {
+        let file_path = "tests/inputs/test_csv_1.csv";
+        let result = parse_text(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            "Username; Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey"
+                .to_string()
+        );
+    }
+
+    #[test]
+    fn parse_json_success() {
+        let file_path = "tests/inputs/test_json_1.json";
+        let result = parse_text(file_path).unwrap();
+
+        assert!(result.len() > 0);
+        assert_eq!(
+            result,
+            r#"{
+    "name": "John Doe",
+    "age": 30,
+    "email": "john@example.com"
+}"#
+            .to_string()
         );
     }
 }

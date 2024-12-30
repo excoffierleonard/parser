@@ -172,3 +172,19 @@ grey07;2070;Laura;Grey",
         test_parse_file(test_case).await;
     }
 }
+
+#[actix_web::test]
+async fn test_parse_json_files() {
+    let test_cases = vec![ParseTestCase {
+        file_path: "tests/inputs/test_json_1.json",
+        expected_text: r#"{
+    "name": "John Doe",
+    "age": 30,
+    "email": "john@example.com"
+}"#,
+    }];
+
+    for test_case in test_cases {
+        test_parse_file(test_case).await;
+    }
+}
