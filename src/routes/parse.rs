@@ -247,6 +247,7 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 }
 
 // Parses all that can be coerced to an image using OCR
+// TODO: Maybe will use Teseract binding for better OCR in the future but keeping it lean for now.
 // TODO: Need to implement image description with AI vision if text density is too low.
 fn parse_image(_file_path: &str) -> Result<String, ApiError> {
     Err(ApiError::InternalError(
