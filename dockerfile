@@ -25,7 +25,8 @@ RUN touch src/main.rs && \
 # Step 2: Create final image
 FROM alpine
 
-RUN apk add --no-cache tesseract-ocr
+# TODO: Need to add more language support in the future
+RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
 
 WORKDIR /app
 
