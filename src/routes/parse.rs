@@ -258,6 +258,8 @@ fn parse_image(file_path: &str) -> Result<String, ApiError> {
         .args([
             file_path, // Input file
             "-",       // Output to stdout
+            "-l",      // Language flag
+            "eng+fra", // English and French languages
         ])
         .output()
         .map_err(|e| ApiError::InternalError(format!("Failed to execute tesseract: {}", e)))?;

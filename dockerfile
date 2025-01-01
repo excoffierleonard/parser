@@ -26,7 +26,10 @@ RUN touch src/main.rs && \
 FROM alpine
 
 # TODO: Need to add more language support in the future
-RUN apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
+RUN apk add --no-cache \
+    tesseract-ocr \ 
+    tesseract-ocr-data-eng \
+    tesseract-ocr-data-fra
 
 WORKDIR /app
 
