@@ -210,7 +210,7 @@ async fn test_parse_json_files() {
 async fn test_parse_png_files() {
     let test_cases = vec![ParseTestCase {
         file_path: "tests/inputs/test_png_1.png",
-        expected_text: "Hellow World! This is an OCR test.
+        expected_text: "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890",
     }];
@@ -224,7 +224,7 @@ async fn test_parse_png_files() {
 async fn test_parse_jpg_files() {
     let test_cases = vec![ParseTestCase {
         file_path: "tests/inputs/test_jpg_1.jpg",
-        expected_text: "Hellow World! This is an OCR test.
+        expected_text: "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890",
     }];
@@ -238,7 +238,7 @@ async fn test_parse_jpg_files() {
 async fn test_parse_webp_files() {
     let test_cases = vec![ParseTestCase {
         file_path: "tests/inputs/test_webp_1.webp",
-        expected_text: "Hellow World! This is an OCR test.
+        expected_text: "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890",
     }];

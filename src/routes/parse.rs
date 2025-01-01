@@ -253,7 +253,7 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 // TODO: Need to find better alternative thatn shelling out to tesseract.
 // Parses all that can be coerced to an image using OCR by shelling out to Tesseract
 fn parse_image(file_path: &str) -> Result<String, ApiError> {
-    // Run tesseract with minimal arguments: input file, stdout (-) as output, and quiet mode
+    // Run tesseract with minimal arguments: input file, stdout (-) as output
     let output = Command::new("tesseract")
         .args([
             file_path, // Input file
@@ -492,7 +492,7 @@ grey07;2070;Laura;Grey"
         assert!(result.len() > 0);
         assert_eq!(
             result,
-            "Hellow World! This is an OCR test.
+            "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890"
                 .to_string()
@@ -507,7 +507,7 @@ grey07;2070;Laura;Grey"
         assert!(result.len() > 0);
         assert_eq!(
             result,
-            "Hellow World! This is an OCR test.
+            "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890"
                 .to_string()
@@ -522,7 +522,7 @@ grey07;2070;Laura;Grey"
         assert!(result.len() > 0);
         assert_eq!(
             result,
-            "Hellow World! This is an OCR test.
+            "Hello World! This is an OCR test.
 123456789
 0.123 | 45.67 | 890"
                 .to_string()
