@@ -25,6 +25,8 @@ RUN touch src/main.rs && \
 # Step 2: Create final image
 FROM alpine
 
+RUN apk add --no-cache tesseract-ocr
+
 WORKDIR /app
 
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/parser .

@@ -12,6 +12,7 @@ use serde::Serialize;
 use std::{
     fs::{read, read_to_string},
     io::{Read, Write},
+    process::Command,
 };
 use tempfile::NamedTempFile;
 use zip::ZipArchive;
@@ -249,10 +250,29 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 // Parses all that can be coerced to an image using OCR
 // TODO: Maybe will use Teseract binding for better OCR in the future but keeping it lean for now.
 // TODO: Need to implement image description with AI vision if text density is too low.
-fn parse_image(_file_path: &str) -> Result<String, ApiError> {
-    Err(ApiError::InternalError(
-        "OCR Functionality has not been enabled for this API.".to_string(),
-    ))
+// TODO: Need to find better alternative thatn shelling out to tesseract.
+// Parses all that can be coerced to an image using OCR by shelling out to Tesseract
+fn parse_image(file_path: &str) -> Result<String, ApiError> {
+    // Run tesseract with minimal arguments: input file, stdout (-) as output, and quiet mode
+    let output = Command::new("tesseract")
+        .args([
+            file_path, // Input file
+            "-",       // Output to stdout
+        ])
+        .output()
+        .map_err(|e| ApiError::InternalError(format!("Failed to execute tesseract: {}", e)))?;
+
+    if !output.status.success() {
+        return Err(ApiError::InternalError(format!(
+            "Tesseract failed: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )));
+    }
+
+    // Convert output to string, trim whitespace and return
+    String::from_utf8(output.stdout)
+        .map(|text| text.trim().to_string())
+        .map_err(|e| ApiError::InternalError(format!("Failed to parse tesseract output: {}", e)))
 }
 
 #[cfg(test)]

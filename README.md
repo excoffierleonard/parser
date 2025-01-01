@@ -21,6 +21,7 @@ Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://pars
 ## 📦 Supported File Types
 
 The API supports the following file formats:
+
 - PDF (`.pdf`)
 - Word Documents (`.docx`)
 - Excel Spreadsheets (`.xlsx`)
@@ -39,6 +40,13 @@ The API supports the following file formats:
 
 ## 🛠 Prerequisites
 
+For local build:
+
+- Rust
+- Tesseract
+
+For deployment:
+
 - [Docker](https://docs.docker.com/get-docker/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
@@ -46,8 +54,8 @@ The API supports the following file formats:
 
 The service can be configured using the following environment variables.
 
-- `PARSER_APP_PORT`: *INT*, The port on which the program listens on. (default: 8080)
-- `ENABLE_FILE_SERVING`: *BOOL*, Enable serving files for the frontend. (default: false, just the API is enabled)
+- `PARSER_APP_PORT`: _INT_, The port on which the program listens on. (default: 8080)
+- `ENABLE_FILE_SERVING`: _BOOL_, Enable serving files for the frontend. (default: false, just the API is enabled)
 
 ## 🚀 Deployment
 
@@ -81,3 +89,4 @@ chmod +x ./scripts/deploy-tests.sh && \
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
