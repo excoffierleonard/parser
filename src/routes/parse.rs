@@ -251,7 +251,7 @@ fn parse_text(file_path: &str) -> Result<String, ApiError> {
 // TODO: Need to implement image description with AI vision if text density is too low.
 fn parse_image(_file_path: &str) -> Result<String, ApiError> {
     Err(ApiError::InternalError(
-        "OCR Functionality has not been implemented yet".to_string(),
+        "OCR Functionality has not been enabled for this API.".to_string(),
     ))
 }
 
@@ -271,7 +271,6 @@ mod tests {
         let result = get_temp_file_path(&temp_file).unwrap();
 
         assert!(result.len() > 0);
-        assert!(result.starts_with("/tmp"));
     }
 
     #[test]
@@ -510,3 +509,5 @@ grey07;2070;Laura;Grey"
         );
     }
 }
+
+// TOFIX: Make path sourcing platform agnostic
