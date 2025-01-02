@@ -1335,6 +1335,8 @@ version = "0.1.0"
 dependencies = [
  "calamine",
  "docx-rs",
+ "infer",
+ "mime",
  "pdf-extract",
  "regex",
  "zip 2.2.2",
@@ -1347,8 +1349,6 @@ dependencies = [
  "actix-multipart",
  "actix-web",
  "futures-util",
- "infer",
- "mime",
  "parser-core",
  "serde",
  "tempfile",

@@ -9,6 +9,4 @@ futures-util = "0.3"
 actix-web = "4"
 serde = { version = "1", features = ["derive"] }
 actix-multipart = "0.7"
-infer = "0.16"
-mime = "0.3"
 tempfile = "3"
