@@ -1,6 +1,5 @@
 use crate::errors::ApiError;
 use regex::Regex;
-use std::io::Read;
 use zip::ZipArchive;
 
 pub fn parse_pptx(file_path: &str) -> Result<String, ApiError> {

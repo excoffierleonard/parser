@@ -1,9 +1,9 @@
-use crate::{
-    errors::ApiError,
-    parsers::{parse_docx, parse_image, parse_pdf, parse_pptx, parse_text, parse_xlsx},
-};
+use crate::errors::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{post, HttpResponse};
+use parser_core::parsers::{
+    parse_docx, parse_image, parse_pdf, parse_pptx, parse_text, parse_xlsx,
+};
 
 use futures_util::TryStreamExt;
 use infer;

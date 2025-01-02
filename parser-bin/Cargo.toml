@@ -1,0 +1,8 @@
+[package]
+name = "parser-bin"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+parser-web = { path = "../parser-web" }
+parser-core = { path = "../parser-core" }

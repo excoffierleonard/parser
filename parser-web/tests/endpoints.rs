@@ -2,7 +2,7 @@ use actix_web::{
     http::header::{HeaderName, HeaderValue},
     test, App,
 };
-use parser::routes::{greet, parse_file};
+use parser_web::routes::{greet, parse_file};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
