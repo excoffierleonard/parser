@@ -40,11 +40,11 @@ pub fn parse_any(file_path: &str) -> Result<String, ParserError> {
         Some(mime) if mime.type_() == TEXT => parse_text(file_path),
         Some(mime) if mime.type_() == IMAGE => parse_image(file_path),
         Some(mime) => Err(ParserError::InvalidFormat(format!(
-            "Unsupported mime type: {}",
+            "Unsupported file type: {}",
             mime
         ))),
         None => Err(ParserError::InvalidFormat(
-            "Could not determine file type".into(),
+            "Could not determine file type.".to_string(),
         )),
     }
 }

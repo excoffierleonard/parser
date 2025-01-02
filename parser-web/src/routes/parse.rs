@@ -87,5 +87,6 @@ mod tests {
         let result = get_temp_file_path(&temp_file).unwrap();
 
         assert!(result.len() > 0);
+        // TODO: Need test to check if the path is a valid temporary file path, platform agnostic
     }
 }

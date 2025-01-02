@@ -4,7 +4,7 @@ use actix_web::{
 };
 use env_logger::{init_from_env, Env};
 use num_cpus::get;
-use parser::{
+use parser_web::{
     config::Config,
     routes::{greet, parse_file, serve_files},
 };

@@ -10,3 +10,6 @@ actix-web = "4"
 serde = { version = "1", features = ["derive"] }
 actix-multipart = "0.7"
 tempfile = "3"
+mime_guess = "2"
+rust-embed = "8"
+dotenv = "0.15"
