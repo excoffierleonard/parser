@@ -4,7 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+parser-core = { path = "../parser-core" }
+futures-util = "0.3"
 actix-web = "4"
 serde = { version = "1", features = ["derive"] }
 actix-multipart = "0.7"
-parser-core = { path = "../parser-core" }
+infer = "0.16"
+mime = "0.3"
+tempfile = "3"

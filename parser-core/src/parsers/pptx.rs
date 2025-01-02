@@ -1,21 +1,21 @@
-use crate::errors::ApiError;
+use crate::errors::ParserError;
 use regex::Regex;
+use std::io::Read;
 use zip::ZipArchive;
 
-pub fn parse_pptx(file_path: &str) -> Result<String, ApiError> {
-    let file = std::fs::File::open(file_path)
-        .map_err(|e| ApiError::InternalError(format!("Failed to open PPTX: {}", e)))?;
+pub fn parse_pptx(file_path: &str) -> Result<String, ParserError> {
+    let file = std::fs::File::open(file_path)?;
 
-    let mut archive = ZipArchive::new(file)
-        .map_err(|e| ApiError::InternalError(format!("Failed to read PPTX as ZIP: {}", e)))?;
+    let mut archive = ZipArchive::new(file)?;
+
+    // Create regex once, outside the loop
+    let text_pattern = Regex::new(r"<a:t[^>]*>([^<]+)</a:t>")?;
 
     let mut text = String::new();
     let mut slide_count = 0;
 
     for i in 0..archive.len() {
-        let mut file = archive
-            .by_index(i)
-            .map_err(|e| ApiError::InternalError(format!("Failed to read ZIP entry: {}", e)))?;
+        let mut file = archive.by_index(i)?;
 
         // Only process slide XML files
         if file.name().starts_with("ppt/slides/slide") && file.name().ends_with(".xml") {
@@ -27,17 +27,14 @@ pub fn parse_pptx(file_path: &str) -> Result<String, ApiError> {
             }
 
             let mut content = String::new();
-            file.read_to_string(&mut content).map_err(|e| {
-                ApiError::InternalError(format!("Failed to read slide content: {}", e))
-            })?;
+            file.read_to_string(&mut content)?;
 
-            // Extract text between <a:t> tags (text content in PPTX XML)
-            for cap in Regex::new(r"<a:t[^>]*>([^<]+)</a:t>")
-                .unwrap()
-                .captures_iter(&content)
-            {
-                text.push_str(&cap[1]);
-                text.push('\n');
+            for cap in text_pattern.captures_iter(&content) {
+                // Use get() instead of array indexing to be extra safe
+                if let Some(matched) = cap.get(1) {
+                    text.push_str(matched.as_str());
+                    text.push('\n');
+                }
             }
         }
     }

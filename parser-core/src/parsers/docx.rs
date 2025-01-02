@@ -1,17 +1,16 @@
-use crate::errors::ApiError;
+use crate::errors::ParserError;
 use docx_rs::read_docx;
 use std::fs::read;
 
-pub fn parse_docx(file_path: &str) -> Result<String, ApiError> {
+pub fn parse_docx(file_path: &str) -> Result<String, ParserError> {
     // Read the file contents
-    let file_content = read(file_path)
-        .map_err(|e| ApiError::InternalError(format!("Failed to read DOCX file: {}", e)))?;
+    let file_content = read(file_path)?;
 
     // Parse the DOCX document
-    let docx = read_docx(&file_content)
-        .map_err(|e| ApiError::InternalError(format!("Failed to parse DOCX: {}", e)))?;
+    let docx = read_docx(&file_content)?;
 
     // Extract text from the document
+    // TODO: Maybe simplify this monstrosity?
     let text = docx
         .document
         .children

@@ -47,6 +47,7 @@ async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let temp_file_path = get_temp_file_path(&temp_file)?;
     let content_type = determine_mime_type(temp_file_path);
 
+    // Need to find better way to map errors
     let parsed_text = match content_type.as_ref() {
         Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
         Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,

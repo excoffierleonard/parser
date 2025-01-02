@@ -1,10 +1,9 @@
-use crate::errors::ApiError;
+use crate::errors::ParserError;
 use std::fs::read_to_string;
 
 // Parses all that can be coerced to text
-pub fn parse_text(file_path: &str) -> Result<String, ApiError> {
-    read_to_string(file_path)
-        .map_err(|e| ApiError::InternalError(format!("Failed to parse text based file: {}", e)))
+pub fn parse_text(file_path: &str) -> Result<String, ParserError> {
+    Ok(read_to_string(file_path)?)
 }
 
 #[cfg(test)]
