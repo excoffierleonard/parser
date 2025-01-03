@@ -1,4 +1,5 @@
-use actix_web::{get, web, HttpResponse, Responder};
+use crate::{errors::ApiError, response::AssetResponse};
+use actix_web::{get, web};
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
@@ -6,8 +7,9 @@ use rust_embed::RustEmbed;
 #[folder = "static"]
 struct Assets;
 
+/// Serves static files from the `static` folder. Embeds the files into the binary.
 #[get("/{filename:.*}")]
-async fn serve_files(filename: web::Path<String>) -> impl Responder {
+async fn serve_files(filename: web::Path<String>) -> Result<AssetResponse, ApiError> {
     let path = if filename.as_str().trim_start_matches('/').is_empty() {
         "index.html"
     } else {
@@ -15,10 +17,9 @@ async fn serve_files(filename: web::Path<String>) -> impl Responder {
     };
 
     Assets::get(path)
-        .map(|content| {
-            HttpResponse::Ok()
-                .content_type(from_path(path).first_or_octet_stream())
-                .body(content.data.to_vec())
+        .map(|content| AssetResponse {
+            content: content.data.to_vec(),
+            mime_type: from_path(path).first_or_octet_stream().to_string(),
         })
-        .unwrap_or_else(|| HttpResponse::NotFound().finish())
+        .ok_or_else(|| ApiError::BadRequest("File not found".to_string()))
 }
