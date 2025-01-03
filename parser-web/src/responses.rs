@@ -1,3 +1,5 @@
+//! Response types for the parser web server
+
 use actix_web::{body::BoxBody, HttpRequest, HttpResponse, Responder};
 use serde::Serialize;
 

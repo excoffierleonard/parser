@@ -1,3 +1,5 @@
+//! Routes for greeting the user.
+
 use crate::{errors::ApiError, responses::GreetingResponse};
 use actix_web::{get, web};
 

@@ -1,3 +1,5 @@
+//! DOCX parser module.
+
 use crate::errors::ParserError;
 use docx_rs::read_docx;
 use std::{fs::read, path::Path};

@@ -1,3 +1,5 @@
+//! Configuration for the web server.
+
 use dotenv::dotenv;
 use std::env;
 

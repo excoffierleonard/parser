@@ -1,3 +1,5 @@
+//! Image parser module
+
 use crate::errors::ParserError;
 use std::{path::Path, process::Command};
 

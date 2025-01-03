@@ -1,4 +1,6 @@
-/// Custom error type for the parser-core crate.
+//! Error handling for the crate.
+
+/// Custom error type for the crate.
 #[derive(Debug)]
 pub enum ParserError {
     /// An error occurred while reading or writing a file.

@@ -1,3 +1,5 @@
+//! Routes for parsing documents.
+
 use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;

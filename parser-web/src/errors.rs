@@ -1,3 +1,7 @@
+//! Error handling for the crate.
+//!
+//! This module defines common error types and their integration with the Actix Web framework.
+
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 

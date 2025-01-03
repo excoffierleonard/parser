@@ -1,3 +1,5 @@
+//! Static files route.
+
 use crate::{errors::ApiError, responses::AssetResponse};
 use actix_web::{get, web};
 use mime_guess::from_path;

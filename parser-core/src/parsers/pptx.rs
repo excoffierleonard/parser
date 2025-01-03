@@ -1,3 +1,5 @@
+//! PPTX parser module.
+
 use crate::errors::ParserError;
 use regex::Regex;
 use std::{fs::File, io::Read, path::Path};

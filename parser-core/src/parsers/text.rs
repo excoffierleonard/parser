@@ -1,3 +1,5 @@
+//! Text parser module.
+
 use crate::errors::ParserError;
 use std::{fs::read_to_string, path::Path};
 

@@ -1,3 +1,5 @@
+//! XLSX parser module.
+
 use crate::errors::ParserError;
 use calamine::{open_workbook, Reader, Xlsx};
 use std::path::Path;

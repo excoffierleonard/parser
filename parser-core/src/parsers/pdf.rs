@@ -1,3 +1,5 @@
+//! PDF parser module.
+
 use crate::errors::ParserError;
 use pdf_extract::extract_text;
 use std::path::Path;
