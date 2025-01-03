@@ -5,4 +5,5 @@
 
 pub mod config;
 pub mod errors;
+pub mod responses;
 pub mod routes;

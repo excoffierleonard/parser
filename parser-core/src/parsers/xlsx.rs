@@ -1,9 +1,13 @@
+//! XLSX parser module.
+
 use crate::errors::ParserError;
 use calamine::{open_workbook, Reader, Xlsx};
+use std::path::Path;
 
 // TODO: Need proper logic to escape commas and quotes
 // TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
-pub fn parse_xlsx(file_path: &str) -> Result<String, ParserError> {
+/// Parse an XLSX file and extract text from it.
+pub fn parse_xlsx(file_path: &Path) -> Result<String, ParserError> {
     let mut excel: Xlsx<_> = open_workbook(file_path)?;
 
     let mut csv_data = String::new();
@@ -35,11 +39,15 @@ pub fn parse_xlsx(file_path: &str) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn parse_xlsx_single_sheet_success() {
-        let file_path = "tests/inputs/test_xlsx_1.xlsx";
-        let result = parse_xlsx(file_path).unwrap();
+        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("inputs")
+            .join("test_xlsx_1.xlsx");
+        let result = parse_xlsx(&file_path).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
@@ -53,8 +61,11 @@ alice23,8425,Alice"
 
     #[test]
     fn parse_xlsx_multiple_sheets_success() {
-        let file_path = "tests/inputs/test_xlsx_2.xlsx";
-        let result = parse_xlsx(file_path).unwrap();
+        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("inputs")
+            .join("test_xlsx_2.xlsx");
+        let result = parse_xlsx(&file_path).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(

@@ -21,7 +21,7 @@ pub use xlsx::parse_xlsx;
 use crate::errors::ParserError;
 use infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
-use std::fs::read_to_string;
+use std::{fs::read_to_string, path::Path};
 
 // Types not defined in the mime package or not a string constant
 const APPLICATION_PDF: &str = "application/pdf";
@@ -32,7 +32,7 @@ const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 /// Automatically detects the file type and uses the appropriate parser
-pub fn parse_any(file_path: &str) -> Result<String, ParserError> {
+pub fn parse_any(file_path: &Path) -> Result<String, ParserError> {
     match determine_mime_type(file_path) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(file_path),
         Some(mime) if mime == APPLICATION_DOCX => parse_docx(file_path),
@@ -50,7 +50,7 @@ pub fn parse_any(file_path: &str) -> Result<String, ParserError> {
     }
 }
 
-fn determine_mime_type(file_path: &str) -> Option<Mime> {
+fn determine_mime_type(file_path: &Path) -> Option<Mime> {
     // First try to detect using file signatures
     if let Some(kind) = infer::get_from_path(file_path).ok().flatten() {
         if let Ok(mime) = kind.mime_type().parse() {
@@ -68,6 +68,7 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn parse_any_success() {
@@ -75,7 +76,7 @@ mod tests {
         assert!(1 == 1);
     }
 
-    fn assert_mime_type(file_path: &str, expected_type: &str, check_category: bool) {
+    fn assert_mime_type(file_path: &Path, expected_type: &str, check_category: bool) {
         let result = determine_mime_type(file_path);
         assert!(result.is_some());
         if check_category {
@@ -85,24 +86,31 @@ mod tests {
         }
     }
 
+    fn test_input_path() -> PathBuf {
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("inputs")
+    }
+
     #[test]
     fn determine_mime_success() {
+        // Get base path once
+        let base_path = test_input_path();
+
         // Office documents
-        assert_mime_type("tests/inputs/test_pdf_1.pdf", APPLICATION_PDF, false);
-        assert_mime_type("tests/inputs/test_docx_1.docx", APPLICATION_DOCX, false);
-        assert_mime_type("tests/inputs/test_xlsx_1.xlsx", APPLICATION_XLSX, false);
-        assert_mime_type("tests/inputs/test_pptx_1.pptx", APPLICATION_PPTX, false);
+        assert_mime_type(&base_path.join("test_pdf_1.pdf"), APPLICATION_PDF, false);
+        assert_mime_type(&base_path.join("test_docx_1.docx"), APPLICATION_DOCX, false);
+        assert_mime_type(&base_path.join("test_xlsx_1.xlsx"), APPLICATION_XLSX, false);
+        assert_mime_type(&base_path.join("test_pptx_1.pptx"), APPLICATION_PPTX, false);
 
         // Text files
-        assert_mime_type("tests/inputs/test_txt_1.txt", TEXT.into(), true);
-        assert_mime_type("tests/inputs/test_csv_1.csv", TEXT.into(), true);
-        assert_mime_type("tests/inputs/test_json_1.json", TEXT.into(), true);
+        assert_mime_type(&base_path.join("test_txt_1.txt"), TEXT.into(), true);
+        assert_mime_type(&base_path.join("test_csv_1.csv"), TEXT.into(), true);
+        assert_mime_type(&base_path.join("test_json_1.json"), TEXT.into(), true);
 
         // Images
-        assert_mime_type("tests/inputs/test_png_1.png", IMAGE.into(), true);
-        assert_mime_type("tests/inputs/test_jpg_1.jpg", IMAGE.into(), true);
-        assert_mime_type("tests/inputs/test_webp_1.webp", IMAGE.into(), true);
+        assert_mime_type(&base_path.join("test_png_1.png"), IMAGE.into(), true);
+        assert_mime_type(&base_path.join("test_jpg_1.jpg"), IMAGE.into(), true);
+        assert_mime_type(&base_path.join("test_webp_1.webp"), IMAGE.into(), true);
     }
 }
-
-// TOFIX: Make path sourcing platform agnostic

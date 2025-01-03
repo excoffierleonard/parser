@@ -1,8 +1,11 @@
+//! DOCX parser module.
+
 use crate::errors::ParserError;
 use docx_rs::read_docx;
-use std::fs::read;
+use std::{fs::read, path::Path};
 
-pub fn parse_docx(file_path: &str) -> Result<String, ParserError> {
+/// Parse a DOCX file and extract text from it.
+pub fn parse_docx(file_path: &Path) -> Result<String, ParserError> {
     // Read the file contents
     let file_content = read(file_path)?;
 
@@ -47,11 +50,15 @@ pub fn parse_docx(file_path: &str) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn parse_docx_success() {
-        let file_path = "tests/inputs/test_docx_1.docx";
-        let result = parse_docx(file_path).unwrap();
+        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("inputs")
+            .join("test_docx_1.docx");
+        let result = parse_docx(&file_path).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
