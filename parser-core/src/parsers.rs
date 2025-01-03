@@ -75,35 +75,33 @@ mod tests {
         assert!(1 == 1);
     }
 
-    fn assert_mime_type(file_path: &str, expected_type: &str) {
+    fn assert_mime_type(file_path: &str, expected_type: &str, check_category: bool) {
         let result = determine_mime_type(file_path);
         assert!(result.is_some());
-        assert_eq!(result.unwrap(), expected_type);
-    }
-
-    fn assert_mime_type_category(file_path: &str, expected_type: mime::Name) {
-        let result = determine_mime_type(file_path);
-        assert!(result.is_some());
-        assert_eq!(result.unwrap().type_(), expected_type);
+        if check_category {
+            assert_eq!(result.unwrap().type_(), expected_type);
+        } else {
+            assert_eq!(result.unwrap(), expected_type);
+        }
     }
 
     #[test]
     fn determine_mime_success() {
         // Office documents
-        assert_mime_type("tests/inputs/test_pdf_1.pdf", APPLICATION_PDF);
-        assert_mime_type("tests/inputs/test_docx_1.docx", APPLICATION_DOCX);
-        assert_mime_type("tests/inputs/test_xlsx_1.xlsx", APPLICATION_XLSX);
-        assert_mime_type("tests/inputs/test_pptx_1.pptx", APPLICATION_PPTX);
+        assert_mime_type("tests/inputs/test_pdf_1.pdf", APPLICATION_PDF, false);
+        assert_mime_type("tests/inputs/test_docx_1.docx", APPLICATION_DOCX, false);
+        assert_mime_type("tests/inputs/test_xlsx_1.xlsx", APPLICATION_XLSX, false);
+        assert_mime_type("tests/inputs/test_pptx_1.pptx", APPLICATION_PPTX, false);
 
         // Text files
-        assert_mime_type_category("tests/inputs/test_txt_1.txt", TEXT);
-        assert_mime_type_category("tests/inputs/test_csv_1.csv", TEXT);
-        assert_mime_type_category("tests/inputs/test_json_1.json", TEXT);
+        assert_mime_type("tests/inputs/test_txt_1.txt", TEXT.into(), true);
+        assert_mime_type("tests/inputs/test_csv_1.csv", TEXT.into(), true);
+        assert_mime_type("tests/inputs/test_json_1.json", TEXT.into(), true);
 
         // Images
-        assert_mime_type_category("tests/inputs/test_png_1.png", IMAGE);
-        assert_mime_type_category("tests/inputs/test_jpg_1.jpg", IMAGE);
-        assert_mime_type_category("tests/inputs/test_webp_1.webp", IMAGE);
+        assert_mime_type("tests/inputs/test_png_1.png", IMAGE.into(), true);
+        assert_mime_type("tests/inputs/test_jpg_1.jpg", IMAGE.into(), true);
+        assert_mime_type("tests/inputs/test_webp_1.webp", IMAGE.into(), true);
     }
 }
 
