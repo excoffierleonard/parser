@@ -6,20 +6,20 @@ set -e
 # Clean and check
 cargo update
 cargo clean
-cargo check
-cargo clippy -- -D warnings
-cargo fmt
+cargo check --workspace
+cargo clippy --workspace -- -D warnings
+cargo fmt --all
 cargo audit
 # Maybe use it when it is out of nightly
-# cargo udeps
+# cargo udeps --workspace
 
 # Documentation
-cargo doc --no-deps
+cargo doc --workspace --no-deps
 
 # Testing and benchmarking
-cargo test
-cargo bench
-cargo test -- --ignored 
+cargo test --workspace
+cargo bench --workspace
+cargo test --workspace -- --ignored 
 
 # Build for production
 cargo build --target x86_64-unknown-linux-musl --release
