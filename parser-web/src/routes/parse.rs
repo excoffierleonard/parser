@@ -1,4 +1,4 @@
-use crate::{errors::ApiError, response::ParseResponse};
+use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;

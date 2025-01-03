@@ -1,4 +1,4 @@
-use crate::{errors::ApiError, response::GreetingResponse};
+use crate::{errors::ApiError, responses::GreetingResponse};
 use actix_web::{get, web};
 
 /// Greets the user with a friendly message.
