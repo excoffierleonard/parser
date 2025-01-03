@@ -20,10 +20,11 @@ pub use xlsx::parse_xlsx;
 
 use crate::errors::ParserError;
 use infer;
-use mime::{Mime, APPLICATION_PDF, IMAGE, TEXT, TEXT_PLAIN};
+use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
 use std::fs::read_to_string;
 
-// Types not defined in the mime package
+// Types not defined in the mime package or not a string constant
+const APPLICATION_PDF: &str = "application/pdf";
 const APPLICATION_DOCX: &str =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -74,77 +75,33 @@ mod tests {
         assert!(1 == 1);
     }
 
+    fn assert_mime_type(file_path: &str, expected_type: &str, check_category: bool) {
+        let result = determine_mime_type(file_path);
+        assert!(result.is_some());
+        if check_category {
+            assert_eq!(result.unwrap().type_(), expected_type);
+        } else {
+            assert_eq!(result.unwrap(), expected_type);
+        }
+    }
+
     #[test]
     fn determine_mime_success() {
-        // Testing for pdf detection
-        let file_path_pdf = "tests/inputs/test_pdf_1.pdf";
-        let result_pdf = determine_mime_type(file_path_pdf);
+        // Office documents
+        assert_mime_type("tests/inputs/test_pdf_1.pdf", APPLICATION_PDF, false);
+        assert_mime_type("tests/inputs/test_docx_1.docx", APPLICATION_DOCX, false);
+        assert_mime_type("tests/inputs/test_xlsx_1.xlsx", APPLICATION_XLSX, false);
+        assert_mime_type("tests/inputs/test_pptx_1.pptx", APPLICATION_PPTX, false);
 
-        assert!(result_pdf.is_some());
-        assert_eq!(result_pdf.unwrap(), APPLICATION_PDF);
+        // Text files
+        assert_mime_type("tests/inputs/test_txt_1.txt", TEXT.into(), true);
+        assert_mime_type("tests/inputs/test_csv_1.csv", TEXT.into(), true);
+        assert_mime_type("tests/inputs/test_json_1.json", TEXT.into(), true);
 
-        // Testing for docx detection
-        let file_path_docx = "tests/inputs/test_docx_1.docx";
-        let result_docx = determine_mime_type(file_path_docx);
-
-        assert!(result_docx.is_some());
-        assert_eq!(result_docx.unwrap(), APPLICATION_DOCX);
-
-        // Testing for xlsx detection
-        let file_path_xlsx = "tests/inputs/test_xlsx_1.xlsx";
-        let result_xlsx = determine_mime_type(file_path_xlsx);
-
-        assert!(result_xlsx.is_some());
-        assert_eq!(result_xlsx.unwrap(), APPLICATION_XLSX);
-
-        // Testing for pptx detection
-        let file_path_pptx = "tests/inputs/test_pptx_1.pptx";
-        let result_pptx = determine_mime_type(file_path_pptx);
-
-        assert!(result_pptx.is_some());
-        assert_eq!(result_pptx.unwrap(), APPLICATION_PPTX);
-
-        // Testing for txt detection
-        let file_path_txt = "tests/inputs/test_txt_1.txt";
-        let result_txt = determine_mime_type(file_path_txt);
-
-        assert!(result_txt.is_some());
-        assert_eq!(result_txt.unwrap().type_(), TEXT);
-
-        // Testing for csv detection
-        let file_path_csv = "tests/inputs/test_csv_1.csv";
-        let result_csv = determine_mime_type(file_path_csv);
-
-        assert!(result_csv.is_some());
-        assert_eq!(result_csv.unwrap().type_(), TEXT);
-
-        // Testing for json detection
-        let file_path_json = "tests/inputs/test_json_1.json";
-        let result_json = determine_mime_type(file_path_json);
-
-        assert!(result_json.is_some());
-        assert_eq!(result_json.unwrap().type_(), TEXT);
-
-        // Testing for png detection
-        let file_path_png = "tests/inputs/test_png_1.png";
-        let result_png = determine_mime_type(file_path_png);
-
-        assert!(result_png.is_some());
-        assert_eq!(result_png.unwrap().type_(), IMAGE);
-
-        // Testing for jpg detection
-        let file_path_jpg = "tests/inputs/test_jpg_1.jpg";
-        let result_jpg = determine_mime_type(file_path_jpg);
-
-        assert!(result_jpg.is_some());
-        assert_eq!(result_jpg.unwrap().type_(), IMAGE);
-
-        // Testing for webp detection
-        let file_path_webp = "tests/inputs/test_webp_1.webp";
-        let result_webp = determine_mime_type(file_path_webp);
-
-        assert!(result_webp.is_some());
-        assert_eq!(result_webp.unwrap().type_(), IMAGE);
+        // Images
+        assert_mime_type("tests/inputs/test_png_1.png", IMAGE.into(), true);
+        assert_mime_type("tests/inputs/test_jpg_1.jpg", IMAGE.into(), true);
+        assert_mime_type("tests/inputs/test_webp_1.webp", IMAGE.into(), true);
     }
 }
 
