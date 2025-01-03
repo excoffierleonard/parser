@@ -1,14 +1,19 @@
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use serde::Serialize;
 
+/// The response body for an error response
 #[derive(Serialize)]
 pub struct ErrorResponse {
+    /// The error message
     pub message: String,
 }
 
+/// An error that can be returned from an API endpoint
 #[derive(Debug)]
 pub enum ApiError {
+    /// A bad request error
     BadRequest(String),
+    /// An internal server error
     InternalError(String),
 }
 
