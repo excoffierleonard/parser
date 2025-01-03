@@ -23,8 +23,8 @@ RUN mkdir src parser-core/src parser-web/src && \
 ## Now copy the real source code
 COPY parser-core/src parser-core/src/
 COPY parser-web/src parser-web/src/
+COPY parser-web/static parser-web/static/
 COPY src src/
-COPY static static/
 
 ## Build the real application
 RUN touch src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs && \
