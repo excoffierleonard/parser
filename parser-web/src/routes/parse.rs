@@ -52,12 +52,3 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiE
 
     Ok(temp_file)
 }
-
-#[cfg(test)]
-mod tests {
-    #[actix_web::test]
-    async fn create_temp_file_success() {
-        // Integration tests cover this functionality since there is currently no way to simulate a Multipart payload in unit tests.
-        assert!(1 == 1);
-    }
-}
