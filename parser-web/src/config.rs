@@ -1,13 +1,17 @@
 use dotenv::dotenv;
 use std::env;
 
+/// Configuration for the web server.
 #[derive(Debug)]
 pub struct Config {
+    /// The port the server should listen on.
     pub port: u16,
+    /// Whether to enable file serving.
     pub enable_file_serving: bool,
 }
 
 impl Config {
+    /// Builds a new configuration from environment variables.
     pub fn build() -> Result<Self, env::VarError> {
         dotenv().ok();
 
