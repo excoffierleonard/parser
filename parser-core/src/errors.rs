@@ -36,3 +36,26 @@ impl_from_error!(zip::result::ZipError, ParserError::ParseError);
 impl_from_error!(regex::Error, ParserError::ParseError);
 impl_from_error!(std::process::ExitStatus, ParserError::ParseError);
 impl_from_error!(calamine::XlsxError, ParserError::ParseError);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_error_display() {
+        // Test each error variant's Display implementation
+        let io_err = ParserError::IoError("failed to read file".to_string());
+        let parse_err = ParserError::ParseError("failed to parse content".to_string());
+        let format_err = ParserError::InvalidFormat("invalid file format".to_string());
+
+        assert_eq!(io_err.to_string(), "IO error: failed to read file");
+        assert_eq!(
+            parse_err.to_string(),
+            "Parse error: failed to parse content"
+        );
+        assert_eq!(
+            format_err.to_string(),
+            "Invalid format: invalid file format"
+        );
+    }
+}
