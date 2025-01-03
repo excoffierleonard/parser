@@ -1,0 +1,15 @@
+[package]
+name = "parser-web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+parser-core = { workspace = true }
+futures-util = "0.3"
+actix-web = { workspace = true }
+serde = { version = "1", features = ["derive"] }
+actix-multipart = "0.7"
+tempfile = "3"
+mime_guess = "2"
+rust-embed = "8"
+dotenv = "0.15"

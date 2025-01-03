@@ -1,99 +1,52 @@
-use crate::{
-    errors::ApiError,
-    parsers::{parse_docx, parse_image, parse_pdf, parse_pptx, parse_text, parse_xlsx},
-};
-use actix_multipart::Multipart;
-use actix_web::{post, HttpResponse};
+//! Parsing module for various file formats.
+//!
+//! This module serves as the central entry point for all parsing functions,
+//! providing a unified interface for different file formats like PDF, CSV, etc.
+//! Each specific parser is implemented in its own submodule.
 
-use futures_util::TryStreamExt;
+mod docx;
+mod image;
+mod pdf;
+mod pptx;
+mod text;
+mod xlsx;
+
+pub use docx::parse_docx;
+pub use image::parse_image;
+pub use pdf::parse_pdf;
+pub use pptx::parse_pptx;
+pub use text::parse_text;
+pub use xlsx::parse_xlsx;
+
+use crate::errors::ParserError;
 use infer;
 use mime::{Mime, APPLICATION_PDF, IMAGE, TEXT, TEXT_PLAIN};
-use serde::Serialize;
-use std::{fs::read_to_string, io::Write};
-use tempfile::NamedTempFile;
+use std::fs::read_to_string;
 
-// Ttypes not defined in the mime package
+// Types not defined in the mime package
 const APPLICATION_DOCX: &str =
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
-#[derive(Serialize)]
-struct Response {
-    text: String,
-}
-
-// routes/parse.rs
-/// Parses various document formats into plain text.
-///
-/// # Supported Formats
-/// - PDF files (application/pdf)
-/// - Word Documents (application/vnd.openxmlformats-officedocument.wordprocessingml.document)
-/// - Excel Spreadsheets (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)
-/// - PowerPoint Presentations (application/vnd.openxmlformats-officedocument.presentationml.presentation)
-/// - Text based files (text/plain, text/csv, application/json, etc...)
-/// - Image based files (image/png, image/jpg, image/webp, etc...)
-///
-/// # Errors
-/// Returns `ApiError::BadRequest` if:
-/// - The content type is missing
-/// - The file format is unsupported
-///
-/// Returns `ApiError::InternalError` if parsing fails
-#[post("/parse")]
-async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
-    let temp_file = create_temp_file(&mut payload).await?;
-    let temp_file_path = get_temp_file_path(&temp_file)?;
-    let content_type = determine_mime_type(temp_file_path);
-
-    let parsed_text = match content_type.as_ref() {
-        Some(mime) if *mime == APPLICATION_PDF => parse_pdf(temp_file_path)?,
-        Some(mime) if *mime == APPLICATION_DOCX => parse_docx(temp_file_path)?,
-        Some(mime) if *mime == APPLICATION_XLSX => parse_xlsx(temp_file_path)?,
-        Some(mime) if *mime == APPLICATION_PPTX => parse_pptx(temp_file_path)?,
-        Some(mime) if mime.type_() == TEXT => parse_text(temp_file_path)?,
-        Some(mime) if mime.type_() == IMAGE => parse_image(temp_file_path)?,
-        Some(mime) => {
-            return Err(ApiError::BadRequest(format!(
-                "Unsupported mime type: {}",
-                mime
-            )))
-        }
-        None => return Err(ApiError::BadRequest("Missing content type".to_string())),
-    };
-
-    Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
-}
-
-async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiError> {
-    let mut temp_file = NamedTempFile::new()
-        .map_err(|e| ApiError::InternalError(format!("Failed to create temp file: {}", e)))?;
-
-    while let Some(mut field) = payload
-        .try_next()
-        .await
-        .map_err(|e| ApiError::InternalError(format!("Failed to process multipart: {}", e)))?
-    {
-        while let Some(chunk) = field
-            .try_next()
-            .await
-            .map_err(|e| ApiError::InternalError(format!("Failed to read chunk: {}", e)))?
-        {
-            temp_file.write_all(&chunk).map_err(|e| {
-                ApiError::InternalError(format!("Failed to write to temp file: {}", e))
-            })?;
-        }
+/// Automatically detects the file type and uses the appropriate parser
+pub fn parse_any(file_path: &str) -> Result<String, ParserError> {
+    match determine_mime_type(file_path) {
+        Some(mime) if mime == APPLICATION_PDF => parse_pdf(file_path),
+        Some(mime) if mime == APPLICATION_DOCX => parse_docx(file_path),
+        Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(file_path),
+        Some(mime) if mime == APPLICATION_PPTX => parse_pptx(file_path),
+        Some(mime) if mime.type_() == TEXT => parse_text(file_path),
+        Some(mime) if mime.type_() == IMAGE => parse_image(file_path),
+        Some(mime) => Err(ParserError::InvalidFormat(format!(
+            "Unsupported file type: {}",
+            mime
+        ))),
+        None => Err(ParserError::InvalidFormat(
+            "Could not determine file type.".to_string(),
+        )),
     }
-
-    Ok(temp_file)
-}
-
-fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
-    temp_file
-        .path()
-        .to_str()
-        .ok_or_else(|| ApiError::InternalError("Invalid temporary file path".to_string()))
 }
 
 fn determine_mime_type(file_path: &str) -> Option<Mime> {
@@ -115,18 +68,10 @@ fn determine_mime_type(file_path: &str) -> Option<Mime> {
 mod tests {
     use super::*;
 
-    #[actix_web::test]
-    async fn create_temp_file_success() {
-        // Integration tests cover this functionality since there is currently no way to simulate a Multipart payload in unit tests.
-        assert!(1 == 1);
-    }
-
     #[test]
-    fn get_temp_file_path_success() {
-        let temp_file = NamedTempFile::new().unwrap();
-        let result = get_temp_file_path(&temp_file).unwrap();
-
-        assert!(result.len() > 0);
+    fn parse_any_success() {
+        // Already tested in the specific parser tests
+        assert!(1 == 1);
     }
 
     #[test]

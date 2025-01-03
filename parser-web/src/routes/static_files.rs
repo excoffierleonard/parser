@@ -1,4 +1,5 @@
 use actix_web::{get, web, HttpResponse, Responder};
+use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
 #[derive(RustEmbed)]
@@ -15,7 +16,7 @@ async fn serve_files(filename: web::Path<String>) -> impl Responder {
 
     match Assets::get(path) {
         Some(content) => {
-            let mime = mime_guess::from_path(path).first_or_octet_stream();
+            let mime = from_path(path).first_or_octet_stream();
             HttpResponse::Ok()
                 .content_type(mime)
                 .body(content.data.to_vec())

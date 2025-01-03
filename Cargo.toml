@@ -3,21 +3,17 @@ name = "parser"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = ["parser-core", "parser-web"]
+
 [dependencies]
-actix-multipart = "0.7"
-actix-web = "4"
-calamine = "0.26"
-docx-rs = "0.4"
-dotenv = "0.15"
+parser-web = { workspace = true }
+parser-core = { workspace = true }
+actix-web = { workspace = true }
 env_logger = "0.11"
-futures-util = "0.3"
-infer = "0.16"
-mime = "0.3"
-mime_guess = "2"
 num_cpus = "1"
-pdf-extract = "0.7"
-regex = "1"
-rust-embed = "8"
-serde = { version = "1", features = ["derive"] }
-tempfile = "3"
-zip = "2"
+
+[workspace.dependencies]
+parser-core = { path = "parser-core", version = "0.1.0" }
+parser-web = { path = "parser-web", version = "0.1.0" }
+actix-web = "4"
