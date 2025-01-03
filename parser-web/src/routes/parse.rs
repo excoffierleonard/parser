@@ -1,7 +1,7 @@
 use crate::errors::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{post, HttpResponse};
-use futures_util::TryStreamExt;
+use futures_util::StreamExt;
 use parser_core::parsers::parse_any;
 use serde::Serialize;
 use std::io::Write;
@@ -32,32 +32,22 @@ struct Response {
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let temp_file = create_temp_file(&mut payload).await?;
-
-    // Need to find better way to map errors
-    let parsed_text =
-        parse_any(&temp_file.path()).map_err(|e| ApiError::InternalError(e.to_string()))?;
+    let parsed_text = parse_any(&temp_file.path())?;
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
 
 async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiError> {
-    let mut temp_file = NamedTempFile::new()
-        .map_err(|e| ApiError::InternalError(format!("Failed to create temp file: {}", e)))?;
+    let mut temp_file = NamedTempFile::new()?;
 
-    while let Some(mut field) = payload
-        .try_next()
-        .await
-        .map_err(|e| ApiError::InternalError(format!("Failed to process multipart: {}", e)))?
-    {
-        while let Some(chunk) = field
-            .try_next()
-            .await
-            .map_err(|e| ApiError::InternalError(format!("Failed to read chunk: {}", e)))?
-        {
-            temp_file.write_all(&chunk).map_err(|e| {
-                ApiError::InternalError(format!("Failed to write to temp file: {}", e))
-            })?;
-        }
+    // Take the first field from the multipart payload
+    let Some(Ok(mut field)) = payload.next().await else {
+        return Err(ApiError::BadRequest("No file provided".to_string()));
+    };
+
+    // Stream chunks directly to the temp file
+    while let Some(chunk) = field.next().await {
+        temp_file.write_all(&chunk?)?;
     }
 
     Ok(temp_file)

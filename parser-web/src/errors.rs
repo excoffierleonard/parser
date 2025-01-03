@@ -39,3 +39,24 @@ impl std::fmt::Display for ApiError {
         }
     }
 }
+
+// For std::io::Error
+impl From<std::io::Error> for ApiError {
+    fn from(err: std::io::Error) -> Self {
+        ApiError::InternalError(err.to_string())
+    }
+}
+
+// For actix_multipart::MultipartError
+impl From<actix_multipart::MultipartError> for ApiError {
+    fn from(err: actix_multipart::MultipartError) -> Self {
+        ApiError::InternalError(err.to_string())
+    }
+}
+
+// For parser_core::errors::ParserError
+impl From<parser_core::errors::ParserError> for ApiError {
+    fn from(err: parser_core::errors::ParserError) -> Self {
+        ApiError::InternalError(err.to_string())
+    }
+}
