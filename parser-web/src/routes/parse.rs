@@ -32,11 +32,10 @@ struct Response {
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<HttpResponse, ApiError> {
     let temp_file = create_temp_file(&mut payload).await?;
-    let temp_file_path = get_temp_file_path(&temp_file)?;
 
     // Need to find better way to map errors
     let parsed_text =
-        parse_any(temp_file_path).map_err(|e| ApiError::InternalError(e.to_string()))?;
+        parse_any(&temp_file.path()).map_err(|e| ApiError::InternalError(e.to_string()))?;
 
     Ok(HttpResponse::Ok().json(Response { text: parsed_text }))
 }
@@ -64,29 +63,11 @@ async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiE
     Ok(temp_file)
 }
 
-fn get_temp_file_path(temp_file: &NamedTempFile) -> Result<&str, ApiError> {
-    temp_file
-        .path()
-        .to_str()
-        .ok_or_else(|| ApiError::InternalError("Invalid temporary file path".to_string()))
-}
-
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[actix_web::test]
     async fn create_temp_file_success() {
         // Integration tests cover this functionality since there is currently no way to simulate a Multipart payload in unit tests.
         assert!(1 == 1);
-    }
-
-    #[test]
-    fn get_temp_file_path_success() {
-        let temp_file = NamedTempFile::new().unwrap();
-        let result = get_temp_file_path(&temp_file).unwrap();
-
-        assert!(result.len() > 0);
-        // TODO: Need test to check if the path is a valid temporary file path, platform agnostic
     }
 }
