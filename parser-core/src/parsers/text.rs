@@ -1,7 +1,7 @@
 use crate::errors::ParserError;
 use std::{fs::read_to_string, path::Path};
 
-// Parses all that can be coerced to text
+/// Parse anything that can be considered as text and return its content.
 pub fn parse_text(file_path: &Path) -> Result<String, ParserError> {
     Ok(read_to_string(file_path)?)
 }

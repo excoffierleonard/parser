@@ -3,6 +3,7 @@ use regex::Regex;
 use std::{fs::File, io::Read, path::Path};
 use zip::ZipArchive;
 
+/// Parse a PPTX file and extract text from it.
 pub fn parse_pptx(file_path: &Path) -> Result<String, ParserError> {
     let file = File::open(file_path)?;
 

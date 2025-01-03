@@ -2,6 +2,7 @@ use crate::errors::ParserError;
 use pdf_extract::extract_text;
 use std::path::Path;
 
+/// Parse a PDF file and extract text from it.
 pub fn parse_pdf(file_path: &Path) -> Result<String, ParserError> {
     // TOFIX: Need to find a way to silence the output of that function since on unkown characters it outputs a lot of errors, cluttering the logs.
     Ok(extract_text(file_path)?.trim().to_string())

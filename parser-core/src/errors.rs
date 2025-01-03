@@ -1,7 +1,11 @@
+/// Custom error type for the parser-core crate.
 #[derive(Debug)]
 pub enum ParserError {
+    /// An error occurred while reading or writing a file.
     IoError(String),
+    /// An error occurred while parsing the content of a file.
     ParseError(String),
+    /// The file has an invalid format.
     InvalidFormat(String),
 }
 
