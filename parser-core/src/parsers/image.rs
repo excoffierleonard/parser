@@ -1,4 +1,4 @@
-use crate::errors::ApiError;
+use crate::errors::ParserError;
 use std::process::Command;
 
 // Parses all that can be coerced to an image using OCR
@@ -6,7 +6,7 @@ use std::process::Command;
 // TODO: Need to implement image description with AI vision if text density is too low.
 // TODO: Need to find better alternative thatn shelling out to tesseract.
 // Parses all that can be coerced to an image using OCR by shelling out to Tesseract
-pub fn parse_image(file_path: &str) -> Result<String, ApiError> {
+pub fn parse_image(file_path: &str) -> Result<String, ParserError> {
     // Run tesseract with minimal arguments: input file, stdout (-) as output
     let output = Command::new("tesseract")
         .args([
@@ -15,20 +15,14 @@ pub fn parse_image(file_path: &str) -> Result<String, ApiError> {
             "-l",      // Language flag
             "eng+fra", // English and French languages
         ])
-        .output()
-        .map_err(|e| ApiError::InternalError(format!("Failed to execute tesseract: {}", e)))?;
+        .output()?;
 
     if !output.status.success() {
-        return Err(ApiError::InternalError(format!(
-            "Tesseract failed: {}",
-            String::from_utf8_lossy(&output.stderr)
-        )));
+        return Err(output.status.into());
     }
 
     // Convert output to string, trim whitespace and return
-    String::from_utf8(output.stdout)
-        .map(|text| text.trim().to_string())
-        .map_err(|e| ApiError::InternalError(format!("Failed to parse tesseract output: {}", e)))
+    Ok(String::from_utf8(output.stdout)?.trim().to_string())
 }
 
 #[cfg(test)]
