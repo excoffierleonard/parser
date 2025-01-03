@@ -1,10 +1,10 @@
 use crate::errors::ParserError;
 use regex::Regex;
-use std::io::Read;
+use std::{fs::File, io::Read, path::Path};
 use zip::ZipArchive;
 
-pub fn parse_pptx(file_path: &str) -> Result<String, ParserError> {
-    let file = std::fs::File::open(file_path)?;
+pub fn parse_pptx(file_path: &Path) -> Result<String, ParserError> {
+    let file = File::open(file_path)?;
 
     let mut archive = ZipArchive::new(file)?;
 
@@ -45,11 +45,15 @@ pub fn parse_pptx(file_path: &str) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn parse_pptx_success() {
-        let file_path = "tests/inputs/test_pptx_1.pptx";
-        let result = parse_pptx(file_path).unwrap();
+        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests")
+            .join("inputs")
+            .join("test_pptx_1.pptx");
+        let result = parse_pptx(&file_path).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
