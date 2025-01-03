@@ -1,5 +1,5 @@
 [package]
-name = "parser-bin"
+name = "parser"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,8 +7,13 @@ edition = "2021"
 members = ["parser-core", "parser-web"]
 
 [dependencies]
-parser-web = { path = "../parser-web" }
-parser-core = { path = "../parser-core" }
-actix-web = "4"
+parser-web = { workspace = true }
+parser-core = { workspace = true }
+actix-web = { workspace = true }
 env_logger = "0.11"
 num_cpus = "1"
+
+[workspace.dependencies]
+parser-core = { path = "parser-core", version = "0.1.0" }
+parser-web = { path = "parser-web", version = "0.1.0" }
+actix-web = "4"

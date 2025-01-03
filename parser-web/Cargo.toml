@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-parser-core = { path = "../parser-core" }
+parser-core = { workspace = true }
 futures-util = "0.3"
-actix-web = "4"
+actix-web = { workspace = true }
 serde = { version = "1", features = ["derive"] }
 actix-multipart = "0.7"
 tempfile = "3"
