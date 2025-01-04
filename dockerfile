@@ -4,9 +4,7 @@ FROM rust:alpine AS builder
 RUN apk add --no-cache \
     tesseract-ocr-dev \
     leptonica-dev \
-    clang-dev \
-    build-base \
-    pkgconf
+    clang-dev
 
 # Set the environment variables for bindgen
 ENV RUSTFLAGS="-C target-feature=-crt-static"
