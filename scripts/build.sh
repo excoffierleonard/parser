@@ -31,7 +31,7 @@ cargo test --workspace -- --ignored
 
 # Build for production
 rustup target add x86_64-unknown-linux-musl
-cargo build --release
+cargo build --target x86_64-unknown-linux-musl --release
 
 # Build Docker image
 docker compose build
