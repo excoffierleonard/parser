@@ -5,10 +5,8 @@ use std::path::Path;
 use tesseract::Tesseract;
 
 // Parses all that can be coerced to an image using OCR
-// TODO: Maybe will use Teseract binding for better OCR in the future but keeping it lean for now.
 // TODO: Need to implement image description with AI vision if text density is too low.
-// TODO: Need to find better alternative thatn shelling out to tesseract.
-/// Parses all that can be coerced to an image using OCR by shelling out to Tesseract
+/// Parses all that can be coerced to an image using OCR by using the Tesseract library.
 pub fn parse_image(file_path: &Path) -> Result<String, ParserError> {
     // Create a new Tesseract instance
     let text = Tesseract::new(None, Some("eng+fra"))?
