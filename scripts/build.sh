@@ -8,7 +8,9 @@ sudo apt update
 sudo apt install -y \
     libtesseract-dev \
     libleptonica-dev \
-    libclang-dev
+    libclang-dev \
+    tesseract-ocr-eng \
+    tesseract-ocr-fra \
 
 # Clean and check
 cargo update

@@ -40,9 +40,6 @@ RUN touch src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs && \
 FROM alpine
 
 RUN apk add --no-cache \
-    tesseract-ocr-dev \
-    leptonica-dev \
-    clang-dev \
     tesseract-ocr-data-eng \
     tesseract-ocr-data-fra
 
