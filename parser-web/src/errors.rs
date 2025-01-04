@@ -19,6 +19,8 @@ pub enum ApiError {
     BadRequest(String),
     /// An internal server error
     InternalError(String),
+    /// Wrong configuration parameters
+    ConfigError(String),
 }
 
 impl std::fmt::Display for ApiError {
@@ -26,7 +28,14 @@ impl std::fmt::Display for ApiError {
         match self {
             ApiError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
             ApiError::InternalError(msg) => write!(f, "Internal Error: {}", msg),
+            ApiError::ConfigError(msg) => write!(f, "Configuration Error: {}", msg),
         }
+    }
+}
+
+impl std::error::Error for ApiError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        None
     }
 }
 
@@ -39,6 +48,7 @@ impl ResponseError for ApiError {
         match self {
             ApiError::BadRequest(_) => HttpResponse::BadRequest().json(error_response),
             ApiError::InternalError(_) => HttpResponse::InternalServerError().json(error_response),
+            ApiError::ConfigError(_) => HttpResponse::InternalServerError().json(error_response),
         }
     }
 
@@ -46,6 +56,7 @@ impl ResponseError for ApiError {
         match self {
             ApiError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApiError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
         }
     }
 }
@@ -65,6 +76,12 @@ impl From<actix_multipart::MultipartError> for ApiError {
 impl From<parser_core::errors::ParserError> for ApiError {
     fn from(err: parser_core::errors::ParserError) -> Self {
         ApiError::InternalError(err.to_string())
+    }
+}
+
+impl From<std::env::VarError> for ApiError {
+    fn from(err: std::env::VarError) -> Self {
+        ApiError::ConfigError(err.to_string())
     }
 }
 

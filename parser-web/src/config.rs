@@ -1,7 +1,8 @@
 //! Configuration for the web server.
 
+use crate::errors::ApiError;
 use dotenv::dotenv;
-use std::env;
+use std::env::var;
 
 /// Configuration for the web server.
 #[derive(Debug)]
@@ -14,15 +15,15 @@ pub struct Config {
 
 impl Config {
     /// Builds a new configuration from environment variables.
-    pub fn build() -> Result<Self, env::VarError> {
+    pub fn build() -> Result<Self, ApiError> {
         dotenv().ok();
 
-        let port = env::var("PARSER_APP_PORT")
+        let port = var("PARSER_APP_PORT")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(8080);
 
-        let enable_file_serving = env::var("ENABLE_FILE_SERVING")
+        let enable_file_serving = var("ENABLE_FILE_SERVING")
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or(false);
