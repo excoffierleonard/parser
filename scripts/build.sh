@@ -3,21 +3,12 @@
 # Exit on any error
 set -e
 
-# For static linking, may work one day
-# sudo apt update
-# sudo apt install -y \
-#     libtesseract-dev \
-#     libleptonica-dev \
-#     libclang-dev
-
-
 # Install dependencies
 sudo apt update
 sudo apt install -y \
-    musl-tools \
-    tesseract-ocr \
-    tesseract-ocr-eng \
-    tesseract-ocr-fra
+    libtesseract-dev \
+    libleptonica-dev \
+    libclang-dev
 
 # Clean and check
 cargo update
@@ -38,8 +29,7 @@ cargo bench --workspace
 cargo test --workspace -- --ignored 
 
 # Build for production
-rustup target add x86_64-unknown-linux-musl
-cargo build --target x86_64-unknown-linux-musl --release
+cargo build --release
 
 # Build Docker image
 docker compose build
