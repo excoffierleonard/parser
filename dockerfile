@@ -9,8 +9,6 @@ RUN apk add --no-cache \
     pkgconf
 
 # Set the environment variables for bindgen
-ENV LIBCLANG_PATH=/usr/lib
-ENV BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
 ENV RUSTFLAGS="-C target-feature=-crt-static"
 
 WORKDIR /app
