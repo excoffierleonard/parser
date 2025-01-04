@@ -46,6 +46,8 @@ For local build:
 
 - [Rust](https://www.rust-lang.org/learn/get-started)
 - [Tesseract](https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract)
+  - English Language Data
+  - French Language Data
 
 For deployment:
 
