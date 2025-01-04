@@ -1,7 +1,8 @@
 //! Image parser module
 
 use crate::errors::ParserError;
-use std::{path::Path, process::Command};
+use std::path::Path;
+use tesseract::Tesseract;
 
 // Parses all that can be coerced to an image using OCR
 // TODO: Maybe will use Teseract binding for better OCR in the future but keeping it lean for now.
@@ -9,20 +10,17 @@ use std::{path::Path, process::Command};
 // TODO: Need to find better alternative thatn shelling out to tesseract.
 /// Parses all that can be coerced to an image using OCR by shelling out to Tesseract
 pub fn parse_image(file_path: &Path) -> Result<String, ParserError> {
-    // Run tesseract with minimal arguments: input file, stdout (-) as output
-    let output = Command::new("tesseract")
-        .arg(file_path) // Input file
-        .arg("-") // Output to stdout
-        .arg("-l") // Language flag
-        .arg("eng+fra") // English and French languages
-        .output()?;
-
-    if !output.status.success() {
-        return Err(output.status.into());
-    }
+    // Create a new Tesseract instance
+    let text = Tesseract::new(None, Some("eng+fra"))?
+        .set_image(
+            file_path
+                .to_str()
+                .ok_or_else(|| ParserError::IoError("Invalid path encoding".to_string()))?,
+        )?
+        .get_text()?;
 
     // Convert output to string, trim whitespace and return
-    Ok(String::from_utf8(output.stdout)?.trim().to_string())
+    Ok(text.trim().to_string())
 }
 
 #[cfg(test)]
