@@ -3,6 +3,14 @@
 # Exit on any error
 set -e
 
+# For static linking, may work one day
+# sudo apt update
+# sudo apt install -y \
+#     libtesseract-dev \
+#     libleptonica-dev \
+#     libclang-dev
+
+
 # Install dependencies
 sudo apt update
 sudo apt install -y \
