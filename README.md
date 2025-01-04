@@ -45,7 +45,10 @@ The OCR functionality supports English and French languages.
 For local build:
 
 - [Rust](https://www.rust-lang.org/learn/get-started)
-- [Tesseract](https://github.com/tesseract-ocr/tesseract?tab=readme-ov-file#installing-tesseract)
+- Libraries (For Tessaract OCR):
+  - Tesseract development libraries
+  - Leptonica development libraries
+  - Clang development libraries
   - English Language Data
   - French Language Data
 

@@ -1,11 +1,17 @@
-# Step 1: Build the application with musl target
+# Step 1: Build the application
 FROM rust:alpine AS builder
 
-RUN apk add --no-cache musl-dev
+RUN apk add --no-cache \
+    tesseract-ocr-dev \
+    leptonica-dev \
+    clang-dev \
+    tesseract-ocr-data-eng \
+    tesseract-ocr-data-fra
+
+# Does not statically link the C runtime because of alpine
+ENV RUSTFLAGS="-C target-feature=-crt-static"
 
 WORKDIR /app
-
-RUN rustup target add x86_64-unknown-linux-musl
 
 ## Copy only the manifests first
 COPY Cargo.toml Cargo.lock ./
@@ -17,7 +23,7 @@ RUN mkdir src parser-core/src parser-web/src && \
     echo "fn main() {}" > src/main.rs && \
     echo "pub fn dummy() {}" > parser-core/src/lib.rs && \
     echo "pub fn dummy() {}" > parser-web/src/lib.rs && \
-    cargo build --target x86_64-unknown-linux-musl --release && \
+    cargo build --release && \
     rm src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs
 
 ## Now copy the real source code
@@ -28,19 +34,18 @@ COPY src src/
 
 ## Build the real application
 RUN touch src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs && \
-    cargo build --target x86_64-unknown-linux-musl --release
+    cargo build --release
 
 # Step 2: Create final image
 FROM alpine
 
-## TODO: Need to add more language support in the future
 RUN apk add --no-cache \
-    tesseract-ocr \ 
     tesseract-ocr-data-eng \
     tesseract-ocr-data-fra
 
 WORKDIR /app
 
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/parser .
+## TODO: Need to add more language support in the future
+COPY --from=builder /app/target/release/parser .
 
 CMD ["./parser"]
