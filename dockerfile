@@ -6,7 +6,7 @@ RUN apk add --no-cache \
     leptonica-dev \
     clang-dev
 
-# Set the environment variables for the build
+# Does not statically link the C runtime because of alpine
 ENV RUSTFLAGS="-C target-feature=-crt-static"
 
 WORKDIR /app
