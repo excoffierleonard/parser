@@ -5,9 +5,6 @@ RUN apk add --no-cache \
     tesseract-ocr-dev \
     leptonica-dev \
     clang-dev \
-    clang-libs \
-    llvm-dev \
-    llvm-static \
     build-base \
     pkgconf
 
