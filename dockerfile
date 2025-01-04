@@ -11,8 +11,10 @@ RUN apk add --no-cache \
     build-base \
     pkgconf
 
+# Set the environment variables for bindgen
 ENV LIBCLANG_PATH=/usr/lib
 ENV BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
+ENV RUSTFLAGS="-C target-feature=-crt-static"
 
 WORKDIR /app
 
@@ -26,7 +28,7 @@ RUN mkdir src parser-core/src parser-web/src && \
     echo "fn main() {}" > src/main.rs && \
     echo "pub fn dummy() {}" > parser-core/src/lib.rs && \
     echo "pub fn dummy() {}" > parser-web/src/lib.rs && \
-    RUSTFLAGS="-C target-feature=-crt-static" cargo build --release && \
+    cargo build --release && \
     rm src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs
 
 ## Now copy the real source code
@@ -37,16 +39,14 @@ COPY src src/
 
 ## Build the real application
 RUN touch src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs && \
-    RUSTFLAGS="-C target-feature=-crt-static" cargo build --release
+    cargo build --release
 
 # Step 2: Create final image
 FROM alpine
 
 RUN apk add --no-cache \
     tesseract-ocr-data-eng \
-    tesseract-ocr-data-fra \
-    libgcc \
-    libstdc++
+    tesseract-ocr-data-fra
 
 WORKDIR /app
 
