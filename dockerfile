@@ -4,7 +4,9 @@ FROM rust:alpine AS builder
 RUN apk add --no-cache \
     tesseract-ocr-dev \
     leptonica-dev \
-    clang-dev
+    clang-dev \
+    tesseract-ocr-data-eng \
+    tesseract-ocr-data-fra
 
 # Does not statically link the C runtime because of alpine
 ENV RUSTFLAGS="-C target-feature=-crt-static"
@@ -38,6 +40,9 @@ RUN touch src/main.rs parser-core/src/lib.rs parser-web/src/lib.rs && \
 FROM alpine
 
 RUN apk add --no-cache \
+    tesseract-ocr-dev \
+    leptonica-dev \
+    clang-dev \
     tesseract-ocr-data-eng \
     tesseract-ocr-data-fra
 
