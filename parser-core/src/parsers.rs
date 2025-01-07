@@ -11,17 +11,18 @@ mod pptx;
 mod text;
 mod xlsx;
 
-pub use docx::parse_docx;
-pub use image::parse_image;
-pub use pdf::parse_pdf;
-pub use pptx::parse_pptx;
-pub use text::parse_text;
-pub use xlsx::parse_xlsx;
+use self::{
+    docx::parse_docx, image::parse_image, pdf::parse_pdf, pptx::parse_pptx, text::parse_text,
+    xlsx::parse_xlsx,
+};
 
 use crate::errors::ParserError;
 use infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
-use std::{fs::read_to_string, path::Path};
+use std::{
+    fs::read_to_string,
+    path::{Path, PathBuf},
+};
 
 // Types not defined in the mime package or not a string constant
 const APPLICATION_PDF: &str = "application/pdf";
@@ -31,8 +32,34 @@ const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.sp
 const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
+pub struct InputFiles(Vec<PathBuf>);
+
+impl InputFiles {
+    /// Creates a new InputFiles instance
+    pub fn new(paths: Vec<PathBuf>) -> Self {
+        Self(paths)
+    }
+
+    /// Returns an iterator over the input files
+    pub fn iter(&self) -> impl Iterator<Item = &PathBuf> {
+        self.0.iter()
+    }
+
+    // TODO: Implement Multithreading
+    /// Parses multiple files and returns a vector of strings
+    pub fn parse(self) -> Result<Vec<String>, ParserError> {
+        let mut results = Vec::new();
+
+        for path in self.iter() {
+            results.push(parse_any(path)?);
+        }
+
+        Ok(results)
+    }
+}
+
 /// Automatically detects the file type and uses the appropriate parser
-pub fn parse_any(file_path: &Path) -> Result<String, ParserError> {
+fn parse_any(file_path: &Path) -> Result<String, ParserError> {
     match determine_mime_type(file_path) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(file_path),
         Some(mime) if mime == APPLICATION_DOCX => parse_docx(file_path),
@@ -71,7 +98,7 @@ mod tests {
     use std::path::PathBuf;
 
     #[test]
-    fn parse_any_success() {
+    fn parse_success() {
         // Already tested in the specific parser tests
         assert!(1 == 1);
     }

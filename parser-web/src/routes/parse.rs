@@ -4,7 +4,7 @@ use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;
-use parser_core::parsers::parse_any;
+use parser_core::parsers::InputFiles;
 use std::io::Write;
 use tempfile::NamedTempFile;
 
@@ -12,9 +12,11 @@ use tempfile::NamedTempFile;
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
     let temp_file = create_temp_file(&mut payload).await?;
-    let parsed_text = parse_any(temp_file.path())?;
+    let mut parsed_text = InputFiles::new(vec![temp_file.path().to_path_buf()]).parse()?;
 
-    Ok(ParseResponse { text: parsed_text })
+    Ok(ParseResponse {
+        text: parsed_text.remove(0),
+    })
 }
 
 async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiError> {
