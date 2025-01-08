@@ -17,7 +17,7 @@ use self::{
 };
 
 use crate::errors::ParserError;
-use infer;
+use infer::get_from_path;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
 use rayon::prelude::*;
 use std::{
@@ -93,7 +93,7 @@ fn parse_any(file_path: &Path) -> Result<String, ParserError> {
 
 fn determine_mime_type(file_path: &Path) -> Option<Mime> {
     // First try to detect using file signatures
-    if let Some(kind) = infer::get_from_path(file_path).ok().flatten() {
+    if let Some(kind) = get_from_path(file_path).ok().flatten() {
         if let Ok(mime) = kind.mime_type().parse() {
             return Some(mime);
         }
