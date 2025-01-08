@@ -2,6 +2,8 @@
 
 REST API service in Rust that takes in any file and returns its parsed content.
 
+Multithreading was used to improve the performance of the service. The service is able to handle multiple requests concurrently.
+
 Demonstration URL: [https://parser.excoffierleonard.com](https://parser.excoffierleonard.com)
 
 Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://parser.excoffierleonard.com/parse)
