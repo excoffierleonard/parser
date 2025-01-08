@@ -5,8 +5,8 @@ use actix_web::{
 use env_logger::{init_from_env, Env};
 use num_cpus::get;
 use parser_web::{
-    config::Config,
     routes::{greet, parse_file, serve_files},
+    Config,
 };
 use std::io::{Error, ErrorKind, Result};
 

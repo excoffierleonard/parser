@@ -5,7 +5,7 @@ use docx_rs::read_docx;
 use std::{fs::read, path::Path};
 
 /// Parse a DOCX file and extract text from it.
-pub fn parse_docx(file_path: &Path) -> Result<String, ParserError> {
+pub(crate) fn parse_docx(file_path: &Path) -> Result<String, ParserError> {
     // Read the file contents
     let file_content = read(file_path)?;
 

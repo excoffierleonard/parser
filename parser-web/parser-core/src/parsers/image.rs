@@ -7,7 +7,7 @@ use tesseract::Tesseract;
 // Parses all that can be coerced to an image using OCR
 // TODO: Need to implement image description with AI vision if text density is too low.
 /// Parses all that can be coerced to an image using OCR by using the Tesseract library.
-pub fn parse_image(file_path: &Path) -> Result<String, ParserError> {
+pub(crate) fn parse_image(file_path: &Path) -> Result<String, ParserError> {
     // Create a new Tesseract instance
     let text = Tesseract::new(None, Some("eng+fra"))?
         .set_image(

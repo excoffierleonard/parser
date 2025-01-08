@@ -7,7 +7,7 @@ use std::path::Path;
 // TODO: Need proper logic to escape commas and quotes
 // TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
 /// Parse an XLSX file and extract text from it.
-pub fn parse_xlsx(file_path: &Path) -> Result<String, ParserError> {
+pub(crate) fn parse_xlsx(file_path: &Path) -> Result<String, ParserError> {
     let mut excel: Xlsx<_> = open_workbook(file_path)?;
 
     let mut csv_data = String::new();

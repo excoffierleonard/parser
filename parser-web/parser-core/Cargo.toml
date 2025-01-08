@@ -1,0 +1,15 @@
+[package]
+name = "parser-core"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+calamine = "0.26.1"
+docx-rs = "0.4.17"
+infer = "0.16.0"
+mime = "0.3.17"
+pdf-extract = "0.8.0"
+rayon = "1.10.0"
+regex = "1.11.1"
+tesseract = "0.15.1"
+zip = "2.2.2"
