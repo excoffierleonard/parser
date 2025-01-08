@@ -2,9 +2,9 @@
 
 ## Endpoints
 
-1. [Parse the text of a document](#parse-the-text-of-a-document)
+1. [Parse the texts of documents](#parse-the-texts-of-documents)
 
-## Parse the text of a document
+## Parse the texts of documents
 
 ### Request
 
@@ -14,11 +14,11 @@
 POST /parse
 ```
 
-#### Body (form-data)
+#### Body (multipart/form-data)
 
 | Key | Value |
 |-|-|
-| file | *The document to parse* |
+| file | *One or more documents to parse* |
 
 ### Response
 
@@ -36,7 +36,10 @@ POST /parse
 
 ```json
 {
-    "text": "*Parsed text*"
+    "texts": [
+        "*Parsed text of first document.*",
+        "*Parsed text of second document.*"
+    ]
 }
 ```
 
@@ -55,13 +58,18 @@ POST /parse
 ```bash
 curl --request POST \
      --url "http://localhost:8080/parse" \
-     --form "file=@tests/inputs/test_pdf_1.pdf"
+     --header "Content-Type: multipart/form-data" \
+     --form "file=@parser-web/tests/inputs/test_pdf_1.pdf" \
+     --form "file=@parser-web/tests/inputs/test_pdf_2.pdf"
 ```
 
 #### Response
 
 ```json
 {
-    "text": "Hello, this is a test pdf for the parsing API."
+    "texts": [
+        "Hello, this is a test pdf for the parsing API.",
+        "Hello, this is another test pdf for the parsing API."
+    ]
 }
 ```

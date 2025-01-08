@@ -4,6 +4,6 @@
 //! into plain text, exposed through a REST API.
 
 pub mod config;
-pub mod errors;
-pub mod responses;
+pub(crate) mod errors;
+pub(crate) mod responses;
 pub mod routes;

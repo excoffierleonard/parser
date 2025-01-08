@@ -14,22 +14,19 @@
 <body>
     <div class="container">
         <div class="upload-area" id="uploadArea">
-            <h2>Upload a file to retrieve its text content</h2>
+            <h2>Upload files to retrieve their text content</h2>
             <br>
-            <p>Drag and drop a file here or click to select</p>
+            <p>Drag and drop files here or click to select</p>
             <br>
-            <input type="file" id="fileInput" style="display: none">
-            <button class="upload-button" id="uploadButton">Choose File</button>
+            <input type="file" id="fileInput" multiple style="display: none">
+            <button class="upload-button" id="uploadButton">Choose Files</button>
             <div class="file-name" id="fileName"></div>
         </div>
         <div class="spinner" id="spinner"></div>
         <div class="response-area" id="responseArea">
-            <button id="copyButton">📋</button>
             <div id="responseText"></div>
         </div>
     </div>
-
-    <script src="script.js"></script>
 
     <div class="footer">
         <a href="https://github.com/excoffierleonard/parser" target="_blank" class="github-link">
@@ -41,6 +38,7 @@
             View on GitHub
         </a>
     </div>
+    <script src="script.js"></script>
 </body>
 
 </html>
