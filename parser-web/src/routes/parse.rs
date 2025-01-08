@@ -4,7 +4,7 @@ use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;
-use parser_core::parsers::InputFiles;
+use parser_core::InputFiles;
 use std::{io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 
