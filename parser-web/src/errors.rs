@@ -85,12 +85,6 @@ impl From<std::env::VarError> for ApiError {
     }
 }
 
-impl From<dotenv::Error> for ApiError {
-    fn from(_: dotenv::Error) -> Self {
-        ApiError::ConfigError(std::env::VarError::NotPresent.to_string())
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

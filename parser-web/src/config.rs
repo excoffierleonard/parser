@@ -16,7 +16,7 @@ pub struct Config {
 impl Config {
     /// Builds a new configuration from environment variables.
     pub fn build() -> Result<Self, ApiError> {
-        dotenv()?;
+        dotenv().ok();
 
         let port = var("PARSER_APP_PORT")
             .ok()
