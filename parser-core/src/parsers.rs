@@ -19,6 +19,7 @@ use self::{
 use crate::errors::ParserError;
 use infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
+use rayon::prelude::*;
 use std::{
     fs::read_to_string,
     path::{Path, PathBuf},
@@ -45,16 +46,29 @@ impl InputFiles {
         self.0.iter()
     }
 
-    // TODO: Implement Multithreading
-    /// Parses multiple files and returns a vector of strings
+    /// Parses multiple files in parallel while preserving order
+    ///
+    /// This implementation uses rayon's parallel iterator to process files
+    /// concurrently while maintaining the original order of results through
+    /// indexed collection.
     pub fn parse(self) -> Result<Vec<String>, ParserError> {
-        let mut results = Vec::new();
+        // Create a vector of indexed paths
+        let indexed_paths: Vec<(usize, &PathBuf)> = self.0.iter().enumerate().collect();
 
-        for path in self.iter() {
-            results.push(parse_any(path)?);
-        }
+        // Process files in parallel and collect results with their indices
+        let mut parsed_results: Vec<(usize, Result<String, ParserError>)> = indexed_paths
+            .par_iter()
+            .map(|(idx, path)| (*idx, parse_any(path)))
+            .collect();
 
-        Ok(results)
+        // Sort results by original index
+        parsed_results.sort_by_key(|(idx, _)| *idx);
+
+        // Extract results in order, propagating any errors
+        parsed_results
+            .into_iter()
+            .map(|(_, result)| result)
+            .collect()
     }
 }
 
