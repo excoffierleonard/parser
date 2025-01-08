@@ -88,6 +88,15 @@ body {
     background: #fff8f8;
 }
 
+/* Response text formatting */
+#responseText {
+    white-space: pre-wrap;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 40px;
+    /* Make space for copy button */
+}
+
 /* Loading spinner */
 .spinner {
     display: none;
@@ -115,6 +124,9 @@ body {
     margin-top: 1rem;
     color: #666;
     font-size: 0.9rem;
+    max-height: 100px;
+    overflow-y: auto;
+    word-break: break-all;
 }
 
 /* GitHub link styles */
@@ -146,7 +158,8 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-#copyButton {
+/* Copy button for each text box */
+.copy-button {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -160,13 +173,34 @@ body {
     font-size: 16px;
 }
 
-#copyButton:hover {
+.copy-button:hover {
     background: #5a52cc;
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#copyButton:active {
+.copy-button:active {
     transform: translateY(0);
     box-shadow: none;
+}
+
+/* Text box container */
+.text-box {
+    position: relative;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e9ecef;
+}
+
+.text-box:last-child {
+    margin-bottom: 0;
+}
+
+/* Text content */
+.text-content {
+    padding-right: 40px;
+    /* Make space for copy button */
+    white-space: pre-wrap;
 }

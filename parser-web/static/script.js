@@ -46,16 +46,18 @@ fileInput.addEventListener('change', (e) => {
     handleFile(e.target.files[0]);
 });
 
-// Process the selected file
-function handleFile(file) {
-    if (!file) return;
+// Process the selected files
+function handleFiles(files) {
+    if (!files || files.length === 0) return;
 
-    // Display file name
-    fileName.textContent = `Selected file: ${file.name}`;
+    // Display file names
+    fileName.textContent = `Selected files: ${Array.from(files).map(f => f.name).join(', ')}`;
 
-    // Create FormData and append file
+    // Create FormData and append files
     const formData = new FormData();
-    formData.append('file', file);
+    Array.from(files).forEach(file => {
+        formData.append('file', file);
+    });
 
     // Show loading spinner
     spinner.style.display = 'block';
@@ -72,10 +74,29 @@ function handleFile(file) {
             spinner.style.display = 'none';
             responseArea.style.display = 'block';
 
-            if (data.text) {
+            if (data.texts) {
                 // Success response
                 responseArea.className = 'response-area success';
-                responseText.textContent = data.text;
+                responseText.innerHTML = ''; // Clear previous content
+
+                // Create a box for each text
+                data.texts.forEach((text, index) => {
+                    const textBox = document.createElement('div');
+                    textBox.className = 'text-box';
+
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-button';
+                    copyButton.innerHTML = '📋';
+                    copyButton.onclick = () => navigator.clipboard.writeText(text);
+
+                    const textContent = document.createElement('div');
+                    textContent.className = 'text-content';
+                    textContent.textContent = text;
+
+                    textBox.appendChild(copyButton);
+                    textBox.appendChild(textContent);
+                    responseText.appendChild(textBox);
+                });
             } else if (data.message) {
                 // Error response
                 responseArea.className = 'response-area error';
@@ -87,9 +108,20 @@ function handleFile(file) {
             spinner.style.display = 'none';
             responseArea.style.display = 'block';
             responseArea.className = 'response-area error';
-            responseArea.textContent = `Error: ${error.message}`;
+            responseText.textContent = `Error: ${error.message}`;
         });
 }
+
+// Update the file drop handler
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    handleFiles(dt.files);
+}
+
+// Update the file selection handler
+fileInput.addEventListener('change', (e) => {
+    handleFiles(e.target.files);
+});
 
 // Handles store to clipboard
 copyButton.addEventListener('click', () => {
