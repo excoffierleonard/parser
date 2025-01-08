@@ -1,10 +1,10 @@
 //! Response types for the parser web server
 
 use actix_web::{body::BoxBody, HttpRequest, HttpResponse, Responder};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Response type for greeting
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct GreetingResponse {
     /// Greeting message
     pub message: String,
@@ -18,11 +18,11 @@ impl Responder for GreetingResponse {
     }
 }
 
-/// Response type for parsed text
-#[derive(Serialize)]
+/// Response type for parsed texts
+#[derive(Serialize, Deserialize)]
 pub struct ParseResponse {
-    /// Parsed text from the document
-    pub text: String,
+    /// Parsed text from the documents
+    pub texts: Vec<String>,
 }
 
 impl Responder for ParseResponse {

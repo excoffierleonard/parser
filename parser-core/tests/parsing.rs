@@ -10,7 +10,7 @@ fn build_input_path() -> PathBuf {
 }
 
 #[test]
-fn test() {
+fn parse_success() {
     let inputs: Vec<PathBuf> = vec![
         "test_pdf_1.pdf",
         "test_pdf_2.pdf",

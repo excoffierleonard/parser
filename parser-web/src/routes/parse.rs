@@ -5,33 +5,45 @@ use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;
 use parser_core::parsers::InputFiles;
-use std::io::Write;
+use std::{io::Write, path::PathBuf};
 use tempfile::NamedTempFile;
 
 /// Parses various document formats into plain text.
 #[post("/parse")]
 async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
-    let temp_file = create_temp_file(&mut payload).await?;
-    let mut parsed_text = InputFiles::new(vec![temp_file.path().to_path_buf()]).parse()?;
+    let temp_files = create_temp_files(&mut payload).await?;
 
-    Ok(ParseResponse {
-        text: parsed_text.remove(0),
-    })
+    // Extract paths from all temp files
+    let file_paths: Vec<PathBuf> = temp_files
+        .iter()
+        .map(|temp_file| temp_file.path().to_path_buf())
+        .collect();
+
+    let parsed_text = InputFiles::new(file_paths).parse()?;
+
+    Ok(ParseResponse { texts: parsed_text })
 }
 
-async fn create_temp_file(payload: &mut Multipart) -> Result<NamedTempFile, ApiError> {
-    let mut temp_file = NamedTempFile::new()?;
+async fn create_temp_files(payload: &mut Multipart) -> Result<Vec<NamedTempFile>, ApiError> {
+    let mut temp_files = Vec::new();
 
-    // Take the first field from the multipart payload
-    let mut field = payload
-        .next()
-        .await
-        .ok_or_else(|| ApiError::BadRequest("No file provided".to_string()))??;
+    // Process each field in the payload
+    while let Some(field_result) = payload.next().await {
+        let mut field = field_result?;
+        let mut temp_file = NamedTempFile::new()?;
 
-    // Stream chunks directly to the temp file
-    while let Some(chunk) = field.next().await {
-        temp_file.write_all(&chunk?)?;
+        // Stream chunks directly to the temp file
+        while let Some(chunk) = field.next().await {
+            temp_file.write_all(&chunk?)?;
+        }
+
+        temp_files.push(temp_file);
     }
 
-    Ok(temp_file)
+    // Check if any files were processed
+    if temp_files.is_empty() {
+        return Err(ApiError::BadRequest("No files provided".to_string()));
+    }
+
+    Ok(temp_files)
 }
