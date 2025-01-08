@@ -8,7 +8,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 body {
@@ -166,7 +166,7 @@ body {
     background: #6c63ff;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     padding: 6px 10px;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -188,7 +188,7 @@ body {
 .text-box {
     position: relative;
     background: #f8f9fa;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     padding: 1rem;
     margin-bottom: 1rem;
     border: 1px solid #e9ecef;
