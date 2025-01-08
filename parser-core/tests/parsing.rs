@@ -1,4 +1,4 @@
-use parser_core::parsers::InputFiles;
+use parser_core::InputFiles;
 
 use std::path::PathBuf;
 

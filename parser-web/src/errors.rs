@@ -73,8 +73,8 @@ impl From<actix_multipart::MultipartError> for ApiError {
     }
 }
 
-impl From<parser_core::errors::ParserError> for ApiError {
-    fn from(err: parser_core::errors::ParserError) -> Self {
+impl From<parser_core::ParserError> for ApiError {
+    fn from(err: parser_core::ParserError) -> Self {
         ApiError::InternalError(err.to_string())
     }
 }
