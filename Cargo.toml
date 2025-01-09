@@ -7,11 +7,10 @@ edition = "2021"
 members = ["parser-web"]
 
 [dependencies]
-parser-web = { workspace = true }
+parser-web = { path = "parser-web", version = "0.1.0" }
 actix-web = { workspace = true }
 env_logger = "0.11.6"
 num_cpus = "1.16.0"
 
 [workspace.dependencies]
-parser-web = { path = "parser-web", version = "0.1.0" }
 actix-web = "4.9.0"
