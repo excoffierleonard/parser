@@ -4,7 +4,6 @@ services:
     container_name: parser-app
     build:
       context: .
-      dockerfile: dockerfile
     restart: unless-stopped
     environment:
       - ENABLE_FILE_SERVING=${ENABLE_FILE_SERVING:-false}

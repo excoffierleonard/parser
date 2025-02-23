@@ -3,7 +3,6 @@ use actix_web::{
     App, HttpServer,
 };
 use env_logger::{init_from_env, Env};
-use num_cpus::get;
 use parser_web::{
     routes::{greet, parse_file, serve_files},
     Config,
@@ -31,7 +30,6 @@ async fn main() -> Result<()> {
         app
     })
     .bind(("0.0.0.0", config.port))?
-    .workers(get())
     .run()
     .await
 }
