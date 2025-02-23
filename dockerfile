@@ -1,51 +1,39 @@
-# Step 1: Build the application
-FROM rust:alpine AS builder
-
-RUN apk add --no-cache \
-    tesseract-ocr-dev \
-    leptonica-dev \
-    clang-dev \
-    tesseract-ocr-data-eng \
-    tesseract-ocr-data-fra
-
-# Does not statically link the C runtime because of alpine
+##############################
+# Stage 1: Prepare the Recipe
+##############################
+FROM rust:alpine AS chef
 ENV RUSTFLAGS="-C target-feature=-crt-static"
-
+RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev tesseract-ocr-data-eng tesseract-ocr-data-fra
+RUN cargo install cargo-chef
 WORKDIR /app
+# Copy only the files needed to generate the recipe (e.g., Cargo.toml, Cargo.lock, and source files)
+COPY . .
+# Create the recipe file that captures your dependency graph.
+RUN cargo chef prepare --recipe-path recipe.json
 
-## Copy only the manifests first
-COPY Cargo.toml Cargo.lock ./
-COPY parser-web/parser-core/Cargo.toml parser-web/parser-core/Cargo.toml
-COPY parser-web/Cargo.toml parser-web/Cargo.toml
+##############################
+# Stage 2: Cache Dependencies
+##############################
+FROM rust:alpine AS builder
+ENV RUSTFLAGS="-C target-feature=-crt-static"
+RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev tesseract-ocr-data-eng tesseract-ocr-data-fra
+RUN cargo install cargo-chef
+WORKDIR /app
+# Copy the pre-generated recipe
+COPY --from=chef /app/recipe.json recipe.json
+# Build (or “cook”) the dependencies from the recipe. This layer is cached until your dependencies change.
+RUN cargo chef cook --release --recipe-path recipe.json
+# Now copy the full source and compile the application.
+COPY . .
+RUN cargo build --release
 
-## Create dummy source files for all crates
-RUN mkdir src parser-web/parser-core/src parser-web/src && \
-    echo "fn main() {}" > src/main.rs && \
-    echo "pub fn dummy() {}" > parser-web/parser-core/src/lib.rs && \
-    echo "pub fn dummy() {}" > parser-web/src/lib.rs && \
-    cargo build --release && \
-    rm src/main.rs parser-web/parser-core/src/lib.rs parser-web/src/lib.rs
-
-## Now copy the real source code
-COPY parser-web/parser-core/src parser-web/parser-core/src/
-COPY parser-web/src parser-web/src/
-COPY parser-web/static parser-web/static/
-COPY src src/
-
-## Build the real application
-RUN touch src/main.rs parser-web/parser-core/src/lib.rs parser-web/src/lib.rs && \
-    cargo build --release
-
-# Step 2: Create final image
+##############################
+# Stage 3: Final Image
+##############################
 FROM alpine
-
-RUN apk add --no-cache \
-    tesseract-ocr-data-eng \
-    tesseract-ocr-data-fra
-
+RUN apk add --no-cache tesseract-ocr-data-eng tesseract-ocr-data-fra
 WORKDIR /app
-
-## TODO: Need to add more language support in the future
-COPY --from=builder /app/target/release/parser .
-
-CMD ["./parser"]
+# Copy the statically linked binary from the builder stage
+COPY --from=builder /app/target/release/parser-bin .
+EXPOSE 8080
+CMD ["./parser-bin"]
