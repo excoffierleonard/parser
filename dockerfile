@@ -34,6 +34,6 @@ FROM alpine
 RUN apk add --no-cache tesseract-ocr-data-eng tesseract-ocr-data-fra
 WORKDIR /app
 # Copy the statically linked binary from the builder stage
-COPY --from=builder /app/target/release/parser-bin .
+COPY --from=builder /app/target/release/parser-web .
 EXPOSE 8080
-CMD ["./parser-bin"]
+CMD ["./parser-web"]
