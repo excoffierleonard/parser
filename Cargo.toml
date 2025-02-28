@@ -1,5 +1,6 @@
 [workspace]
-members = ["parser-core", "parser-web"] 
+members = ["parser-core", "parser-web", "parser-cli"]
+resolver = "2"
 
 [workspace.dependencies]
 actix-web = "4.9.0"
