@@ -1,9 +1,0 @@
-[package]
-name = "parser-bin"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-parser-web = { path = "../parser-web" }
-actix-web = { workspace = true }
-env_logger = "0.11.6"
