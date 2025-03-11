@@ -15,14 +15,3 @@ regex = "1.11.1"
 tempfile = "3.9.0"
 tesseract = "0.15.1"
 zip = "2.2.2"
-
-[dev-dependencies]
-criterion = "0.5.1"
-
-[[bench]]
-name = "parser_benchmarks"
-harness = false
-
-[[bench]]
-name = "quick_benchmarks"
-harness = false
