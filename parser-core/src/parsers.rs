@@ -36,36 +36,31 @@ pub struct InputFiles(Vec<(Vec<u8>, Option<String>)>);
 impl InputFiles {
     /// Creates a new InputFiles instance from bytes data
     pub fn new(data: Vec<Vec<u8>>) -> Self {
-        Self(data.into_iter().map(|bytes| (bytes, None)).collect())
+        Self(data.into_par_iter().map(|bytes| (bytes, None)).collect())
     }
 
     /// Creates a new InputFiles instance from bytes data with filenames
     pub fn with_filenames(data: Vec<(Vec<u8>, String)>) -> Self {
         Self(
-            data.into_iter()
+            data.into_par_iter()
                 .map(|(bytes, name)| (bytes, Some(name)))
                 .collect(),
         )
     }
 
-    /// Parses multiple files in parallel while preserving order
-    ///
-    /// This implementation uses rayon's parallel iterator to process files
-    /// concurrently while maintaining the original order of results through
-    /// indexed collection.
+    /// Parses multiple files in parallel, preserving the original order as best as possible.
     pub fn parse(self) -> Result<Vec<String>, ParserError> {
-        // Process inputs in parallel directly
-        let mut results = self.0.into_par_iter()
-            .enumerate()
-            .map(|(idx, (bytes, filename))| (idx, parse_any(&bytes, filename.as_deref())))
-            .collect::<Vec<_>>();
-            
-        // Sort by original index
-        results.sort_by_key(|(idx, _)| *idx);
-        
-        // Extract results in order
-        results.into_iter()
-            .map(|(_, result)| result)
+        self.0
+            .into_par_iter()
+            .map(|(bytes, filename)| parse_any(&bytes, filename.as_deref()))
+            .collect()
+    }
+
+    /// Parses multiple files sequentially, this is meant for benchmarking purposes.
+    pub fn parse_sequential(self) -> Result<Vec<String>, ParserError> {
+        self.0
+            .into_iter()
+            .map(|(bytes, filename)| parse_any(&bytes, filename.as_deref()))
             .collect()
     }
 }
