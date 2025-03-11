@@ -10,7 +10,7 @@ use std::io::Cursor;
 pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
     // Create a cursor from the bytes for memory-based reading
     let cursor = Cursor::new(data);
-    
+
     // Open the workbook directly from the cursor
     // This uses the standard Read trait and avoids temporary files
     let mut excel = Xlsx::new(cursor)?;
