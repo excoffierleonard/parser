@@ -22,21 +22,19 @@ fn main() {
     let cli = Cli::parse();
     let files = cli.files;
     let output = cli.output;
-    
+
     // Read all files into memory and collect their data
     let file_data = files
         .iter()
         .filter_map(|path| {
-            read(path)
-                .ok()
-                .map(|bytes| {
-                    // Only use to_string() if path contains non-UTF8 characters
-                    let filename = match path.to_str() {
-                        Some(s) => s.to_string(),
-                        None => path.to_string_lossy().to_string(),
-                    };
-                    (bytes, filename)
-                })
+            read(path).ok().map(|bytes| {
+                // Only use to_string() if path contains non-UTF8 characters
+                let filename = match path.to_str() {
+                    Some(s) => s.to_string(),
+                    None => path.to_string_lossy().to_string(),
+                };
+                (bytes, filename)
+            })
         })
         .collect();
 
