@@ -2,14 +2,16 @@
 
 use crate::errors::ParserError;
 use regex::Regex;
-use std::{fs::File, io::Read, path::Path};
+use std::io::{Cursor, Read};
 use zip::ZipArchive;
 
 /// Parse a PPTX file and extract text from it.
-pub(crate) fn parse_pptx(file_path: &Path) -> Result<String, ParserError> {
-    let file = File::open(file_path)?;
+pub(crate) fn parse_pptx(data: &[u8]) -> Result<String, ParserError> {
+    // Create a cursor to read from the byte data
+    let cursor = Cursor::new(data);
 
-    let mut archive = ZipArchive::new(file)?;
+    // Create a zip archive from the cursor
+    let mut archive = ZipArchive::new(cursor)?;
 
     // Create regex once, outside the loop
     let text_pattern = Regex::new(r"<a:t[^>]*>([^<]+)</a:t>")?;
@@ -48,7 +50,7 @@ pub(crate) fn parse_pptx(file_path: &Path) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::{fs::read, path::PathBuf};
 
     #[test]
     fn parse_pptx_success() {
@@ -56,7 +58,8 @@ mod tests {
             .join("tests")
             .join("inputs")
             .join("test_pptx_1.pptx");
-        let result = parse_pptx(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_pptx(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(

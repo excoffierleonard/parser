@@ -65,7 +65,17 @@ grey07;2070;Laura;Grey",
         "Hello World! This is an OCR test.\n123456789\n0.123 | 45.67 | 890",
     ];
 
-    let result = InputFiles::new(inputs.clone()).parse().unwrap();
+    // Convert paths to bytes data with filenames
+    let data_with_names: Vec<(Vec<u8>, String)> = inputs
+        .iter()
+        .map(|path| {
+            let content = std::fs::read(path).unwrap();
+            let filename = path.file_name().unwrap().to_string_lossy().to_string();
+            (content, filename)
+        })
+        .collect();
+    
+    let result = InputFiles::with_filenames(data_with_names).parse().unwrap();
 
     // Assert the results
     assert_eq!(result.len(), inputs.len());
