@@ -11,5 +11,18 @@ mime = "0.3.17"
 pdf-extract = "0.8.0"
 rayon = "1.10.0"
 regex = "1.11.1"
+# tempfile is only used for image parsing since Tesseract needs a file path
+tempfile = "3.9.0"
 tesseract = "0.15.1"
 zip = "2.2.2"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "parser_benchmarks"
+harness = false
+
+[[bench]]
+name = "quick_benchmarks"
+harness = false

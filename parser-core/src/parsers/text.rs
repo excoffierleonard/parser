@@ -1,17 +1,19 @@
 //! Text parser module.
 
 use crate::errors::ParserError;
-use std::{fs::read_to_string, path::Path};
+use std::str;
 
 /// Parse anything that can be considered as text and return its content.
-pub(crate) fn parse_text(file_path: &Path) -> Result<String, ParserError> {
-    Ok(read_to_string(file_path)?)
+pub(crate) fn parse_text(data: &[u8]) -> Result<String, ParserError> {
+    // Convert bytes to string, using UTF-8 encoding
+    let text = str::from_utf8(data)?;
+    Ok(text.to_string())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::{fs::read, path::PathBuf};
 
     #[test]
     fn parse_txt_success() {
@@ -19,7 +21,8 @@ mod tests {
             .join("tests")
             .join("inputs")
             .join("test_txt_1.txt");
-        let result = parse_text(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_text(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
@@ -34,7 +37,8 @@ mod tests {
             .join("tests")
             .join("inputs")
             .join("test_csv_1.csv");
-        let result = parse_text(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_text(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
@@ -52,7 +56,8 @@ grey07;2070;Laura;Grey"
             .join("tests")
             .join("inputs")
             .join("test_json_1.json");
-        let result = parse_text(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_text(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
