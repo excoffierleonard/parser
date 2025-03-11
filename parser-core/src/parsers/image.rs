@@ -1,7 +1,6 @@
 //! Image parser module
 
 use crate::errors::ParserError;
-use tempfile;
 use tesseract::Tesseract;
 
 // Parses all that can be coerced to an image using OCR
