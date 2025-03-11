@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::Parser;
 use parser_core::InputFiles;
 use std::{
     fs::{create_dir_all, read, write},
@@ -9,61 +9,50 @@ use std::{
 #[command(name = "parser")]
 #[command(about = "CLI for parsing various document formats", long_about = None)]
 struct Cli {
-    #[command(subcommand)]
-    command: Commands,
-}
+    /// Files to parse
+    #[arg(required = true)]
+    files: Vec<PathBuf>,
 
-#[derive(Subcommand)]
-enum Commands {
-    /// Parse files and extract their text content
-    Parse {
-        /// Files to parse
-        #[arg(required = true)]
-        files: Vec<PathBuf>,
-
-        /// Output directory for the parsed content
-        #[arg(short, long)]
-        output: Option<PathBuf>,
-    },
+    /// Output directory for the parsed content
+    #[arg(short, long)]
+    output: Option<PathBuf>,
 }
 
 fn main() {
     let cli = Cli::parse();
-
-    match cli.command {
-        Commands::Parse { files, output } => {
-            // Read all files into memory and collect their data
-            let file_data = files
-                .iter()
-                .filter_map(|path| {
-                    read(path)
-                        .ok()
-                        .map(|bytes| {
-                            // Only use to_string() if path contains non-UTF8 characters
-                            let filename = match path.to_str() {
-                                Some(s) => s.to_string(),
-                                None => path.to_string_lossy().to_string(),
-                            };
-                            (bytes, filename)
-                        })
+    let files = cli.files;
+    let output = cli.output;
+    
+    // Read all files into memory and collect their data
+    let file_data = files
+        .iter()
+        .filter_map(|path| {
+            read(path)
+                .ok()
+                .map(|bytes| {
+                    // Only use to_string() if path contains non-UTF8 characters
+                    let filename = match path.to_str() {
+                        Some(s) => s.to_string(),
+                        None => path.to_string_lossy().to_string(),
+                    };
+                    (bytes, filename)
                 })
-                .collect();
+        })
+        .collect();
 
-            let input_files = InputFiles::with_filenames(file_data);
-            match input_files.parse() {
-                Ok(results) => {
-                    if let Some(output_dir) = output {
-                        save_to_files(results, output_dir);
-                    } else {
-                        // Print to stdout
-                        for result in results {
-                            println!("{}", result);
-                        }
-                    }
+    let input_files = InputFiles::with_filenames(file_data);
+    match input_files.parse() {
+        Ok(results) => {
+            if let Some(output_dir) = output {
+                save_to_files(results, output_dir);
+            } else {
+                // Print to stdout
+                for result in results {
+                    println!("{}", result);
                 }
-                Err(e) => eprintln!("Error parsing files: {}", e),
             }
         }
+        Err(e) => eprintln!("Error parsing files: {}", e),
     }
 }
 

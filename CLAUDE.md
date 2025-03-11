@@ -9,7 +9,7 @@
 - Format: `cargo fmt --all`
 - Build script: `./scripts/build.sh`
 - Run web API: `cargo run -p parser-web`
-- Run CLI: `cargo run -p parser-cli -- parse <FILES>`
+- Run CLI: `cargo run -p parser-cli -- <FILES>`
 
 ## Code Style Guidelines
 - Use snake_case for variables/functions, PascalCase for types/enums
