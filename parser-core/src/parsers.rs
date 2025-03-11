@@ -36,13 +36,13 @@ pub struct InputFiles(Vec<(Vec<u8>, Option<String>)>);
 impl InputFiles {
     /// Creates a new InputFiles instance from bytes data
     pub fn new(data: Vec<Vec<u8>>) -> Self {
-        Self(data.into_iter().map(|bytes| (bytes, None)).collect())
+        Self(data.into_par_iter().map(|bytes| (bytes, None)).collect())
     }
 
     /// Creates a new InputFiles instance from bytes data with filenames
     pub fn with_filenames(data: Vec<(Vec<u8>, String)>) -> Self {
         Self(
-            data.into_iter()
+            data.into_par_iter()
                 .map(|(bytes, name)| (bytes, Some(name)))
                 .collect(),
         )
