@@ -6,4 +6,4 @@ mod errors;
 mod parsers;
 
 pub use errors::ParserError;
-pub use parsers::{InputFiles, parse_any, determine_mime_type};
+pub use parsers::{determine_mime_type, parse_any, InputFiles};

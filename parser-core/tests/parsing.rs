@@ -37,28 +37,33 @@ fn get_test_data() -> (Vec<PathBuf>, Vec<String>) {
         "Hello, this is another test docx for the parsing API.".to_string(),
         "username,identifier,first_name
 johndoe123,4281,John
-alice23,8425,Alice".to_string(),
+alice23,8425,Alice"
+            .to_string(),
         "username,identifier,first_name
 alice23,8425,Alice
 --- Sheet: Sheet2 ---
 username,identifier,first_name
-johndoe123,4281,John".to_string(),
+johndoe123,4281,John"
+            .to_string(),
         "This is the title
 This is the subtitle
 
 --- Slide 2 ---
 This is the title of the second slide
-This is the text of the second slide".to_string(),
+This is the text of the second slide"
+            .to_string(),
         "Hello, this is a test txt for the parsing API.".to_string(),
         "Hello, this is another test txt for the parsing API.".to_string(),
         "Username; Identifier;First name;Last name
 booker12;9012;Rachel;Booker
-grey07;2070;Laura;Grey".to_string(),
+grey07;2070;Laura;Grey"
+            .to_string(),
         r#"{
     "name": "John Doe",
     "age": 30,
     "email": "john@example.com"
-}"#.to_string(),
+}"#
+        .to_string(),
         "Hello World! This is an OCR test.\n123456789\n0.123 | 45.67 | 890".to_string(),
         "Hello World! This is an OCR test.\n123456789\n0.123 | 45.67 | 890".to_string(),
         "Hello World! This is an OCR test.\n123456789\n0.123 | 45.67 | 890".to_string(),
@@ -82,7 +87,7 @@ fn prepare_test_input(inputs: &[PathBuf]) -> Vec<(Vec<u8>, String)> {
 fn parse_success() {
     let (inputs, expected_texts) = get_test_data();
     let data_with_names = prepare_test_input(&inputs);
-    
+
     let result = InputFiles::with_filenames(data_with_names).parse().unwrap();
 
     // Assert the results
@@ -94,9 +99,11 @@ fn parse_success() {
 fn parse_sequential_success() {
     let (inputs, expected_texts) = get_test_data();
     let data_with_names = prepare_test_input(&inputs);
-    
+
     // Use parse_sequential instead of parse
-    let result = InputFiles::with_filenames(data_with_names).parse_sequential().unwrap();
+    let result = InputFiles::with_filenames(data_with_names)
+        .parse_sequential()
+        .unwrap();
 
     // Assert the results
     assert_eq!(result.len(), inputs.len());
