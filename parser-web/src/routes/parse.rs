@@ -3,7 +3,6 @@
 use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;
-use bytes::BytesMut;
 use futures_util::StreamExt;
 use parser_core::InputFiles;
 
@@ -22,14 +21,15 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
             .unwrap_or("file")
             .to_string();
 
-        // Collect data chunks
-        let mut buffer = BytesMut::new();
+        // Collect data chunks directly into Vec<u8>
+        let mut buffer = Vec::new();
         while let Some(chunk) = field.next().await {
-            buffer.extend_from_slice(&chunk?);
+            let chunk_data = chunk?;
+            buffer.extend_from_slice(&chunk_data);
         }
 
-        // Use freeze() and into_inner() to avoid an unnecessary copy with to_vec()
-        files.push((buffer.freeze().to_vec(), filename));
+        // Add to files collection (no extra copy needed)
+        files.push((buffer, filename));
     }
 
     if files.is_empty() {
