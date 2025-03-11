@@ -5,6 +5,7 @@
 - Build release: `cargo build --release`
 - Run tests: `cargo test --workspace`
 - Run specific test: `cargo test test_name`
+- Run benchmarks: `cargo bench --workspace`
 - Lint: `cargo clippy --workspace -- -D warnings`
 - Format: `cargo fmt --all`
 - Build script: `./scripts/build.sh`
@@ -19,6 +20,7 @@
 - Use ? operator for error propagation
 - Create custom error types that implement std::error::Error
 - Organize modules by functionality, not implementation details
-- Use rayon for parallelism where appropriate
+- Use rayon for parallelism where appropriate (par_iter instead of iter)
 - Write tests for all public functionality
 - Maintain modularity between core, web, and CLI components
+- Use Docker for containerization (see compose.yaml and dockerfile)
