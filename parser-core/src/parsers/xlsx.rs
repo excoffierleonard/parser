@@ -1,18 +1,26 @@
 //! XLSX parser module.
 
 use crate::errors::ParserError;
-use calamine::{open_workbook, Reader, Xlsx};
-use std::path::Path;
+use calamine::{Reader, Xlsx};
+use std::io::Cursor;
 
 // TODO: Need proper logic to escape commas and quotes
 // TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
 /// Parse an XLSX file and extract text from it.
-pub(crate) fn parse_xlsx(file_path: &Path) -> Result<String, ParserError> {
-    let mut excel: Xlsx<_> = open_workbook(file_path)?;
+pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
+    // Create a cursor from the bytes for memory-based reading
+    let cursor = Cursor::new(data);
+    
+    // Open the workbook directly from the cursor
+    // This uses the standard Read trait and avoids temporary files
+    let mut excel = Xlsx::new(cursor)?;
 
     let mut csv_data = String::new();
 
-    for name in excel.sheet_names() {
+    // Copy the sheet names to avoid borrowing issues
+    let sheet_names = excel.sheet_names().to_vec();
+
+    for name in sheet_names {
         if let Ok(range) = excel.worksheet_range(&name) {
             if !csv_data.is_empty() {
                 csv_data.push_str("\n--- Sheet: ");
@@ -39,7 +47,7 @@ pub(crate) fn parse_xlsx(file_path: &Path) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::{fs::read, path::PathBuf};
 
     #[test]
     fn parse_xlsx_single_sheet_success() {
@@ -47,7 +55,8 @@ mod tests {
             .join("tests")
             .join("inputs")
             .join("test_xlsx_1.xlsx");
-        let result = parse_xlsx(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_xlsx(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(
@@ -65,7 +74,8 @@ alice23,8425,Alice"
             .join("tests")
             .join("inputs")
             .join("test_xlsx_2.xlsx");
-        let result = parse_xlsx(&file_path).unwrap();
+        let data = read(&file_path).unwrap();
+        let result = parse_xlsx(&data).unwrap();
 
         assert!(result.len() > 0);
         assert_eq!(

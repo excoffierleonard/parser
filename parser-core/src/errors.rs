@@ -44,6 +44,7 @@ impl_from_error!(
 impl_from_error!(pdf_extract::OutputError, ParserError::ParseError);
 impl_from_error!(docx_rs::ReaderError, ParserError::ParseError);
 impl_from_error!(std::string::FromUtf8Error, ParserError::ParseError);
+impl_from_error!(std::str::Utf8Error, ParserError::ParseError);
 impl_from_error!(zip::result::ZipError, ParserError::ParseError);
 impl_from_error!(regex::Error, ParserError::ParseError);
 impl_from_error!(std::process::ExitStatus, ParserError::ParseError);

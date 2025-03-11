@@ -1631,6 +1631,7 @@ dependencies = [
  "pdf-extract",
  "rayon",
  "regex",
+ "tempfile",
  "tesseract",
  "zip 2.2.2",
 ]
