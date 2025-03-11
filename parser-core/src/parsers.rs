@@ -54,24 +54,17 @@ impl InputFiles {
     /// concurrently while maintaining the original order of results through
     /// indexed collection.
     pub fn parse(self) -> Result<Vec<String>, ParserError> {
-        // Create type alias to resolve clippy warning
-        type IndexedInput = (usize, (Vec<u8>, Option<String>));
-        
-        // Create a vector of indexed inputs
-        let indexed_inputs: Vec<IndexedInput> = self.0.into_iter().enumerate().collect();
-
-        // Process inputs in parallel and collect results with their indices
-        let mut parsed_results: Vec<(usize, Result<String, ParserError>)> = indexed_inputs
-            .into_par_iter()
+        // Process inputs in parallel directly
+        let mut results = self.0.into_par_iter()
+            .enumerate()
             .map(|(idx, (bytes, filename))| (idx, parse_any(&bytes, filename.as_deref())))
-            .collect();
-
-        // Sort results by original index
-        parsed_results.sort_by_key(|(idx, _)| *idx);
-
-        // Extract results in order, propagating any errors
-        parsed_results
-            .into_iter()
+            .collect::<Vec<_>>();
+            
+        // Sort by original index
+        results.sort_by_key(|(idx, _)| *idx);
+        
+        // Extract results in order
+        results.into_iter()
             .map(|(_, result)| result)
             .collect()
     }

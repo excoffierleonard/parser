@@ -38,7 +38,14 @@ fn main() {
                 .filter_map(|path| {
                     read(path)
                         .ok()
-                        .map(|bytes| (bytes, path.to_string_lossy().to_string()))
+                        .map(|bytes| {
+                            // Only use to_string() if path contains non-UTF8 characters
+                            let filename = match path.to_str() {
+                                Some(s) => s.to_string(),
+                                None => path.to_string_lossy().to_string(),
+                            };
+                            (bytes, filename)
+                        })
                 })
                 .collect();
 
