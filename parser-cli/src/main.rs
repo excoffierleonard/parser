@@ -24,21 +24,9 @@ fn main() {
     let output = cli.output;
 
     // Read all files into memory and collect their data
-    let file_data = files
-        .iter()
-        .filter_map(|path| {
-            read(path).ok().map(|bytes| {
-                // Only use to_string() if path contains non-UTF8 characters
-                let filename = match path.to_str() {
-                    Some(s) => s.to_string(),
-                    None => path.to_string_lossy().to_string(),
-                };
-                (bytes, filename)
-            })
-        })
-        .collect();
+    let file_data = files.iter().filter_map(|path| read(path).ok()).collect();
 
-    let input_files = InputFiles::with_filenames(file_data);
+    let input_files = InputFiles::new(file_data);
     match input_files.parse() {
         Ok(results) => {
             if let Some(output_dir) = output {

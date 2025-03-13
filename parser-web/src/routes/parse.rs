@@ -14,13 +14,6 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
     while let Some(field_result) = payload.next().await {
         let mut field = field_result?;
 
-        // Get filename or use default
-        let filename = field
-            .content_disposition()
-            .and_then(|cd| cd.get_filename())
-            .unwrap_or("file")
-            .to_string();
-
         // Collect data chunks directly into Vec<u8>
         let mut buffer = Vec::new();
         while let Some(chunk) = field.next().await {
@@ -28,15 +21,15 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
             buffer.extend_from_slice(&chunk_data);
         }
 
-        // Add to files collection (no extra copy needed)
-        files.push((buffer, filename));
+        // Add to files collection
+        files.push(buffer);
     }
 
     if files.is_empty() {
         return Err(ApiError::BadRequest("No files provided".to_string()));
     }
 
-    let parsed_text = InputFiles::with_filenames(files).parse()?;
+    let parsed_text = InputFiles::new(files).parse()?;
 
     Ok(ParseResponse { texts: parsed_text })
 }
