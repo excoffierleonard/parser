@@ -28,7 +28,7 @@ const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.sp
 const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
-/// Parses multiple files in parallel, preserving the original order as best as possible.
+/// Parses the given data into plain text.
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
