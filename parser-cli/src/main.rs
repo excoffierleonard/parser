@@ -1,5 +1,6 @@
 use clap::Parser;
-use parser_core::InputFiles;
+use parser_core::parse;
+use rayon::prelude::*;
 use std::{
     fs::{create_dir_all, read, write},
     path::PathBuf,
@@ -23,23 +24,17 @@ fn main() {
     let files = cli.files;
     let output = cli.output;
 
-    // Read all files into memory and collect their data
-    let file_data = files
-        .iter()
-        .filter_map(|path| {
-            read(path).ok().map(|bytes| {
-                // Only use to_string() if path contains non-UTF8 characters
-                let filename = match path.to_str() {
-                    Some(s) => s.to_string(),
-                    None => path.to_string_lossy().to_string(),
-                };
-                (bytes, filename)
-            })
-        })
-        .collect();
+    // Read all files into memory and collect their data as slices
+    let file_data: Vec<_> = files.iter().filter_map(|path| read(path).ok()).collect();
 
-    let input_files = InputFiles::with_filenames(file_data);
-    match input_files.parse() {
+    // Create a slice of slices for processing
+    let file_slices: Vec<&[u8]> = file_data.iter().map(|d| d.as_slice()).collect();
+
+    match file_slices
+        .par_iter()
+        .map(|d| parse(d))
+        .collect::<Result<Vec<_>, _>>()
+    {
         Ok(results) => {
             if let Some(output_dir) = output {
                 save_to_files(results, output_dir);

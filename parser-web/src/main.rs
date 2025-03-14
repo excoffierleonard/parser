@@ -4,7 +4,7 @@ use actix_web::{
 };
 use env_logger::{init_from_env, Env};
 use parser_web::{
-    routes::{greet, parse_file, serve_files},
+    routes::{parse_file, serve_files},
     Config,
 };
 use std::io::{Error, ErrorKind, Result};
@@ -19,7 +19,6 @@ async fn main() -> Result<()> {
         let mut app = App::new()
             .wrap(Compress::default())
             .wrap(Logger::default())
-            .service(greet)
             .service(parse_file);
 
         // Conditionally add serve_files service

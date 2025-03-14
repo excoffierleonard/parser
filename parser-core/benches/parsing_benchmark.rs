@@ -1,5 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use parser_core::InputFiles;
+use parser_core::parse;
+use rayon::prelude::*;
 use std::fs;
 use std::path::Path;
 
@@ -27,7 +28,7 @@ fn load_test_files() -> Vec<Vec<u8>> {
         .collect()
 }
 
-fn benchmark_parse_vs_sequential(c: &mut Criterion) {
+fn benchmark_sequential_vs_parralel(c: &mut Criterion) {
     let files = load_test_files();
 
     let mut group = c.benchmark_group("Parsing Comparison");
@@ -35,9 +36,10 @@ fn benchmark_parse_vs_sequential(c: &mut Criterion) {
     // Benchmark parallel parsing
     group.bench_function("parallel", |b| {
         b.iter(|| {
-            let input_files = InputFiles::new(files.clone());
-            input_files
-                .parse()
+            files
+                .par_iter()
+                .map(|d| parse(d))
+                .collect::<Result<Vec<_>, _>>()
                 .expect("Failed to parse files in parallel")
         })
     });
@@ -45,9 +47,10 @@ fn benchmark_parse_vs_sequential(c: &mut Criterion) {
     // Benchmark sequential parsing
     group.bench_function("sequential", |b| {
         b.iter(|| {
-            let input_files = InputFiles::new(files.clone());
-            input_files
-                .parse_sequential()
+            files
+                .iter()
+                .map(|d| parse(d))
+                .collect::<Result<Vec<_>, _>>()
                 .expect("Failed to parse files sequentially")
         })
     });
@@ -55,5 +58,5 @@ fn benchmark_parse_vs_sequential(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, benchmark_parse_vs_sequential);
+criterion_group!(benches, benchmark_sequential_vs_parralel);
 criterion_main!(benches);
