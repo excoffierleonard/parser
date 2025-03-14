@@ -27,7 +27,7 @@ fn load_test_files() -> Vec<Vec<u8>> {
         .collect()
 }
 
-fn benchmark_parse_vs_sequential(c: &mut Criterion) {
+fn benchmark_parsel(c: &mut Criterion) {
     let files = load_test_files();
 
     let mut group = c.benchmark_group("Parsing Comparison");
@@ -42,18 +42,8 @@ fn benchmark_parse_vs_sequential(c: &mut Criterion) {
         })
     });
 
-    // Benchmark sequential parsing
-    group.bench_function("sequential", |b| {
-        b.iter(|| {
-            let input_files = InputFiles::new(files.clone());
-            input_files
-                .parse_sequential()
-                .expect("Failed to parse files sequentially")
-        })
-    });
-
     group.finish();
 }
 
-criterion_group!(benches, benchmark_parse_vs_sequential);
+criterion_group!(benches, benchmark_parsel);
 criterion_main!(benches);

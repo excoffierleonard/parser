@@ -42,37 +42,27 @@ impl InputFiles {
     pub fn parse(self) -> Result<Vec<String>, ParserError> {
         self.0
             .into_par_iter()
-            .map(|bytes| parse_any(&bytes))
+            .map(|data| match determine_mime_type(&data) {
+                Some(mime) if mime == APPLICATION_PDF => parse_pdf(&data),
+                Some(mime) if mime == APPLICATION_DOCX => parse_docx(&data),
+                Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(&data),
+                Some(mime) if mime == APPLICATION_PPTX => parse_pptx(&data),
+                Some(mime) if mime.type_() == TEXT => parse_text(&data),
+                Some(mime) if mime.type_() == IMAGE => parse_image(&data),
+                Some(mime) => Err(ParserError::InvalidFormat(format!(
+                    "Unsupported file type: {}",
+                    mime
+                ))),
+                None => Err(ParserError::InvalidFormat(
+                    "Could not determine file type.".to_string(),
+                )),
+            })
             .collect()
-    }
-
-    /// Parses multiple files sequentially, this is meant for benchmarking purposes.
-    pub fn parse_sequential(self) -> Result<Vec<String>, ParserError> {
-        self.0.into_iter().map(|bytes| parse_any(&bytes)).collect()
-    }
-}
-
-/// Automatically detects the file type and uses the appropriate parser
-pub fn parse_any(data: &[u8]) -> Result<String, ParserError> {
-    match determine_mime_type(data) {
-        Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
-        Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),
-        Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(data),
-        Some(mime) if mime == APPLICATION_PPTX => parse_pptx(data),
-        Some(mime) if mime.type_() == TEXT => parse_text(data),
-        Some(mime) if mime.type_() == IMAGE => parse_image(data),
-        Some(mime) => Err(ParserError::InvalidFormat(format!(
-            "Unsupported file type: {}",
-            mime
-        ))),
-        None => Err(ParserError::InvalidFormat(
-            "Could not determine file type.".to_string(),
-        )),
     }
 }
 
 /// Determine MIME type from bytes using only file signatures
-pub fn determine_mime_type(data: &[u8]) -> Option<Mime> {
+fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     // Create infer instance
     let infer = Infer::new();
 

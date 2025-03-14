@@ -90,16 +90,3 @@ fn parse_success() {
     assert_eq!(result.len(), inputs.len());
     assert_eq!(result, expected_texts);
 }
-
-#[test]
-fn parse_sequential_success() {
-    let (inputs, expected_texts) = get_test_data();
-    let data = prepare_test_input(&inputs);
-
-    // Use parse_sequential instead of parse
-    let result = InputFiles::new(data).parse_sequential().unwrap();
-
-    // Assert the results
-    assert_eq!(result.len(), inputs.len());
-    assert_eq!(result, expected_texts);
-}
