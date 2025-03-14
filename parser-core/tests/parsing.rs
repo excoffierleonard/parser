@@ -1,5 +1,5 @@
 use parser_core::parse;
-
+use rayon::prelude::*;
 use std::path::PathBuf;
 
 // Helper function to get the test input path
@@ -84,7 +84,7 @@ fn parse_success() {
     let (inputs, expected_texts) = get_test_data();
     let data = prepare_test_input(&inputs);
 
-    let result = parse(data).unwrap();
+    let result: Vec<String> = data.par_iter().map(|d| parse(d).unwrap()).collect();
 
     // Assert the results
     assert_eq!(result.len(), inputs.len());

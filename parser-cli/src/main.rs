@@ -1,5 +1,6 @@
 use clap::Parser;
 use parser_core::parse;
+use rayon::prelude::*;
 use std::{
     fs::{create_dir_all, read, write},
     path::PathBuf,
@@ -24,9 +25,13 @@ fn main() {
     let output = cli.output;
 
     // Read all files into memory and collect their data
-    let file_data = files.iter().filter_map(|path| read(path).ok()).collect();
+    let file_data: Vec<Vec<u8>> = files.iter().filter_map(|path| read(path).ok()).collect();
 
-    match parse(file_data) {
+    match file_data
+        .par_iter()
+        .map(|d| parse(d))
+        .collect::<Result<Vec<_>, _>>()
+    {
         Ok(results) => {
             if let Some(output_dir) = output {
                 save_to_files(results, output_dir);

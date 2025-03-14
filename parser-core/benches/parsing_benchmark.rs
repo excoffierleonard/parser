@@ -1,5 +1,6 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use parser_core::parse;
+use rayon::prelude::*;
 use std::fs;
 use std::path::Path;
 
@@ -34,7 +35,13 @@ fn benchmark_parsel(c: &mut Criterion) {
 
     // Benchmark parallel parsing
     group.bench_function("parallel", |b| {
-        b.iter(|| parse(files.clone()).expect("Failed to parse files in parallel"))
+        b.iter(|| {
+            files
+                .par_iter()
+                .map(|d| parse(d))
+                .collect::<Result<Vec<_>, _>>()
+                .expect("Failed to parse files in parallel")
+        })
     });
 
     group.finish();

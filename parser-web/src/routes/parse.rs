@@ -5,6 +5,7 @@ use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;
 use parser_core::parse;
+use rayon::prelude::*;
 
 /// Parses various document formats into plain text.
 #[post("/parse")]
@@ -29,7 +30,10 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
         return Err(ApiError::BadRequest("No files provided".to_string()));
     }
 
-    let parsed_text = parse(files)?;
+    let parsed_text = files
+        .par_iter()
+        .map(|d| parse(d))
+        .collect::<Result<Vec<_>, _>>()?;
 
     Ok(ParseResponse { texts: parsed_text })
 }

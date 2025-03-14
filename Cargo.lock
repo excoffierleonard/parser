@@ -1751,6 +1751,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "parser-core",
+ "rayon",
 ]
 
 [[package]]
@@ -1781,6 +1782,7 @@ dependencies = [
  "futures-util",
  "mime_guess",
  "parser-core",
+ "rayon",
  "rust-embed",
  "serde",
  "tempfile",

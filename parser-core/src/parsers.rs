@@ -19,7 +19,6 @@ use self::{
 use crate::errors::ParserError;
 use infer::Infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
-use rayon::prelude::*;
 
 // Types not defined in the mime package or not a string constant
 const APPLICATION_PDF: &str = "application/pdf";
@@ -30,24 +29,22 @@ const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 /// Parses multiple files in parallel, preserving the original order as best as possible.
-pub fn parse(data: Vec<Vec<u8>>) -> Result<Vec<String>, ParserError> {
-    data.par_iter()
-        .map(|data| match determine_mime_type(data) {
-            Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
-            Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),
-            Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(data),
-            Some(mime) if mime == APPLICATION_PPTX => parse_pptx(data),
-            Some(mime) if mime.type_() == TEXT => parse_text(data),
-            Some(mime) if mime.type_() == IMAGE => parse_image(data),
-            Some(mime) => Err(ParserError::InvalidFormat(format!(
-                "Unsupported file type: {}",
-                mime
-            ))),
-            None => Err(ParserError::InvalidFormat(
-                "Could not determine file type.".to_string(),
-            )),
-        })
-        .collect()
+pub fn parse(data: &Vec<u8>) -> Result<String, ParserError> {
+    match determine_mime_type(data) {
+        Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
+        Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),
+        Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(data),
+        Some(mime) if mime == APPLICATION_PPTX => parse_pptx(data),
+        Some(mime) if mime.type_() == TEXT => parse_text(data),
+        Some(mime) if mime.type_() == IMAGE => parse_image(data),
+        Some(mime) => Err(ParserError::InvalidFormat(format!(
+            "Unsupported file type: {}",
+            mime
+        ))),
+        None => Err(ParserError::InvalidFormat(
+            "Could not determine file type.".to_string(),
+        )),
+    }
 }
 
 /// Determine MIME type from bytes using only file signatures
