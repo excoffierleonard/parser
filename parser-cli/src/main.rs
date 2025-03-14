@@ -1,5 +1,5 @@
 use clap::Parser;
-use parser_core::InputFiles;
+use parser_core::parse;
 use std::{
     fs::{create_dir_all, read, write},
     path::PathBuf,
@@ -26,8 +26,7 @@ fn main() {
     // Read all files into memory and collect their data
     let file_data = files.iter().filter_map(|path| read(path).ok()).collect();
 
-    let input_files = InputFiles::new(file_data);
-    match input_files.parse() {
+    match parse(file_data) {
         Ok(results) => {
             if let Some(output_dir) = output {
                 save_to_files(results, output_dir);

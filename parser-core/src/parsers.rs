@@ -29,36 +29,25 @@ const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.sp
 const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
-/// A collection of file data to be parsed
-pub struct InputFiles(Vec<Vec<u8>>);
-
-impl InputFiles {
-    /// Creates a new InputFiles instance from bytes data
-    pub fn new(data: Vec<Vec<u8>>) -> Self {
-        Self(data)
-    }
-
-    /// Parses multiple files in parallel, preserving the original order as best as possible.
-    pub fn parse(self) -> Result<Vec<String>, ParserError> {
-        self.0
-            .into_par_iter()
-            .map(|data| match determine_mime_type(&data) {
-                Some(mime) if mime == APPLICATION_PDF => parse_pdf(&data),
-                Some(mime) if mime == APPLICATION_DOCX => parse_docx(&data),
-                Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(&data),
-                Some(mime) if mime == APPLICATION_PPTX => parse_pptx(&data),
-                Some(mime) if mime.type_() == TEXT => parse_text(&data),
-                Some(mime) if mime.type_() == IMAGE => parse_image(&data),
-                Some(mime) => Err(ParserError::InvalidFormat(format!(
-                    "Unsupported file type: {}",
-                    mime
-                ))),
-                None => Err(ParserError::InvalidFormat(
-                    "Could not determine file type.".to_string(),
-                )),
-            })
-            .collect()
-    }
+/// Parses multiple files in parallel, preserving the original order as best as possible.
+pub fn parse(data: Vec<Vec<u8>>) -> Result<Vec<String>, ParserError> {
+    data.par_iter()
+        .map(|data| match determine_mime_type(data) {
+            Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
+            Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),
+            Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(data),
+            Some(mime) if mime == APPLICATION_PPTX => parse_pptx(data),
+            Some(mime) if mime.type_() == TEXT => parse_text(data),
+            Some(mime) if mime.type_() == IMAGE => parse_image(data),
+            Some(mime) => Err(ParserError::InvalidFormat(format!(
+                "Unsupported file type: {}",
+                mime
+            ))),
+            None => Err(ParserError::InvalidFormat(
+                "Could not determine file type.".to_string(),
+            )),
+        })
+        .collect()
 }
 
 /// Determine MIME type from bytes using only file signatures

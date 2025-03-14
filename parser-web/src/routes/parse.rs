@@ -4,7 +4,7 @@ use crate::{errors::ApiError, responses::ParseResponse};
 use actix_multipart::Multipart;
 use actix_web::post;
 use futures_util::StreamExt;
-use parser_core::InputFiles;
+use parser_core::parse;
 
 /// Parses various document formats into plain text.
 #[post("/parse")]
@@ -29,7 +29,7 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
         return Err(ApiError::BadRequest("No files provided".to_string()));
     }
 
-    let parsed_text = InputFiles::new(files).parse()?;
+    let parsed_text = parse(files)?;
 
     Ok(ParseResponse { texts: parsed_text })
 }

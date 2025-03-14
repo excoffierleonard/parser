@@ -1,4 +1,4 @@
-use parser_core::InputFiles;
+use parser_core::parse;
 
 use std::path::PathBuf;
 
@@ -84,7 +84,7 @@ fn parse_success() {
     let (inputs, expected_texts) = get_test_data();
     let data = prepare_test_input(&inputs);
 
-    let result = InputFiles::new(data).parse().unwrap();
+    let result = parse(data).unwrap();
 
     // Assert the results
     assert_eq!(result.len(), inputs.len());

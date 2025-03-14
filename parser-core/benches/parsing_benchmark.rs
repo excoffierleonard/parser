@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion};
-use parser_core::InputFiles;
+use parser_core::parse;
 use std::fs;
 use std::path::Path;
 
@@ -34,12 +34,7 @@ fn benchmark_parsel(c: &mut Criterion) {
 
     // Benchmark parallel parsing
     group.bench_function("parallel", |b| {
-        b.iter(|| {
-            let input_files = InputFiles::new(files.clone());
-            input_files
-                .parse()
-                .expect("Failed to parse files in parallel")
-        })
+        b.iter(|| parse(files.clone()).expect("Failed to parse files in parallel"))
     });
 
     group.finish();
