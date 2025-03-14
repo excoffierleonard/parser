@@ -1,5 +1,5 @@
 [workspace]
-members = ["parser-core", "parser-web", "parser-cli"]
+members = ["crates/parser-core", "crates/parser-web", "crates/parser-cli"]
 resolver = "2"
 
 [workspace.dependencies]
