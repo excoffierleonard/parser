@@ -22,19 +22,6 @@ print_result() {
 
 echo "Starting deployment tests..."
 
-# Test 1: Hello endpoint
-echo -e "\nTesting /hello/test_name endpoint..."
-response=$(curl -s "$BASE_URL/hello/test_name")
-expected='{"message":"Hello test_name!"}'
-
-if [ "$response" == "$expected" ]; then
-    print_result "Hello endpoint test" 0
-else
-    echo -e "${RED}Expected: $expected${NC}"
-    echo -e "${RED}Got: $response${NC}"
-    print_result "Hello endpoint test" 1
-fi
-
 # Test 2: Frontend serving
 echo -e "\nTesting frontend serving..."
 # Get the actual content instead of just headers

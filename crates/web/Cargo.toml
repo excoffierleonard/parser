@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-parser-core = { path = "../parser-core" }
+parser-core = { workspace = true }
 actix-web = "4.9.0"
 rayon = { workspace = true }
 serde = { version = "1.0.217", features = ["derive"] }
