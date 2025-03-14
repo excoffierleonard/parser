@@ -1,5 +1,5 @@
-use parser_core::InputFiles;
-
+use parser_core::parse;
+use rayon::prelude::*;
 use std::path::PathBuf;
 
 // Helper function to get the test input path
@@ -72,38 +72,19 @@ grey07;2070;Laura;Grey"
     (inputs, expected_texts)
 }
 
-fn prepare_test_input(inputs: &[PathBuf]) -> Vec<(Vec<u8>, String)> {
+fn prepare_test_input(inputs: &[PathBuf]) -> Vec<Vec<u8>> {
     inputs
         .iter()
-        .map(|path| {
-            let content = std::fs::read(path).unwrap();
-            let filename = path.file_name().unwrap().to_string_lossy().to_string();
-            (content, filename)
-        })
+        .map(|path| std::fs::read(path).unwrap())
         .collect()
 }
 
 #[test]
 fn parse_success() {
     let (inputs, expected_texts) = get_test_data();
-    let data_with_names = prepare_test_input(&inputs);
+    let data = prepare_test_input(&inputs);
 
-    let result = InputFiles::with_filenames(data_with_names).parse().unwrap();
-
-    // Assert the results
-    assert_eq!(result.len(), inputs.len());
-    assert_eq!(result, expected_texts);
-}
-
-#[test]
-fn parse_sequential_success() {
-    let (inputs, expected_texts) = get_test_data();
-    let data_with_names = prepare_test_input(&inputs);
-
-    // Use parse_sequential instead of parse
-    let result = InputFiles::with_filenames(data_with_names)
-        .parse_sequential()
-        .unwrap();
+    let result: Vec<String> = data.par_iter().map(|d| parse(d).unwrap()).collect();
 
     // Assert the results
     assert_eq!(result.len(), inputs.len());

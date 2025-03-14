@@ -9,9 +9,3 @@ services:
       - ENABLE_FILE_SERVING=${ENABLE_FILE_SERVING:-false}
     ports:
       - "${PARSER_APP_PORT:-8080}:8080"
-    networks:
-      - parser
-
-networks:
-  parser:
-    name: parser

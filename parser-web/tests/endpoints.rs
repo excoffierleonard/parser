@@ -2,14 +2,9 @@ use actix_web::{
     http::header::{HeaderName, HeaderValue},
     test, App,
 };
-use parser_web::routes::{greet, parse_file};
+use parser_web::routes::parse_file;
 use serde::Deserialize;
 use std::path::PathBuf;
-
-#[derive(Deserialize)]
-struct HelloResponse {
-    message: String,
-}
 
 #[derive(Deserialize)]
 struct ParseResponse {
@@ -55,28 +50,6 @@ fn build_input_path() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests")
         .join("inputs")
-}
-
-// Test the greet endpoint
-#[actix_web::test]
-async fn request_hello_success() {
-    // Setup
-    let app = test::init_service(App::new().service(greet)).await;
-
-    // Create request
-    let req = test::TestRequest::get()
-        .uri("/hello/test_name")
-        .to_request();
-
-    // Get response
-    let resp = test::call_service(&app, req).await;
-
-    // Assert the results
-    let status = resp.status();
-    assert!(status.is_success());
-
-    let body: HelloResponse = test::read_body_json(resp).await;
-    assert_eq!(body.message, "Hello test_name!");
 }
 
 #[actix_web::test]

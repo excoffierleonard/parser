@@ -19,8 +19,6 @@ use self::{
 use crate::errors::ParserError;
 use infer::Infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
-use rayon::prelude::*;
-use std::path::Path;
 
 // Types not defined in the mime package or not a string constant
 const APPLICATION_PDF: &str = "application/pdf";
@@ -30,44 +28,9 @@ const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.sp
 const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
-/// A collection of file data to be parsed
-pub struct InputFiles(Vec<(Vec<u8>, Option<String>)>);
-
-impl InputFiles {
-    /// Creates a new InputFiles instance from bytes data
-    pub fn new(data: Vec<Vec<u8>>) -> Self {
-        Self(data.into_par_iter().map(|bytes| (bytes, None)).collect())
-    }
-
-    /// Creates a new InputFiles instance from bytes data with filenames
-    pub fn with_filenames(data: Vec<(Vec<u8>, String)>) -> Self {
-        Self(
-            data.into_par_iter()
-                .map(|(bytes, name)| (bytes, Some(name)))
-                .collect(),
-        )
-    }
-
-    /// Parses multiple files in parallel, preserving the original order as best as possible.
-    pub fn parse(self) -> Result<Vec<String>, ParserError> {
-        self.0
-            .into_par_iter()
-            .map(|(bytes, filename)| parse_any(&bytes, filename.as_deref()))
-            .collect()
-    }
-
-    /// Parses multiple files sequentially, this is meant for benchmarking purposes.
-    pub fn parse_sequential(self) -> Result<Vec<String>, ParserError> {
-        self.0
-            .into_iter()
-            .map(|(bytes, filename)| parse_any(&bytes, filename.as_deref()))
-            .collect()
-    }
-}
-
-/// Automatically detects the file type and uses the appropriate parser
-pub fn parse_any(data: &[u8], filename: Option<&str>) -> Result<String, ParserError> {
-    match determine_mime_type(data, filename) {
+/// Parses the given data into plain text.
+pub fn parse(data: &[u8]) -> Result<String, ParserError> {
+    match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
         Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),
         Some(mime) if mime == APPLICATION_XLSX => parse_xlsx(data),
@@ -84,47 +47,15 @@ pub fn parse_any(data: &[u8], filename: Option<&str>) -> Result<String, ParserEr
     }
 }
 
-/// Determine MIME type from bytes
-pub fn determine_mime_type(data: &[u8], filename: Option<&str>) -> Option<Mime> {
+/// Determine MIME type from bytes using only file signatures
+fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     // Create infer instance
     let infer = Infer::new();
 
-    // First try to detect using file signatures
+    // Try to detect using file signatures
     if let Some(kind) = infer.get(data) {
         if let Ok(mime) = kind.mime_type().parse() {
             return Some(mime);
-        }
-    }
-
-    // If signature detection failed, try filename extension if available
-    if let Some(name) = filename {
-        if name.contains('.') {
-            // We can't use get_from_extension as it doesn't exist
-            // Instead, try to match common extensions manually
-            let extension = Path::new(name)
-                .extension()
-                .and_then(|e| e.to_str())
-                .map(|e| e.to_lowercase());
-
-            if let Some(ext) = extension {
-                // For mime types, create a string first and then parse it
-                let mime_string = match ext.as_str() {
-                    "pdf" => APPLICATION_PDF.to_string(),
-                    "docx" => APPLICATION_DOCX.to_string(),
-                    "xlsx" => APPLICATION_XLSX.to_string(),
-                    "pptx" => APPLICATION_PPTX.to_string(),
-                    "txt" | "csv" | "json" => TEXT_PLAIN.to_string(),
-                    "jpg" | "jpeg" | "png" | "gif" | "webp" => {
-                        format!("{}/unknown", IMAGE.as_ref())
-                    }
-                    _ => return None, // No recognized extension
-                };
-
-                // Parse the MIME type directly
-                if let Ok(mime) = mime_string.parse() {
-                    return Some(mime);
-                }
-            }
         }
     }
 
@@ -139,7 +70,7 @@ pub fn determine_mime_type(data: &[u8], filename: Option<&str>) -> Option<Mime> 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::PathBuf;
+    use std::path::{Path, PathBuf};
 
     #[test]
     fn parse_success() {
@@ -150,9 +81,8 @@ mod tests {
     fn assert_mime_type_from_data(file_path: &Path, expected_type: &str, check_category: bool) {
         // Read the file to get its content
         let data = std::fs::read(file_path).unwrap();
-        let filename = file_path.file_name().unwrap().to_str();
 
-        let result = determine_mime_type(&data, filename);
+        let result = determine_mime_type(&data);
         assert!(result.is_some());
         if check_category {
             assert_eq!(result.unwrap().type_(), expected_type);
