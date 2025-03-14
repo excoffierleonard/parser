@@ -1,10 +1,7 @@
 use clap::Parser;
 use parser_core::parse;
 use rayon::prelude::*;
-use std::{
-    fs::read,
-    path::PathBuf,
-};
+use std::{fs::read, path::PathBuf};
 
 #[derive(Parser)]
 #[command(name = "parser")]
@@ -25,11 +22,12 @@ fn main() {
     // Create a slice of slices for processing
     let file_slices: Vec<&[u8]> = file_data.iter().map(|d| d.as_slice()).collect();
 
-    match file_slices
+    let parsed_text = file_slices
         .par_iter()
         .map(|d| parse(d))
-        .collect::<Result<Vec<_>, _>>()
-    {
+        .collect::<Result<Vec<_>, _>>();
+
+    match parsed_text {
         Ok(results) => {
             // Print to stdout
             for result in results {
