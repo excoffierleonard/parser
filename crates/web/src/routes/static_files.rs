@@ -6,7 +6,7 @@ use mime_guess::from_path;
 use rust_embed::RustEmbed;
 
 #[derive(RustEmbed)]
-#[folder = "static"]
+#[folder = "src/routes/static_files"]
 struct Assets;
 
 /// Serves static files from the `static` folder. Embeds the files into the binary.
