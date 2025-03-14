@@ -29,7 +29,7 @@ const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 /// Parses multiple files in parallel, preserving the original order as best as possible.
-pub fn parse(data: &Vec<u8>) -> Result<String, ParserError> {
+pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
         Some(mime) if mime == APPLICATION_DOCX => parse_docx(data),

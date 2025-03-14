@@ -24,10 +24,13 @@ fn main() {
     let files = cli.files;
     let output = cli.output;
 
-    // Read all files into memory and collect their data
-    let file_data: Vec<Vec<u8>> = files.iter().filter_map(|path| read(path).ok()).collect();
+    // Read all files into memory and collect their data as slices
+    let file_data: Vec<_> = files.iter().filter_map(|path| read(path).ok()).collect();
 
-    match file_data
+    // Create a slice of slices for processing
+    let file_slices: Vec<&[u8]> = file_data.iter().map(|d| d.as_slice()).collect();
+
+    match file_slices
         .par_iter()
         .map(|d| parse(d))
         .collect::<Result<Vec<_>, _>>()

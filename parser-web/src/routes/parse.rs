@@ -30,7 +30,10 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
         return Err(ApiError::BadRequest("No files provided".to_string()));
     }
 
-    let parsed_text = files
+    // Create a vector of slices for processing
+    let file_slices: Vec<&[u8]> = files.iter().map(|d| d.as_slice()).collect();
+
+    let parsed_text = file_slices
         .par_iter()
         .map(|d| parse(d))
         .collect::<Result<Vec<_>, _>>()?;
