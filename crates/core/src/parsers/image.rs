@@ -2,8 +2,8 @@
 
 use crate::errors::ParserError;
 use lazy_static::lazy_static;
-use std::{fs, io::Write, sync::Arc};
-use tempfile::{NamedTempFile, TempDir};
+use std::{fs, io::Write};
+use tempfile::NamedTempFile;
 use tesseract::Tesseract;
 
 // Include language data files in the binary
@@ -11,7 +11,7 @@ const TESSDATA_ENG: &[u8] = include_bytes!("./tessdata/eng.traineddata");
 const TESSDATA_FRA: &[u8] = include_bytes!("./tessdata/fra.traineddata");
 
 lazy_static! {
-    static ref TESSDATA_DIR: Arc<TempDir> = {
+    static ref TESSDATA_DIR: String = {
         let dir = tempfile::tempdir().expect("Failed to create tessdata directory");
         let dir_path = dir.path();
 
@@ -21,7 +21,9 @@ lazy_static! {
         fs::write(dir_path.join("fra.traineddata"), TESSDATA_FRA)
             .expect("Failed to write French training data");
 
-        Arc::new(dir)
+        dir.path().to_str()
+        .expect("Failed to get tessdata path")
+        .to_string()
     };
 }
 
@@ -42,14 +44,8 @@ pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
 }
 
 fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
-    // Get path to tessdata directory (created only once)
-    let tessdata_path = TESSDATA_DIR
-        .path()
-        .to_str()
-        .ok_or_else(|| ParserError::IoError("Invalid tessdata path".to_string()))?;
-
     // Initialize Tesseract with English and French languages
-    let tes = Tesseract::new(Some(tessdata_path), Some("eng+fra"))?;
+    let tes = Tesseract::new(Some(&TESSDATA_DIR), Some("eng+fra"))?;
 
     // Perform OCR
     let text = tes.set_image(path)?.get_text()?;
