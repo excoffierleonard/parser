@@ -1,16 +1,19 @@
 //! Image parser module
 
 use crate::errors::ParserError;
-use rusty_tesseract::{self, Args, Image};
-use std::{io::Write, path::PathBuf};
+use std::io::Write;
 use tempfile;
+use tesseract::Tesseract;
 
 /// Parses all that can be coerced to an image using OCR
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     // Create a temporary file, from the data, to be used by the ocr engine
     let mut temp_file = tempfile::NamedTempFile::new()?;
     temp_file.write_all(data)?;
-    let temp_file_path = temp_file.path().to_owned();
+    let temp_file_path = temp_file
+        .path()
+        .to_str()
+        .ok_or_else(|| ParserError::IoError("Invalid path string".to_string()))?;
 
     // Tesseract section
     let text = parse_with_tesseract(&temp_file_path)?;
@@ -18,15 +21,12 @@ pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     Ok(text.trim().to_string())
 }
 
-fn parse_with_tesseract(path: &PathBuf) -> Result<String, ParserError> {
-    // Read image
-    let image = Image::from_path(path)?;
-
-    // Set tesseract parameters
-    let args = Args::default();
+fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
+    // Initialize Tesseract
+    let tes = Tesseract::new(None, Some("eng+fra"))?;
 
     // Perform OCR
-    let text = rusty_tesseract::image_to_string(&image, &args)?;
+    let text = tes.set_image(path)?.get_text()?;
 
     Ok(text)
 }
