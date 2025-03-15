@@ -4,7 +4,6 @@ use rayon::prelude::*;
 use std::{fs::read, path::PathBuf};
 
 #[derive(Parser)]
-#[command(name = "parser")]
 #[command(about = "CLI for parsing various document formats", long_about = None)]
 struct Cli {
     /// Files to parse
@@ -14,26 +13,22 @@ struct Cli {
 
 fn main() {
     let cli = Cli::parse();
-    let files = cli.files;
 
-    // Read all files into memory and collect their data as slices
-    let file_data: Vec<_> = files.iter().filter_map(|path| read(path).ok()).collect();
-
-    // Create a slice of slices for processing
-    let file_slices: Vec<&[u8]> = file_data.iter().map(|d| d.as_slice()).collect();
-
-    let parsed_text = file_slices
+    match cli
+        .files
         .par_iter()
-        .map(|d| parse(d))
-        .collect::<Result<Vec<_>, _>>();
-
-    match parsed_text {
-        Ok(results) => {
-            // Print to stdout
-            for result in results {
-                println!("{}", result);
-            }
+        .filter_map(|path| read(path).ok().map(|data| parse(&data)))
+        .collect::<Vec<_>>()
+    {
+        results if results.iter().all(|r| r.is_ok()) => {
+            results
+                .into_iter()
+                .filter_map(Result::ok)
+                .for_each(|text| println!("{}", text));
         }
-        Err(e) => eprintln!("Error parsing files: {}", e),
+        results => eprintln!(
+            "Error parsing files: {:?}",
+            results.into_iter().find_map(|r| r.err()).unwrap()
+        ),
     }
 }
