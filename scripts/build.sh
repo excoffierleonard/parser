@@ -7,10 +7,7 @@ set -e
 sudo apt update
 sudo apt install -y \
     libtesseract-dev \
-    libleptonica-dev \
-    libclang-dev \
-    tesseract-ocr-eng \
-    tesseract-ocr-fra \
+    libleptonica-dev
 
 # Clean and check
 cargo update
@@ -19,8 +16,7 @@ cargo check --workspace
 cargo clippy --workspace -- -D warnings
 cargo fmt --all
 cargo audit
-# Maybe use it when it is out of nightly
-# cargo udeps --workspace
+cargo udeps --workspace
 
 # Documentation
 cargo doc --workspace --no-deps

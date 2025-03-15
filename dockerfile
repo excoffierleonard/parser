@@ -3,7 +3,7 @@
 ##############################
 FROM rust:alpine AS chef
 ENV RUSTFLAGS="-C target-feature=-crt-static"
-RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev tesseract-ocr-data-eng tesseract-ocr-data-fra
+RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev
 RUN cargo install cargo-chef
 WORKDIR /app
 # Copy only the files needed to generate the recipe (e.g., Cargo.toml, Cargo.lock, and source files)
@@ -16,7 +16,7 @@ RUN cargo chef prepare --recipe-path recipe.json
 ##############################
 FROM rust:alpine AS builder
 ENV RUSTFLAGS="-C target-feature=-crt-static"
-RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev tesseract-ocr-data-eng tesseract-ocr-data-fra
+RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev
 RUN cargo install cargo-chef
 WORKDIR /app
 # Copy the pre-generated recipe
@@ -31,7 +31,7 @@ RUN cargo build --release
 # Stage 3: Final Image
 ##############################
 FROM alpine
-RUN apk add --no-cache tesseract-ocr-data-eng tesseract-ocr-data-fra
+RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev
 WORKDIR /app
 # Copy the statically linked binary from the builder stage
 COPY --from=builder /app/target/release/parser-web .

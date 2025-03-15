@@ -1,43 +1,59 @@
 //! Image parser module
 
 use crate::errors::ParserError;
+use lazy_static::lazy_static;
+use std::{fs, io::Write};
+use tempfile::{NamedTempFile, TempDir};
 use tesseract::Tesseract;
 
-// Parses all that can be coerced to an image using OCR
-// TODO: Need to implement image description with AI vision if text density is too low.
-/// Parses all that can be coerced to an image using OCR by using the Tesseract library.
+// Include language data files in the binary
+const TESSDATA_ENG: &[u8] = include_bytes!("./tessdata/eng.traineddata");
+const TESSDATA_FRA: &[u8] = include_bytes!("./tessdata/fra.traineddata");
+
+lazy_static! {
+    static ref TESSDATA_DIR: TempDir = {
+        let dir = tempfile::tempdir().expect("Failed to create tessdata directory");
+        let dir_path = dir.path();
+
+        // Write language files to tessdata directory (only done once)
+        fs::write(dir_path.join("eng.traineddata"), TESSDATA_ENG)
+            .expect("Failed to write English training data");
+        fs::write(dir_path.join("fra.traineddata"), TESSDATA_FRA)
+            .expect("Failed to write French training data");
+
+        dir
+    };
+}
+
+/// Parses all that can be coerced to an image using OCR
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
-    // For now, we need to use a temporary file because Tesseract requires a file path.
-    // The current Rust bindings don't expose a direct memory-based API.
-    // However, we can optimize to keep the temporary file in memory (using a temp directory in /dev/shm if available).
+    // Create a temporary file, from the data, to be used by the ocr engine
+    let mut temp_file = NamedTempFile::new()?;
+    temp_file.write_all(data)?;
+    let temp_file_path = temp_file
+        .path()
+        .to_str()
+        .ok_or_else(|| ParserError::IoError("Invalid path string".to_string()))?;
 
-    // Create a memory-based temporary file where possible
-    // This will use a RAM-based filesystem on Linux if /dev/shm is available
-    #[cfg(target_os = "linux")]
-    let tmp_dir = tempfile::Builder::new()
-        .prefix("parser_image_tmp")
-        .tempdir_in("/dev/shm")
-        .or_else(|_| tempfile::tempdir())?;
+    // Tesseract section
+    let text = parse_with_tesseract(temp_file_path)?;
 
-    #[cfg(not(target_os = "linux"))]
-    let tmp_dir = tempfile::tempdir()?;
-
-    // Create a temporary file within our temp directory
-    let temp_file_path = tmp_dir.path().join("image_data");
-    std::fs::write(&temp_file_path, data)?;
-
-    // Create a new Tesseract instance
-    let text = Tesseract::new(None, Some("eng+fra"))?
-        .set_image(
-            temp_file_path
-                .to_str()
-                .ok_or_else(|| ParserError::IoError("Invalid path encoding".to_string()))?,
-        )?
-        .get_text()?;
-
-    // Convert output to string, trim whitespace and return
-    // The temp directory will be automatically deleted when it goes out of scope
     Ok(text.trim().to_string())
+}
+
+fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
+    // Get the path to the tessdata directory
+    let tessdata_dir = TESSDATA_DIR.path().to_str().ok_or_else(|| {
+        ParserError::IoError("Unable to find training data directory".to_string())
+    })?;
+
+    // Initialize Tesseract with English and French languages
+    let tes = Tesseract::new(Some(tessdata_dir), Some("eng+fra"))?;
+
+    // Perform OCR
+    let text = tes.set_image(path)?.get_text()?;
+
+    Ok(text)
 }
 
 #[cfg(test)]
