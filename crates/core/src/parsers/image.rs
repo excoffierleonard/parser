@@ -1,14 +1,18 @@
 //! Image parser module
 
 use crate::errors::ParserError;
-use std::io::Write;
-use tempfile;
+use std::{fs, io::Write};
+use tempfile::NamedTempFile;
 use tesseract::Tesseract;
+
+// Include language data files in the binary
+const TESSDATA_ENG: &[u8] = include_bytes!("./tessdata/eng.traineddata");
+const TESSDATA_FRA: &[u8] = include_bytes!("./tessdata/fra.traineddata");
 
 /// Parses all that can be coerced to an image using OCR
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     // Create a temporary file, from the data, to be used by the ocr engine
-    let mut temp_file = tempfile::NamedTempFile::new()?;
+    let mut temp_file = NamedTempFile::new()?;
     temp_file.write_all(data)?;
     let temp_file_path = temp_file
         .path()
@@ -16,14 +20,22 @@ pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
         .ok_or_else(|| ParserError::IoError("Invalid path string".to_string()))?;
 
     // Tesseract section
-    let text = parse_with_tesseract(&temp_file_path)?;
+    let text = parse_with_tesseract(temp_file_path)?;
 
     Ok(text.trim().to_string())
 }
 
 fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
-    // Initialize Tesseract
-    let tes = Tesseract::new(None, Some("eng+fra"))?;
+    // Create temporary tessdata directory
+    let tessdata_dir = tempfile::tempdir()?;
+    let tessdata_path = tessdata_dir.path();
+
+    // Write language files to tessdata directory
+    fs::write(tessdata_path.join("eng.traineddata"), TESSDATA_ENG)?;
+    fs::write(tessdata_path.join("fra.traineddata"), TESSDATA_FRA)?;
+
+    // Initialize Tesseract with custom datapath
+    let tes = Tesseract::new(Some(tessdata_path.to_str().unwrap()), Some("eng+fra"))?;
 
     // Perform OCR
     let text = tes.set_image(path)?.get_text()?;
