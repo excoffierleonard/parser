@@ -7,7 +7,8 @@ set -e
 sudo apt update
 sudo apt install -y \
     libtesseract-dev \
-    libleptonica-dev
+    libleptonica-dev \
+    libclang-dev
 
 # Clean and check
 cargo update
