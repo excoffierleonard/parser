@@ -1,11 +1,27 @@
 //! Routes for parsing documents.
 
-use crate::{errors::ApiError, responses::ParseResponse};
+use crate::errors::ApiError;
 use actix_multipart::Multipart;
-use actix_web::post;
+use actix_web::{body::BoxBody, post, HttpRequest, HttpResponse, Responder};
 use futures_util::StreamExt;
 use parser_core::parse;
 use rayon::prelude::*;
+use serde::{Deserialize, Serialize};
+
+/// Response type for parsed texts
+#[derive(Serialize, Deserialize)]
+struct ParseResponse {
+    /// Parsed text from the documents
+    texts: Vec<String>,
+}
+
+impl Responder for ParseResponse {
+    type Body = BoxBody;
+
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
+        HttpResponse::Ok().json(self)
+    }
+}
 
 /// Parses various document formats into plain text.
 #[post("/parse")]

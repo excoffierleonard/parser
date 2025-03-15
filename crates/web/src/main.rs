@@ -4,7 +4,7 @@ use actix_web::{
 };
 use dotenv::dotenv;
 use env_logger::{init_from_env, Env};
-use parser_web::routes;
+use parser_web::{parse_file, serve_files};
 use std::{env::var, io::Result};
 
 #[actix_web::main]
@@ -27,11 +27,11 @@ async fn main() -> Result<()> {
         let mut app = App::new()
             .wrap(Compress::default())
             .wrap(Logger::default())
-            .service(routes::parse_file);
+            .service(parse_file);
 
         // Conditionally add serve_files service
         if enable_file_serving {
-            app = app.service(routes::serve_files);
+            app = app.service(serve_files);
         }
 
         app
