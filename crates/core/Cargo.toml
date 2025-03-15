@@ -8,6 +8,7 @@ rayon = { workspace = true }
 calamine = "0.26.1"
 docx-rs = "0.4.17"
 infer = "0.16.0"
+lazy_static = "1.4.0"
 mime = "0.3.17"
 pdf-extract = "0.8.0"
 regex = "1.11.1"
