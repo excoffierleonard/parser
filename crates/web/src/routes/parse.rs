@@ -30,9 +30,9 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
 
     // Process each field in the multipart payload
     while let Some(mut field) = payload.try_next().await? {
-        // Preallocate buffer with reasonable capacity to reduce allocations
-        let mut buffer = Vec::with_capacity(256 * 1024); // 256KB initial capacity
-        
+        // Buffer to store the file data
+        let mut buffer = Vec::new();
+
         // Stream chunks directly into buffer
         while let Some(chunk) = field.try_next().await? {
             buffer.extend_from_slice(&chunk);
