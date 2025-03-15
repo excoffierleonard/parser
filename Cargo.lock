@@ -1786,7 +1786,6 @@ dependencies = [
  "rayon",
  "rust-embed",
  "serde",
- "tempfile",
 ]
 
 [[package]]
