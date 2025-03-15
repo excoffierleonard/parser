@@ -1,43 +1,34 @@
 //! Image parser module
 
 use crate::errors::ParserError;
-use tesseract::Tesseract;
+use rusty_tesseract::{self, Args, Image};
+use std::{io::Write, path::PathBuf};
+use tempfile;
 
-// Parses all that can be coerced to an image using OCR
-// TODO: Need to implement image description with AI vision if text density is too low.
-/// Parses all that can be coerced to an image using OCR by using the Tesseract library.
+/// Parses all that can be coerced to an image using OCR
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
-    // For now, we need to use a temporary file because Tesseract requires a file path.
-    // The current Rust bindings don't expose a direct memory-based API.
-    // However, we can optimize to keep the temporary file in memory (using a temp directory in /dev/shm if available).
+    // Create a temporary file, from the data, to be used by the ocr engine
+    let mut temp_file = tempfile::NamedTempFile::new()?;
+    temp_file.write_all(data)?;
+    let temp_file_path = temp_file.path().to_owned();
 
-    // Create a memory-based temporary file where possible
-    // This will use a RAM-based filesystem on Linux if /dev/shm is available
-    #[cfg(target_os = "linux")]
-    let tmp_dir = tempfile::Builder::new()
-        .prefix("parser_image_tmp")
-        .tempdir_in("/dev/shm")
-        .or_else(|_| tempfile::tempdir())?;
+    // Tesseract section
+    let text = parse_with_tesseract(&temp_file_path)?;
 
-    #[cfg(not(target_os = "linux"))]
-    let tmp_dir = tempfile::tempdir()?;
-
-    // Create a temporary file within our temp directory
-    let temp_file_path = tmp_dir.path().join("image_data");
-    std::fs::write(&temp_file_path, data)?;
-
-    // Create a new Tesseract instance
-    let text = Tesseract::new(None, Some("eng+fra"))?
-        .set_image(
-            temp_file_path
-                .to_str()
-                .ok_or_else(|| ParserError::IoError("Invalid path encoding".to_string()))?,
-        )?
-        .get_text()?;
-
-    // Convert output to string, trim whitespace and return
-    // The temp directory will be automatically deleted when it goes out of scope
     Ok(text.trim().to_string())
+}
+
+fn parse_with_tesseract(path: &PathBuf) -> Result<String, ParserError> {
+    // Read image
+    let image = Image::from_path(path)?;
+
+    // Set tesseract parameters
+    let args = Args::default();
+
+    // Perform OCR
+    let text = rusty_tesseract::image_to_string(&image, &args)?;
+
+    Ok(text)
 }
 
 #[cfg(test)]

@@ -12,9 +12,9 @@ lazy_static = "1.4.0"
 mime = "0.3.17"
 pdf-extract = "0.8.0"
 regex = "1.11.1"
+rusty-tesseract = "1.1.10"
 # tempfile is only used for image parsing since Tesseract needs a file path
 tempfile = "3.9.0"
-tesseract = "0.15.1"
 zip = "2.2.2"
 
 [dev-dependencies]

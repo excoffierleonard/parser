@@ -33,12 +33,7 @@ macro_rules! impl_from_error {
 
 // IO errors
 impl_from_error!(std::io::Error, ParserError::IoError);
-impl_from_error!(tesseract::InitializeError, ParserError::IoError);
-impl_from_error!(tesseract::SetImageError, ParserError::IoError);
-impl_from_error!(
-    tesseract::plumbing::TessBaseApiGetUtf8TextError,
-    ParserError::IoError
-);
+impl_from_error!(rusty_tesseract::TessError, ParserError::IoError);
 
 // Parse errors
 impl_from_error!(pdf_extract::OutputError, ParserError::ParseError);
