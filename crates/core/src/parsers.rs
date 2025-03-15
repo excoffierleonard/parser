@@ -21,8 +21,14 @@ use crate::{
     errors::ParserError,
 };
 use infer::Infer;
+use lazy_static::lazy_static;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
 use std::str;
+
+// Create a static infer instance to avoid recreating it on every call
+lazy_static! {
+    static ref INFER: Infer = Infer::new();
+}
 
 /// Parses the given data into plain text.
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
@@ -45,11 +51,9 @@ pub fn parse(data: &[u8]) -> Result<String, ParserError> {
 
 /// Determine MIME type from bytes using only file signatures
 fn determine_mime_type(data: &[u8]) -> Option<Mime> {
-    // Create infer instance
-    let infer = Infer::new();
-
+    // Use the static infer instance
     // Try to detect using file signatures
-    if let Some(kind) = infer.get(data) {
+    if let Some(kind) = INFER.get(data) {
         if let Ok(mime) = kind.mime_type().parse() {
             return Some(mime);
         }

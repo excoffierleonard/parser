@@ -1,6 +1,7 @@
 # Parser Project Guide
 
 ## Build & Test Commands
+
 - Build all crates: `cargo build`
 - Build release: `cargo build --release`
 - Run tests: `cargo test --workspace`
@@ -13,6 +14,7 @@
 - Run CLI: `cargo run -p parser-cli -- <FILES>`
 
 ## Code Style Guidelines
+
 - Use snake_case for variables/functions, PascalCase for types/enums
 - Document crates with //! and public items with /// comments
 - Group imports: std first, then external crates, then local modules
