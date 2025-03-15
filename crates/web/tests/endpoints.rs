@@ -2,7 +2,7 @@ use actix_web::{
     http::header::{HeaderName, HeaderValue},
     test, App,
 };
-use parser_web::routes::parse_file;
+use parser_web::parse_file;
 use serde::Deserialize;
 use std::path::PathBuf;
 

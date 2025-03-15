@@ -4,6 +4,6 @@
 //! into plain text, exposed through a REST API.
 
 mod errors;
-mod responses;
+mod routes;
 
-pub mod routes;
+pub use routes::{parse_file, serve_files};

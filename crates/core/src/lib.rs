@@ -2,6 +2,7 @@
 //!
 //! This crate provides functionality for parsing various file formats
 
+mod constants;
 mod errors;
 mod parsers;
 

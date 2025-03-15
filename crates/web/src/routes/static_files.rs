@@ -1,13 +1,33 @@
 //! Static files route.
 
-use crate::{errors::ApiError, responses::AssetResponse};
-use actix_web::{get, web};
+use crate::errors::ApiError;
+use actix_web::{body::BoxBody, get, web, HttpRequest, HttpResponse, Responder};
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
+use serde::Serialize;
 
 #[derive(RustEmbed)]
 #[folder = "src/routes/static_files"]
 struct Assets;
+
+/// Response type for serving static assets
+#[derive(Serialize)]
+pub struct AssetResponse {
+    /// Raw binary content of the asset
+    pub content: Vec<u8>,
+    /// MIME type of the asset (e.g. "text/html", "image/png")
+    pub mime_type: String,
+}
+
+impl Responder for AssetResponse {
+    type Body = BoxBody;
+
+    fn respond_to(self, _req: &HttpRequest) -> HttpResponse<Self::Body> {
+        HttpResponse::Ok()
+            .content_type(self.mime_type)
+            .body(self.content)
+    }
+}
 
 /// Serves static files from the `static` folder. Embeds the files into the binary.
 #[get("/{filename:.*}")]

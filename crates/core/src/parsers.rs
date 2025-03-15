@@ -16,17 +16,13 @@ use self::{
     xlsx::parse_xlsx,
 };
 
-use crate::errors::ParserError;
+use crate::{
+    constants::{APPLICATION_DOCX, APPLICATION_PDF, APPLICATION_PPTX, APPLICATION_XLSX},
+    errors::ParserError,
+};
 use infer::Infer;
 use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
-
-// Types not defined in the mime package or not a string constant
-const APPLICATION_PDF: &str = "application/pdf";
-const APPLICATION_DOCX: &str =
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-const APPLICATION_XLSX: &str = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-const APPLICATION_PPTX: &str =
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+use std::str;
 
 /// Parses the given data into plain text.
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
@@ -60,7 +56,7 @@ fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     }
 
     // Finally, check if it could be plain text (if it's UTF-8 decodable)
-    if std::str::from_utf8(data).is_ok() {
+    if str::from_utf8(data).is_ok() {
         return Some(TEXT_PLAIN);
     }
 
