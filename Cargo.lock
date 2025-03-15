@@ -1762,6 +1762,7 @@ dependencies = [
  "criterion",
  "docx-rs",
  "infer",
+ "lazy_static",
  "mime",
  "pdf-extract",
  "rayon",
