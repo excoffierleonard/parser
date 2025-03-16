@@ -2,8 +2,8 @@ use actix_web::{
     http::header::{HeaderName, HeaderValue},
     test, App,
 };
-use parser_web::parse_file;
 use parser_test_utils::test_file_path;
+use parser_web::parse_file;
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -64,7 +64,7 @@ async fn request_parse_success() {
         "test_jpg_1.jpg",
         "test_webp_1.webp",
     ];
-    
+
     let file_paths: Vec<PathBuf> = file_names.iter().map(|name| test_file_path(name)).collect();
 
     let expected_texts = vec![
