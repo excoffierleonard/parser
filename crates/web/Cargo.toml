@@ -14,3 +14,6 @@ mime_guess = "2.0.5"
 rust-embed = { version = "8.5.0", features = ["interpolate-folder-path"] }
 env_logger = "0.11.6"
 dotenvy = "0.15.7"
+
+[dev-dependencies]
+parser-test-utils = { workspace = true }

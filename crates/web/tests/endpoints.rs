@@ -3,6 +3,7 @@ use actix_web::{
     test, App,
 };
 use parser_web::parse_file;
+use parser_test_utils::test_file_path;
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -45,16 +46,9 @@ pub fn build_multipart_payload(file_paths: Vec<PathBuf>) -> (Vec<u8>, (HeaderNam
     (payload, header)
 }
 
-// Helper function to get the test input path
-fn build_input_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("inputs")
-}
-
 #[actix_web::test]
 async fn request_parse_success() {
-    let file_paths: Vec<PathBuf> = vec![
+    let file_names = vec![
         "test_pdf_1.pdf",
         "test_pdf_2.pdf",
         "test_docx_1.docx",
@@ -69,10 +63,9 @@ async fn request_parse_success() {
         "test_png_1.png",
         "test_jpg_1.jpg",
         "test_webp_1.webp",
-    ]
-    .iter()
-    .map(|x| build_input_path().join(x))
-    .collect();
+    ];
+    
+    let file_paths: Vec<PathBuf> = file_names.iter().map(|name| test_file_path(name)).collect();
 
     let expected_texts = vec![
         "Hello, this is a test pdf for the parsing API.",

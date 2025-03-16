@@ -50,15 +50,11 @@ pub(crate) fn parse_pptx(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_pptx_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_pptx_1.pptx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_pptx_1.pptx");
         let result = parse_pptx(&data).unwrap();
 
         assert!(result.len() > 0);

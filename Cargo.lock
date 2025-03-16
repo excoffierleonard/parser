@@ -1843,6 +1843,7 @@ dependencies = [
  "infer",
  "lazy_static",
  "mime",
+ "parser-test-utils",
  "pdf-extract",
  "rayon",
  "regex",
@@ -1850,6 +1851,10 @@ dependencies = [
  "tesseract",
  "zip 2.2.3",
 ]
+
+[[package]]
+name = "parser-test-utils"
+version = "0.1.0"
 
 [[package]]
 name = "parser-web"
@@ -1862,6 +1867,7 @@ dependencies = [
  "futures-util",
  "mime_guess",
  "parser-core",
+ "parser-test-utils",
  "rayon",
  "rust-embed",
  "serde",

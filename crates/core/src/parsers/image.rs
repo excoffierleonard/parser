@@ -65,15 +65,11 @@ fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_png_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_png_1.png");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_png_1.png");
         let result = parse_image(&data).unwrap();
 
         assert!(result.len() > 0);
@@ -88,11 +84,7 @@ mod tests {
 
     #[test]
     fn parse_jpg_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_jpg_1.jpg");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_jpg_1.jpg");
         let result = parse_image(&data).unwrap();
 
         assert!(result.len() > 0);
@@ -107,11 +99,7 @@ mod tests {
 
     #[test]
     fn parse_webp_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_webp_1.webp");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_webp_1.webp");
         let result = parse_image(&data).unwrap();
 
         assert!(result.len() > 0);

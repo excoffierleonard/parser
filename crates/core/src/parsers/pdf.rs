@@ -12,15 +12,11 @@ pub(crate) fn parse_pdf(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_pdf_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_pdf_1.pdf");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_pdf_1.pdf");
         let result = parse_pdf(&data).unwrap();
 
         assert!(result.len() > 0);

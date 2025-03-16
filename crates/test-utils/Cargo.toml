@@ -1,0 +1,14 @@
+[package]
+name = "parser-test-utils"
+version = "0.1.0"
+edition = "2021"
+description = "Testing utilities for the parser project"
+license = "MIT"
+
+# The asset directory contains test files for various formats
+# - PDF files (.pdf)
+# - Office documents (.docx, .xlsx, .pptx)
+# - Plain text files (.txt, .csv, .json)
+# - Images (.png, .jpg, .webp)
+
+[dependencies]
