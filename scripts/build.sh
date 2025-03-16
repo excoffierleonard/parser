@@ -12,12 +12,12 @@ sudo apt install -y \
 
 # Clean and check
 cargo update
-cargo clean
+# cargo clean # Uncomment if previous build is broken
 cargo check --workspace
 cargo clippy --workspace -- -D warnings
 cargo fmt --all
 cargo audit
-cargo udeps --workspace
+# cargo udeps --workspace # Uncomment when out of nightly
 
 # Documentation
 cargo doc --workspace --no-deps
