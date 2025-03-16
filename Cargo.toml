@@ -1,7 +1,8 @@
 [workspace]
-members = ["crates/core", "crates/web", "crates/cli"]
+members = ["crates/core", "crates/web", "crates/cli", "crates/test-utils"]
 resolver = "2"
 
 [workspace.dependencies]
 rayon = "1.10.0"
 parser-core = { path = "crates/core" }
+parser-test-utils = { path = "crates/test-utils" }

@@ -47,18 +47,14 @@ pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_xlsx_single_sheet_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_xlsx_1.xlsx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_xlsx_1.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name
@@ -70,14 +66,10 @@ alice23,8425,Alice"
 
     #[test]
     fn parse_xlsx_multiple_sheets_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_xlsx_2.xlsx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_xlsx_2.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name
