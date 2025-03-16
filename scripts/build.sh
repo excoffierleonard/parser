@@ -24,7 +24,7 @@ cargo doc --workspace --no-deps
 
 # Testing and benchmarking
 cargo test --workspace
-cargo bench --workspace
+# cargo bench --workspace # Pretty long so commented out
 cargo test --workspace -- --ignored 
 
 # Build for production
