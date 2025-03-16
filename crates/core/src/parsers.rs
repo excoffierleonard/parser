@@ -31,6 +31,49 @@ lazy_static! {
 }
 
 /// Parses the given data into plain text.
+///
+/// This function is the main entry point for the parser library. It automatically
+/// detects the file type from the provided byte data and delegates the parsing
+/// to the appropriate specialized parser.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the file data to be parsed
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text content from the file
+/// * `Err(ParserError)` - If the file type is unsupported, unrecognized, or an error occurs during parsing
+///
+/// # Examples
+///
+/// ```
+/// # use parser_core::parse;
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # let data = Vec::new(); // In a real example, this would be file data
+/// // Attempt to parse the data
+/// match parse(&data) {
+///     Ok(text) => println!("Parsed text: {}", text),
+///     Err(err) => println!("Failed to parse: {}", err),
+/// }
+/// # Ok(())
+/// # }
+/// ```
+///
+/// # Text file example
+///
+/// ```
+/// use parser_core::parse;
+///
+/// // Create a simple text file content
+/// let text_data = b"Hello, world! This is a sample text file.";
+///
+/// // Parse the text data
+/// let result = parse(text_data).expect("Failed to parse text data");
+///
+/// // Verify the result
+/// assert_eq!(result, "Hello, world! This is a sample text file.");
+/// ```
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
@@ -49,7 +92,25 @@ pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     }
 }
 
-/// Determine MIME type from bytes using only file signatures
+/// Determines the MIME type of data from its binary content.
+///
+/// This function uses file signatures (magic bytes) to detect the type of the data
+/// and as a fallback, checks if the data is valid UTF-8 text.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the file data to be analyzed
+///
+/// # Returns
+///
+/// * `Some(Mime)` - The detected MIME type of the data
+/// * `None` - If the data type could not be determined
+///
+/// # Implementation Details
+///
+/// - First tries to identify the file type based on its binary signature
+/// - As a fallback, checks if the content is valid UTF-8 text
+/// - Uses a static infer instance to improve performance
 fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     // Use the static infer instance
     // Try to detect using file signatures
