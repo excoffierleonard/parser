@@ -40,9 +40,8 @@ Follow the instructions at [Tesseract GitHub repository](https://github.com/tess
 
 Add as a dependency in your `Cargo.toml`:
 
-```toml
-[dependencies]
-parser-core = { path = "../core" }  # Adjust path as needed
+```bash
+cargo add parser-core
 ```
 
 Basic usage:
