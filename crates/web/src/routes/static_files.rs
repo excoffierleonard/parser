@@ -7,7 +7,7 @@ use rust_embed::RustEmbed;
 use serde::Serialize;
 
 #[derive(RustEmbed)]
-#[folder = "src/routes/static_files"]
+#[folder = "$CARGO_MANIFEST_DIR/assets"]
 struct Assets;
 
 /// Response type for serving static assets

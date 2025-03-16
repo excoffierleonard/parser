@@ -7,8 +7,14 @@ use tempfile::{NamedTempFile, TempDir};
 use tesseract::Tesseract;
 
 // Include language data files in the binary
-const TESSDATA_ENG: &[u8] = include_bytes!("./tessdata/eng.traineddata");
-const TESSDATA_FRA: &[u8] = include_bytes!("./tessdata/fra.traineddata");
+const TESSDATA_ENG: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/assets/eng.traineddata"
+));
+const TESSDATA_FRA: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/assets/fra.traineddata"
+));
 
 lazy_static! {
     static ref TESSDATA_DIR: TempDir = {
