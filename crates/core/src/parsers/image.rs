@@ -72,7 +72,7 @@ mod tests {
         let data = read_test_file("test_png_1.png");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.
@@ -87,7 +87,7 @@ mod tests {
         let data = read_test_file("test_jpg_1.jpg");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.
@@ -102,7 +102,7 @@ mod tests {
         let data = read_test_file("test_webp_1.webp");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.

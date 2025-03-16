@@ -53,7 +53,7 @@ mod tests {
         let data = read_test_file("test_docx_1.docx");
         let result = parse_docx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello, this is a test docx for the parsing API.".to_string()

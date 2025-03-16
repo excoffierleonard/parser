@@ -19,7 +19,7 @@ mod tests {
         let data = read_test_file("test_pdf_1.pdf");
         let result = parse_pdf(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello, this is a test pdf for the parsing API.".to_string()

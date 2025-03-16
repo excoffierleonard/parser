@@ -54,7 +54,7 @@ mod tests {
         let data = read_test_file("test_xlsx_1.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name
@@ -69,7 +69,7 @@ alice23,8425,Alice"
         let data = read_test_file("test_xlsx_2.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name

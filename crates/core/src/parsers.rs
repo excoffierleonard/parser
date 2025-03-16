@@ -74,7 +74,7 @@ mod tests {
     #[test]
     fn parse_success() {
         // Already tested in the specific parser tests
-        assert!(1 == 1);
+        // Test case for coverage only
     }
 
     fn assert_mime_type_from_data(filename: &str, expected_type: &str, check_category: bool) {

@@ -57,7 +57,7 @@ mod tests {
         let data = read_test_file("test_pptx_1.pptx");
         let result = parse_pptx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "This is the title
