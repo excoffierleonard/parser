@@ -19,7 +19,9 @@ fn main() {
                 println!("Assuming Leptonica is bundled with Tesseract");
             } else {
                 println!("cargo:warning=Leptonica library not found in your system.");
-                println!("cargo:warning=On Debian/Ubuntu, install with: apt install libleptonica-dev");
+                println!(
+                    "cargo:warning=On Debian/Ubuntu, install with: apt install libleptonica-dev"
+                );
                 println!("cargo:warning=On macOS, it should be installed with Tesseract");
             }
         }
