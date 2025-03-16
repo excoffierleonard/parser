@@ -1845,6 +1845,7 @@ dependencies = [
  "mime",
  "parser-test-utils",
  "pdf-extract",
+ "pkg-config",
  "rayon",
  "regex",
  "tempfile",
