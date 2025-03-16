@@ -46,18 +46,14 @@ pub(crate) fn parse_docx(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_docx_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_docx_1.docx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_docx_1.docx");
         let result = parse_docx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello, this is a test docx for the parsing API.".to_string()

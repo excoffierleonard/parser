@@ -13,18 +13,14 @@ pub(crate) fn parse_text(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_txt_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_txt_1.txt");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_txt_1.txt");
         let result = parse_text(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello, this is a test txt for the parsing API.".to_string()
@@ -33,14 +29,10 @@ mod tests {
 
     #[test]
     fn parse_csv_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_csv_1.csv");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_csv_1.csv");
         let result = parse_text(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Username; Identifier;First name;Last name
@@ -52,14 +44,10 @@ grey07;2070;Laura;Grey"
 
     #[test]
     fn parse_json_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_json_1.json");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_json_1.json");
         let result = parse_text(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             r#"{
