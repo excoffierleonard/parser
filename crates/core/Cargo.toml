@@ -1,7 +1,19 @@
 [package]
 name = "parser-core"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
+build = "build.rs"
+authors = ["Leonard Excoffier"]
+description = "A library for extracting text from various file formats including PDF, DOCX, XLSX, PPTX, images via OCR, and more"
+license = "MIT"
+repository = "https://github.com/excoffierleonard/parser"
+documentation = "https://docs.rs/parser-core"
+readme = "README.md"
+keywords = ["parser", "pdf", "docx", "text-extraction", "ocr"]
+categories = ["text-processing", "parsing", "encoding"]
+
+[build-dependencies]
+pkg-config = "0.3.29"
 
 [dependencies]
 rayon = { workspace = true }
@@ -14,7 +26,7 @@ pdf-extract = "0.8.0"
 regex = "1.11.1"
 tempfile = "3.9.0"
 tesseract = "0.15.1"
-zip = "2.2.2"
+zip = "2.3.0"
 
 [dev-dependencies]
 criterion = "0.5"

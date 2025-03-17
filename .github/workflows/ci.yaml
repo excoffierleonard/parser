@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y libleptonica-dev libtesseract-dev tesseract-ocr tesseract-ocr-eng tesseract-ocr-fra
+          sudo apt install -y libleptonica-dev libtesseract-dev libclang-dev
       
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1

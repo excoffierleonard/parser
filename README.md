@@ -54,6 +54,24 @@ For local build:
   - English Language Data
   - French Language Data
 
+### Installing Dependencies
+
+#### Debian/Ubuntu
+
+```bash
+sudo apt install libtesseract-dev libleptonica-dev libclang-dev
+```
+
+#### macOS
+
+```bash
+brew install tesseract
+```
+
+#### Windows
+
+Follow the instructions at [Tesseract GitHub repository](https://github.com/tesseract-ocr/tesseract).
+
 For deployment:
 
 - [Docker](https://docs.docker.com/get-docker/)

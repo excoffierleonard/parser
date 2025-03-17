@@ -1,9 +1,30 @@
 //! Text parser module.
+//!
+//! This module provides functionality for parsing plain text files, including TXT,
+//! CSV, and JSON formats. It focuses on UTF-8 encoded text files.
 
 use crate::errors::ParserError;
 use std::str;
 
-/// Parse anything that can be considered as text and return its content.
+/// Parses UTF-8 encoded text files and returns their content.
+///
+/// This function handles various text-based formats such as plain text files,
+/// CSV files, and JSON files by converting their binary content to UTF-8 strings.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the text file data
+///
+/// # Returns
+///
+/// * `Ok(String)` - The text content from the file
+/// * `Err(ParserError)` - If the data isn't valid UTF-8 or another error occurs
+///
+/// # Implementation Notes
+///
+/// * Uses the standard library's UTF-8 validation
+/// * Performs no additional formatting or processing beyond UTF-8 conversion
+/// * Works with plain text, CSV, JSON, and other UTF-8 encoded text formats
 pub(crate) fn parse_text(data: &[u8]) -> Result<String, ParserError> {
     // Convert bytes to string, using UTF-8 encoding
     let text = str::from_utf8(data)?;

@@ -1,4 +1,8 @@
-//! Image parser module
+//! Image parser module.
+//!
+//! This module provides functionality for extracting text from images using
+//! Optical Character Recognition (OCR) via the Tesseract engine. It supports
+//! various image formats including PNG, JPEG, and WebP.
 
 use crate::errors::ParserError;
 use lazy_static::lazy_static;
@@ -31,7 +35,25 @@ lazy_static! {
     };
 }
 
-/// Parses all that can be coerced to an image using OCR
+/// Parses image data and extracts text using OCR.
+///
+/// This function takes raw bytes of an image and uses Tesseract OCR to extract
+/// any text content from the image.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the image data (PNG, JPEG, WebP, etc.)
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text from the image
+/// * `Err(ParserError)` - If an error occurs during image processing or OCR
+///
+/// # Implementation Notes
+///
+/// * Uses Tesseract OCR engine with English and French language support
+/// * Creates a temporary file to pass to Tesseract
+/// * Training data is embedded in the binary for portability
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     // Create a temporary file, from the data, to be used by the ocr engine
     let mut temp_file = NamedTempFile::new()?;
@@ -47,6 +69,16 @@ pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     Ok(text.trim().to_string())
 }
 
+/// Internal function that performs OCR using Tesseract.
+///
+/// # Arguments
+///
+/// * `path` - Path to the image file to process
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text
+/// * `Err(ParserError)` - If an error occurs with Tesseract
 fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
     // Get the path to the tessdata directory
     let tessdata_dir = TESSDATA_DIR.path().to_str().ok_or_else(|| {
