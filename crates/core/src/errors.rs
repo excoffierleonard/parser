@@ -4,26 +4,26 @@
 //! conversions from common external error types to our internal error type.
 
 /// Custom error type for the parser library.
-/// 
+///
 /// Represents different categories of errors that can occur during parsing operations,
 /// including I/O errors, parsing errors, and format validation errors.
 #[derive(Debug)]
 pub enum ParserError {
     /// An error occurred while reading or writing a file.
-    /// 
-    /// This includes file system errors, issues with file permissions, or 
+    ///
+    /// This includes file system errors, issues with file permissions, or
     /// problems with temporary file creation.
     IoError(String),
-    
+
     /// An error occurred while parsing the content of a file.
-    /// 
-    /// This includes syntax errors, encoding problems, or issues with 
+    ///
+    /// This includes syntax errors, encoding problems, or issues with
     /// the internal structure of documents.
     ParseError(String),
-    
+
     /// The file has an invalid or unsupported format.
-    /// 
-    /// This occurs when the file type cannot be recognized or is not 
+    ///
+    /// This occurs when the file type cannot be recognized or is not
     /// supported by the parser library.
     InvalidFormat(String),
 }
@@ -38,7 +38,7 @@ impl std::fmt::Display for ParserError {
     }
 }
 
-/// Implements the std::error::Error trait for ParserError to allow it to be used 
+/// Implements the std::error::Error trait for ParserError to allow it to be used
 /// with the ? operator and to be boxed as a dyn Error.
 impl std::error::Error for ParserError {}
 

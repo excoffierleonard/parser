@@ -1,7 +1,7 @@
 //! XLSX parser module.
 //!
-//! This module provides functionality for extracting text from Microsoft Excel 
-//! XLSX spreadsheet files using the calamine library. It converts spreadsheet 
+//! This module provides functionality for extracting text from Microsoft Excel
+//! XLSX spreadsheet files using the calamine library. It converts spreadsheet
 //! content to a CSV-like text format.
 
 use crate::errors::ParserError;

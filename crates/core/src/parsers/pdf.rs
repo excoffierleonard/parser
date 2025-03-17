@@ -24,7 +24,7 @@ use pdf_extract::extract_text_from_mem;
 ///
 /// * Uses the pdf_extract library for PDF text extraction
 /// * Trims whitespace from the result before returning
-/// * TODO: Need to find a way to silence the output of that function since on 
+/// * TODO: Need to find a way to silence the output of that function since on
 ///   unknown characters it outputs a lot of errors, cluttering the logs.
 pub(crate) fn parse_pdf(data: &[u8]) -> Result<String, ParserError> {
     Ok(extract_text_from_mem(data)?.trim().to_string())
