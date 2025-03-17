@@ -1,12 +1,36 @@
 //! XLSX parser module.
+//!
+//! This module provides functionality for extracting text from Microsoft Excel
+//! XLSX spreadsheet files using the calamine library. It converts spreadsheet
+//! content to a CSV-like text format.
 
 use crate::errors::ParserError;
 use calamine::{Reader, Xlsx};
 use std::io::Cursor;
 
-// TODO: Need proper logic to escape commas and quotes
-// TODO: Consider using the csv crate to simply convert to csv each sheet and pass it throught the parse text function
-/// Parse an XLSX file and extract text from it.
+/// Parses an XLSX file and extracts text content as CSV.
+///
+/// This function takes raw bytes of an XLSX spreadsheet and extracts all cell
+/// values as a comma-separated text representation, with support for multiple
+/// sheets.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the XLSX data
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text from the spreadsheet in CSV format
+/// * `Err(ParserError)` - If an error occurs during XLSX parsing
+///
+/// # Implementation Notes
+///
+/// * Uses the calamine library for XLSX parsing
+/// * Converts each sheet to CSV format with comma-separated values
+/// * Adds sheet headers for multi-sheet workbooks
+/// * Memory-efficient implementation using cursors instead of temporary files
+/// * TODO: Need proper logic to escape commas and quotes
+/// * TODO: Consider using the csv crate to convert each sheet and pass it through the parse_text function
 pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
     // Create a cursor from the bytes for memory-based reading
     let cursor = Cursor::new(data);
@@ -47,18 +71,14 @@ pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_xlsx_single_sheet_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_xlsx_1.xlsx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_xlsx_1.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name
@@ -70,14 +90,10 @@ alice23,8425,Alice"
 
     #[test]
     fn parse_xlsx_multiple_sheets_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_xlsx_2.xlsx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_xlsx_2.xlsx");
         let result = parse_xlsx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "username,identifier,first_name

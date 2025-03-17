@@ -31,6 +31,49 @@ lazy_static! {
 }
 
 /// Parses the given data into plain text.
+///
+/// This function is the main entry point for the parser library. It automatically
+/// detects the file type from the provided byte data and delegates the parsing
+/// to the appropriate specialized parser.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the file data to be parsed
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text content from the file
+/// * `Err(ParserError)` - If the file type is unsupported, unrecognized, or an error occurs during parsing
+///
+/// # Examples
+///
+/// ```
+/// # use parser_core::parse;
+/// # fn example() -> Result<(), Box<dyn std::error::Error>> {
+/// # let data = Vec::new(); // In a real example, this would be file data
+/// // Attempt to parse the data
+/// match parse(&data) {
+///     Ok(text) => println!("Parsed text: {}", text),
+///     Err(err) => println!("Failed to parse: {}", err),
+/// }
+/// # Ok(())
+/// # }
+/// ```
+///
+/// # Text file example
+///
+/// ```
+/// use parser_core::parse;
+///
+/// // Create a simple text file content
+/// let text_data = b"Hello, world! This is a sample text file.";
+///
+/// // Parse the text data
+/// let result = parse(text_data).expect("Failed to parse text data");
+///
+/// // Verify the result
+/// assert_eq!(result, "Hello, world! This is a sample text file.");
+/// ```
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
@@ -49,7 +92,25 @@ pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     }
 }
 
-/// Determine MIME type from bytes using only file signatures
+/// Determines the MIME type of data from its binary content.
+///
+/// This function uses file signatures (magic bytes) to detect the type of the data
+/// and as a fallback, checks if the data is valid UTF-8 text.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the file data to be analyzed
+///
+/// # Returns
+///
+/// * `Some(Mime)` - The detected MIME type of the data
+/// * `None` - If the data type could not be determined
+///
+/// # Implementation Details
+///
+/// - First tries to identify the file type based on its binary signature
+/// - As a fallback, checks if the content is valid UTF-8 text
+/// - Uses a static infer instance to improve performance
 fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     // Use the static infer instance
     // Try to detect using file signatures
@@ -70,17 +131,16 @@ fn determine_mime_type(data: &[u8]) -> Option<Mime> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::{Path, PathBuf};
 
     #[test]
     fn parse_success() {
         // Already tested in the specific parser tests
-        assert!(1 == 1);
+        // Test case for coverage only
     }
 
-    fn assert_mime_type_from_data(file_path: &Path, expected_type: &str, check_category: bool) {
+    fn assert_mime_type_from_data(filename: &str, expected_type: &str, check_category: bool) {
         // Read the file to get its content
-        let data = std::fs::read(file_path).unwrap();
+        let data = parser_test_utils::read_test_file(filename);
 
         let result = determine_mime_type(&data);
         assert!(result.is_some());
@@ -91,31 +151,22 @@ mod tests {
         }
     }
 
-    fn test_input_path() -> PathBuf {
-        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-    }
-
     #[test]
     fn determine_mime_success() {
-        // Get base path once
-        let base_path = test_input_path();
-
         // Office documents
-        assert_mime_type_from_data(&base_path.join("test_pdf_1.pdf"), APPLICATION_PDF, false);
-        assert_mime_type_from_data(&base_path.join("test_docx_1.docx"), APPLICATION_DOCX, false);
-        assert_mime_type_from_data(&base_path.join("test_xlsx_1.xlsx"), APPLICATION_XLSX, false);
-        assert_mime_type_from_data(&base_path.join("test_pptx_1.pptx"), APPLICATION_PPTX, false);
+        assert_mime_type_from_data("test_pdf_1.pdf", APPLICATION_PDF, false);
+        assert_mime_type_from_data("test_docx_1.docx", APPLICATION_DOCX, false);
+        assert_mime_type_from_data("test_xlsx_1.xlsx", APPLICATION_XLSX, false);
+        assert_mime_type_from_data("test_pptx_1.pptx", APPLICATION_PPTX, false);
 
         // Text files
-        assert_mime_type_from_data(&base_path.join("test_txt_1.txt"), TEXT.into(), true);
-        assert_mime_type_from_data(&base_path.join("test_csv_1.csv"), TEXT.into(), true);
-        assert_mime_type_from_data(&base_path.join("test_json_1.json"), TEXT.into(), true);
+        assert_mime_type_from_data("test_txt_1.txt", TEXT.into(), true);
+        assert_mime_type_from_data("test_csv_1.csv", TEXT.into(), true);
+        assert_mime_type_from_data("test_json_1.json", TEXT.into(), true);
 
         // Images
-        assert_mime_type_from_data(&base_path.join("test_png_1.png"), IMAGE.into(), true);
-        assert_mime_type_from_data(&base_path.join("test_jpg_1.jpg"), IMAGE.into(), true);
-        assert_mime_type_from_data(&base_path.join("test_webp_1.webp"), IMAGE.into(), true);
+        assert_mime_type_from_data("test_png_1.png", IMAGE.into(), true);
+        assert_mime_type_from_data("test_jpg_1.jpg", IMAGE.into(), true);
+        assert_mime_type_from_data("test_webp_1.webp", IMAGE.into(), true);
     }
 }

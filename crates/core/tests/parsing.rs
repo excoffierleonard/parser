@@ -1,16 +1,9 @@
 use parser_core::parse;
+use parser_test_utils::read_test_file;
 use rayon::prelude::*;
-use std::path::PathBuf;
 
-// Helper function to get the test input path
-fn build_input_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("inputs")
-}
-
-fn get_test_data() -> (Vec<PathBuf>, Vec<String>) {
-    let inputs: Vec<PathBuf> = vec![
+fn get_test_data() -> (Vec<&'static str>, Vec<String>) {
+    let file_names = vec![
         "test_pdf_1.pdf",
         "test_pdf_2.pdf",
         "test_docx_1.docx",
@@ -25,10 +18,7 @@ fn get_test_data() -> (Vec<PathBuf>, Vec<String>) {
         "test_png_1.png",
         "test_jpg_1.jpg",
         "test_webp_1.webp",
-    ]
-    .iter()
-    .map(|x| build_input_path().join(x))
-    .collect();
+    ];
 
     let expected_texts = vec![
         "Hello, this is a test pdf for the parsing API.".to_string(),
@@ -69,24 +59,17 @@ grey07;2070;Laura;Grey"
         "Hello World! This is an OCR test.\n123456789\n0.123 | 45.67 | 890".to_string(),
     ];
 
-    (inputs, expected_texts)
-}
-
-fn prepare_test_input(inputs: &[PathBuf]) -> Vec<Vec<u8>> {
-    inputs
-        .iter()
-        .map(|path| std::fs::read(path).unwrap())
-        .collect()
+    (file_names, expected_texts)
 }
 
 #[test]
 fn parse_success() {
-    let (inputs, expected_texts) = get_test_data();
-    let data = prepare_test_input(&inputs);
+    let (file_names, expected_texts) = get_test_data();
+    let data: Vec<Vec<u8>> = file_names.iter().map(|name| read_test_file(name)).collect();
 
     let result: Vec<String> = data.par_iter().map(|d| parse(d).unwrap()).collect();
 
     // Assert the results
-    assert_eq!(result.len(), inputs.len());
+    assert_eq!(result.len(), file_names.len());
     assert_eq!(result, expected_texts);
 }

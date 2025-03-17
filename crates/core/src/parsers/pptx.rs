@@ -1,11 +1,34 @@
 //! PPTX parser module.
+//!
+//! This module provides functionality for extracting text from Microsoft PowerPoint
+//! PPTX presentation files. It uses the zip crate to extract slide XML files and
+//! regex to extract text content.
 
 use crate::errors::ParserError;
 use regex::Regex;
 use std::io::{Cursor, Read};
 use zip::ZipArchive;
 
-/// Parse a PPTX file and extract text from it.
+/// Parses a PPTX file and extracts text content from slides.
+///
+/// This function takes raw bytes of a PPTX presentation and extracts all text content
+/// from each slide, organizing it by slide number.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the PPTX data
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text from the presentation with slide separators
+/// * `Err(ParserError)` - If an error occurs during PPTX parsing
+///
+/// # Implementation Notes
+///
+/// * Treats PPTX as a ZIP archive and extracts slide XML files
+/// * Uses regex to find text elements in the slide XML
+/// * Organizes text by slide number with clear slide separators
+/// * Handles XML content without requiring a full XML parser
 pub(crate) fn parse_pptx(data: &[u8]) -> Result<String, ParserError> {
     // Create a cursor to read from the byte data
     let cursor = Cursor::new(data);
@@ -50,18 +73,14 @@ pub(crate) fn parse_pptx(data: &[u8]) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_pptx_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_pptx_1.pptx");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_pptx_1.pptx");
         let result = parse_pptx(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "This is the title

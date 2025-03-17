@@ -1,4 +1,8 @@
-//! Image parser module
+//! Image parser module.
+//!
+//! This module provides functionality for extracting text from images using
+//! Optical Character Recognition (OCR) via the Tesseract engine. It supports
+//! various image formats including PNG, JPEG, and WebP.
 
 use crate::errors::ParserError;
 use lazy_static::lazy_static;
@@ -7,8 +11,14 @@ use tempfile::{NamedTempFile, TempDir};
 use tesseract::Tesseract;
 
 // Include language data files in the binary
-const TESSDATA_ENG: &[u8] = include_bytes!("./tessdata/eng.traineddata");
-const TESSDATA_FRA: &[u8] = include_bytes!("./tessdata/fra.traineddata");
+const TESSDATA_ENG: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/assets/eng.traineddata"
+));
+const TESSDATA_FRA: &[u8] = include_bytes!(concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/assets/fra.traineddata"
+));
 
 lazy_static! {
     static ref TESSDATA_DIR: TempDir = {
@@ -25,7 +35,25 @@ lazy_static! {
     };
 }
 
-/// Parses all that can be coerced to an image using OCR
+/// Parses image data and extracts text using OCR.
+///
+/// This function takes raw bytes of an image and uses Tesseract OCR to extract
+/// any text content from the image.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the image data (PNG, JPEG, WebP, etc.)
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text from the image
+/// * `Err(ParserError)` - If an error occurs during image processing or OCR
+///
+/// # Implementation Notes
+///
+/// * Uses Tesseract OCR engine with English and French language support
+/// * Creates a temporary file to pass to Tesseract
+/// * Training data is embedded in the binary for portability
 pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     // Create a temporary file, from the data, to be used by the ocr engine
     let mut temp_file = NamedTempFile::new()?;
@@ -41,6 +69,16 @@ pub(crate) fn parse_image(data: &[u8]) -> Result<String, ParserError> {
     Ok(text.trim().to_string())
 }
 
+/// Internal function that performs OCR using Tesseract.
+///
+/// # Arguments
+///
+/// * `path` - Path to the image file to process
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text
+/// * `Err(ParserError)` - If an error occurs with Tesseract
 fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
     // Get the path to the tessdata directory
     let tessdata_dir = TESSDATA_DIR.path().to_str().ok_or_else(|| {
@@ -59,18 +97,14 @@ fn parse_with_tesseract(path: &str) -> Result<String, ParserError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs::read, path::PathBuf};
+    use parser_test_utils::read_test_file;
 
     #[test]
     fn parse_png_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_png_1.png");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_png_1.png");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.
@@ -82,14 +116,10 @@ mod tests {
 
     #[test]
     fn parse_jpg_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_jpg_1.jpg");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_jpg_1.jpg");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.
@@ -101,14 +131,10 @@ mod tests {
 
     #[test]
     fn parse_webp_success() {
-        let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("tests")
-            .join("inputs")
-            .join("test_webp_1.webp");
-        let data = read(&file_path).unwrap();
+        let data = read_test_file("test_webp_1.webp");
         let result = parse_image(&data).unwrap();
 
-        assert!(result.len() > 0);
+        assert!(!result.is_empty());
         assert_eq!(
             result,
             "Hello World! This is an OCR test.

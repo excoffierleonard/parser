@@ -1,1 +1,0 @@
-Hello, this is another test txt for the parsing API.

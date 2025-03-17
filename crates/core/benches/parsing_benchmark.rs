@@ -1,30 +1,29 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use parser_core::parse;
+use parser_test_utils::read_test_file;
 use rayon::prelude::*;
-use std::fs;
-use std::path::Path;
 
 fn load_test_files() -> Vec<Vec<u8>> {
     let test_files = [
-        "tests/inputs/test_csv_1.csv",
-        "tests/inputs/test_docx_1.docx",
-        "tests/inputs/test_docx_2.docx",
-        "tests/inputs/test_jpg_1.jpg",
-        "tests/inputs/test_json_1.json",
-        "tests/inputs/test_pdf_1.pdf",
-        "tests/inputs/test_pdf_2.pdf",
-        "tests/inputs/test_png_1.png",
-        "tests/inputs/test_pptx_1.pptx",
-        "tests/inputs/test_txt_1.txt",
-        "tests/inputs/test_txt_2.txt",
-        "tests/inputs/test_webp_1.webp",
-        "tests/inputs/test_xlsx_1.xlsx",
-        "tests/inputs/test_xlsx_2.xlsx",
+        "test_csv_1.csv",
+        "test_docx_1.docx",
+        "test_docx_2.docx",
+        "test_jpg_1.jpg",
+        "test_json_1.json",
+        "test_pdf_1.pdf",
+        "test_pdf_2.pdf",
+        "test_png_1.png",
+        "test_pptx_1.pptx",
+        "test_txt_1.txt",
+        "test_txt_2.txt",
+        "test_webp_1.webp",
+        "test_xlsx_1.xlsx",
+        "test_xlsx_2.xlsx",
     ];
 
     test_files
         .iter()
-        .map(|&path| fs::read(Path::new(path)).expect("Failed to read test file"))
+        .map(|&filename| read_test_file(filename))
         .collect()
 }
 
