@@ -31,7 +31,7 @@ RUN cargo build --release
 # Stage 3: Final Image
 ##############################
 FROM alpine
-RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev
+RUN apk add --no-cache tesseract-ocr
 WORKDIR /app
 # Copy the statically linked binary from the builder stage
 COPY --from=builder /app/target/release/parser-web .
