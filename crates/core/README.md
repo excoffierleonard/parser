@@ -12,13 +12,36 @@ The core engine of the parser project, providing functionality for extracting te
 - Automatic format detection
 - Parallel processing support via Rayon
 
+## Dependencies
+
+This package requires the following system libraries:
+
+- **Tesseract OCR** - Used for image text extraction
+- **Leptonica** - Image processing library used by Tesseract
+- **Clang** - Required for some build dependencies
+
+### Installation on Debian/Ubuntu
+
+```bash
+sudo apt install libtesseract-dev libleptonica-dev libclang-dev
+```
+
+### Installation on macOS
+
+```bash
+brew install tesseract
+```
+
+### Installation on Windows
+
+Follow the instructions at [Tesseract GitHub repository](https://github.com/tesseract-ocr/tesseract).
+
 ## Usage
 
 Add as a dependency in your `Cargo.toml`:
 
-```toml
-[dependencies]
-parser-core = { path = "../core" }  # Adjust path as needed
+```bash
+cargo add parser-core
 ```
 
 Basic usage:

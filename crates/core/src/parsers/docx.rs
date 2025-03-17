@@ -1,15 +1,36 @@
 //! DOCX parser module.
+//!
+//! This module provides functionality for extracting text from Microsoft Word DOCX
+//! documents using the docx_rs library.
 
 use crate::errors::ParserError;
 use docx_rs::read_docx;
 
-/// Parse a DOCX file and extract text from it.
+/// Parses a DOCX file and extracts text content.
+///
+/// This function takes raw bytes of a DOCX document and extracts all text content,
+/// organizing it by paragraphs with line breaks between them.
+///
+/// # Arguments
+///
+/// * `data` - A byte slice containing the DOCX data
+///
+/// # Returns
+///
+/// * `Ok(String)` - The extracted text from the DOCX file
+/// * `Err(ParserError)` - If an error occurs during DOCX parsing
+///
+/// # Implementation Notes
+///
+/// * Uses the docx_rs library for DOCX parsing
+/// * Extracts text by traversing document structure: documents → paragraphs → runs → text
+/// * Joins paragraphs with newlines and trims whitespace from the result
+/// * TODO: Consider simplifying the document traversal logic
 pub(crate) fn parse_docx(data: &[u8]) -> Result<String, ParserError> {
     // Parse the DOCX document directly from bytes
     let docx = read_docx(data)?;
 
     // Extract text from the document
-    // TODO: Maybe simplify this monstrosity?
     let text = docx
         .document
         .children
