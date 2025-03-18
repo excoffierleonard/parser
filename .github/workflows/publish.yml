@@ -22,6 +22,11 @@ on:
           - minor
           - major
 
+# Add permissions for GitHub token
+permissions:
+  contents: write
+  packages: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
