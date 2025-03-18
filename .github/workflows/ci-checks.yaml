@@ -24,17 +24,25 @@ jobs:
         with:
           components: rustfmt, clippy
       
-      - name: Cargo cache
-        uses: actions/cache@v3
+      - name: Cargo registry cache
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-registry-
+            
+      - name: Build cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            target
+          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml', '**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-target-
       
       - name: Check format
         run: cargo fmt --all -- --check
