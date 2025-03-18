@@ -17,17 +17,19 @@ jobs:
     environment: production
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@main
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@master
         with:
           profile: minimal
           toolchain: stable
           override: true
 
       - name: Publish core crate
+        uses: actions-rs/cargo@master
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-        run: |
-          cargo publish -p parser-core
+        with:
+          command: publish
+          args: -p parser-core

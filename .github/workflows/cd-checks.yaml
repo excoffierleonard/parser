@@ -11,7 +11,7 @@ jobs:
     name: Pre-deployment Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
 
       - name: Install system dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
@@ -26,6 +26,7 @@ jobs:
           toolchain: stable
           override: true
 
+      # TODO: Find way to fail when version already exists on crates.io
       - name: Dry run publish for core crate
         uses: actions-rs/cargo@master
         with:
