@@ -13,6 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
+
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
         with:
@@ -39,6 +42,9 @@ jobs:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
 
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
+
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
         with:
@@ -64,6 +70,9 @@ jobs:
         with:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
