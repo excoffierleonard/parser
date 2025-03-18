@@ -13,8 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+      - name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.rustup
+          key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
@@ -23,6 +26,9 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
 
       - name: Format
         uses: actions-rs/cargo@master
@@ -42,8 +48,11 @@ jobs:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
 
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+      - name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.rustup
+          key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
@@ -52,6 +61,9 @@ jobs:
           toolchain: stable
           override: true
           components: clippy
+        
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
 
       - name: Lint
         uses: actions-rs/cargo@master
@@ -71,8 +83,11 @@ jobs:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
 
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+      - name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.rustup
+          key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@master
@@ -80,6 +95,9 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+
+      - name: Cache Cargo dependencies
+        uses: Swatinem/rust-cache@master
 
       - name: Test
         uses: actions-rs/cargo@master
