@@ -1,4 +1,4 @@
-name: Build and push docker image
+name: Build and publish docker image
 
 permissions:
   packages: write
