@@ -1,0 +1,74 @@
+name: Publish Core Crate
+
+on:
+  # Automatic publishing on push to main
+  push:
+    branches:
+      - main
+    paths:
+      - 'crates/core/**'
+      - '.github/workflows/publish.yml'
+  
+  # Manual workflow dispatch with version type parameter
+  workflow_dispatch:
+    inputs:
+      version_bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Bump core crate version
+        working-directory: ./crates/core
+        run: |
+          # Determine version bump type - default to patch for auto-triggered workflow
+          BUMP_TYPE="${{ github.event.inputs.version_bump || 'patch' }}"
+          echo "Using version bump type: $BUMP_TYPE"
+          
+          # Get current version
+          CURRENT_VERSION=$(grep '^version =' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "Current version: $CURRENT_VERSION"
+          
+          # Increment version based on bump type
+          cargo set-version --bump $BUMP_TYPE
+          
+          # Get new version
+          NEW_VERSION=$(grep '^version =' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "New version: $NEW_VERSION"
+          
+          # Commit the version bump
+          git add Cargo.toml
+          git commit -m "Bump parser-core version to $NEW_VERSION [skip ci]"
+          git push
+
+      - name: Publish to crates.io
+        working-directory: ./crates/core
+        run: |
+          cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
