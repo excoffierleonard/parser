@@ -11,7 +11,7 @@ jobs:
     name: Format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
 
       - name: Cache Rust toolchain
         uses: actions/cache@v3
@@ -20,7 +20,7 @@ jobs:
           key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@master
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
@@ -28,10 +28,10 @@ jobs:
           components: rustfmt
 
       - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+        uses: Swatinem/rust-cache@v2
 
       - name: Format
-        uses: actions-rs/cargo@master
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
@@ -40,10 +40,10 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
 
       - name: Install system dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
@@ -55,18 +55,18 @@ jobs:
           key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@master
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
           components: clippy
-        
+
       - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+        uses: Swatinem/rust-cache@v2
 
       - name: Lint
-        uses: actions-rs/cargo@master
+        uses: actions-rs/cargo@v1
         with:
           command: clippy
           args: --all -- -D warnings
@@ -75,10 +75,10 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@v4
 
       - name: Install system dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
+        uses: awalsh128/cache-apt-pkgs-action@v1
         with:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
@@ -90,17 +90,17 @@ jobs:
           key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@master
+        uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: stable
           override: true
 
       - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@master
+        uses: Swatinem/rust-cache@v2
 
       - name: Test
-        uses: actions-rs/cargo@master
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all
