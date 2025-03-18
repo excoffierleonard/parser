@@ -5,7 +5,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["Build and push docker image"]
+    workflows: ["Build and publish docker image"]
     types:
       - completed
     branches:
