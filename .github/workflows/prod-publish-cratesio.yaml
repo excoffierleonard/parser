@@ -5,7 +5,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["Format, Lint, and Test"]
+    workflows: ["CD Checks"]
     types:
       - completed
     branches:
