@@ -15,9 +15,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@main
 
       - name: Copy compose file to server
         uses: appleboy/scp-action@master

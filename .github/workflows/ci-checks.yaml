@@ -8,47 +8,38 @@ on:
 
 jobs:
   test:
-    name: Test, Format, and Lint
+    name: Format, Lint, and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y libleptonica-dev libtesseract-dev libclang-dev
-      
+      - uses: actions/checkout@main
+
+      - name: Install system dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libtesseract-dev libleptonica-dev libclang-dev
+          version: 1.0
+
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: actions-rs/toolchain@master
         with:
           profile: minimal
           toolchain: stable
           override: true
-          components: rustfmt, clippy
-      
-      - name: Cargo cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      
-      - name: Check format
-        uses: actions-rs/cargo@v1
+
+      - name: Format
+        uses: actions-rs/cargo@master
         with:
           command: fmt
           args: --all -- --check
-      
-      - name: Run clippy
-        uses: actions-rs/cargo@v1
+
+      - name: Lint
+        uses: actions-rs/cargo@master
         with:
           command: clippy
-          args: --workspace -- -D warnings
-      
-      - name: Run tests
-        uses: actions-rs/cargo@v1
+          args: --all -- -D warnings
+
+      - name: Test
+        uses: actions-rs/cargo@master
         with:
           command: test
-          args: --workspace
+          args: --all
