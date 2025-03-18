@@ -6,7 +6,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["Rust CI"]
+    workflows: ["Format, Lint, and Test"]
     types:
       - completed
     branches:

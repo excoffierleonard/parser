@@ -1,4 +1,4 @@
-name: Rust CI
+name: Format, Lint, and Test
 
 on:
   pull_request:
