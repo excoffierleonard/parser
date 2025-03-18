@@ -5,7 +5,7 @@ permissions:
 
 on:
   workflow_run:
-    workflows: ["CD Checks"]
+    workflows: ["CI Checks", "CD Checks"]
     types:
       - completed
     branches:

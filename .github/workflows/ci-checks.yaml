@@ -12,43 +12,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Cache apt packages
+
+      - name: Install system dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: libleptonica-dev libtesseract-dev libclang-dev
+          packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
-      
+
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: actions-rs/toolchain@master
         with:
-          components: rustfmt, clippy
-      
-      - name: Cargo registry cache
-        uses: actions/cache@v4
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - name: Format
+        uses: actions-rs/cargo@master
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-registry-
-            
-      - name: Build cache
-        uses: actions/cache@v4
+          command: fmt
+          args: --all -- --check
+
+      - name: Lint
+        uses: actions-rs/cargo@master
         with:
-          path: |
-            target
-          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock', '**/Cargo.toml', '**/*.rs') }}
-          restore-keys: |
-            ${{ runner.os }}-target-
-      
-      - name: Check format
-        run: cargo fmt --all -- --check
-      
-      - name: Run clippy
-        run: cargo clippy --workspace -- -D warnings
-      
-      - name: Run tests
-        run: cargo test --workspace
+          command: clippy
+          args: --all -- -D warnings
+
+      - name: Test
+        uses: actions-rs/cargo@master
+        with:
+          command: test
+          args: --all
