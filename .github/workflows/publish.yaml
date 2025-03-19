@@ -19,6 +19,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install and Cache system dependencies
+        uses: awalsh128/cache-apt-pkgs-action@v1
+        with:
+          packages: libtesseract-dev libleptonica-dev libclang-dev
+          version: 1.0
+
+      - name: Cache Rust toolchain and dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.rustup
+            ~/.cargo
+            target
+          key: ${{ runner.os }}-rust-${{ hashFiles('.github/workflows/**.yaml') }}
+
       - name: Login to crates.io registry
         uses: actions-rs/cargo@v1
         with:
