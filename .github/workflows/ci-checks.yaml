@@ -31,6 +31,12 @@ jobs:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
 
+      - name: Cache Rust toolchain
+        uses: actions/cache@v3
+        with:
+          path: ~/.rustup
+          key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
+
       - name: Cache Cargo dependencies
         uses: Swatinem/rust-cache@v2
 
@@ -51,9 +57,6 @@ jobs:
         with:
           packages: libtesseract-dev libleptonica-dev libclang-dev
           version: 1.0
-
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
 
       - name: Test
         uses: actions-rs/cargo@v1
