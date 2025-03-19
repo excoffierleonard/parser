@@ -13,23 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Rust toolchain
-        uses: actions/cache@v3
-        with:
-          path: ~/.rustup
-          key: ${{ runner.os }}-rustup-${{ hashFiles('.github/workflows/**.yml') }}
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-          components: rustfmt
-
-      - name: Cache Cargo dependencies
-        uses: Swatinem/rust-cache@v2
-
       - name: Format
         uses: actions-rs/cargo@v1
         with:
