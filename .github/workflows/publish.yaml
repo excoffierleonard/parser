@@ -1,0 +1,52 @@
+name: Publish
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  publish-crates:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to crates.io registry
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CRATES_IO_TOKEN }}
+
+      - name: Publish core crate to crates.io
+        uses: actions-rs/cargo@v1
+        with:
+          command: publish
+          args: -p parser-core
+
+  publish-docker:
+    name: Build and Push Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker image to Github Container Registry
+        uses: docker/build-push-action@v2
+        with:
+            context: .
+            push: true
+            tags: ghcr.io/${{ github.repository }}:latest
