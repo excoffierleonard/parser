@@ -1,4 +1,4 @@
-use std::iter;
+use std::time::{Duration, Instant};
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use rayon::prelude::*;
@@ -9,32 +9,24 @@ use parser_test_utils::read_test_file;
 const TEST_FILENAMES_WITHOUT_OCR: &[&str] = &[
     "test_csv_1.csv",
     "test_docx_1.docx",
-    "test_docx_2.docx",
     "test_json_1.json",
     "test_pdf_1.pdf",
-    "test_pdf_2.pdf",
     "test_pptx_1.pptx",
     "test_txt_1.txt",
-    "test_txt_2.txt",
     "test_xlsx_1.xlsx",
-    "test_xlsx_2.xlsx",
 ];
 
 const TEST_FILENAMES_WITH_OCR: &[&str] = &[
     "test_csv_1.csv",
     "test_docx_1.docx",
-    "test_docx_2.docx",
     "test_jpg_1.jpg",
     "test_json_1.json",
     "test_pdf_1.pdf",
-    "test_pdf_2.pdf",
     "test_png_1.png",
     "test_pptx_1.pptx",
     "test_txt_1.txt",
-    "test_txt_2.txt",
     "test_webp_1.webp",
     "test_xlsx_1.xlsx",
-    "test_xlsx_2.xlsx",
 ];
 
 fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
@@ -95,39 +87,43 @@ fn create_test_sizes() -> Vec<usize> {
 }
 
 fn benchmark_parallel_threshold(c: &mut Criterion) {
-    let test_sizes = create_test_sizes();
+    // Threshold is 1 frame at 60 FPS
+    let max_time_threshold = Duration::from_millis(16);
+    let mut group = c.benchmark_group("Parallel PDF Processing");
 
-    for &count in &test_sizes {
-        let group_name = format!("{} PDF files", count);
-        let mut group = c.benchmark_group(&group_name);
-
-        // Build a vector of `count` pdf files from the same pdf file
+    let mut count = 1;
+    loop {
+        // Build test files
         let files: Vec<Vec<u8>> = (0..count)
             .map(|_| read_test_file("test_pdf_1.pdf"))
             .collect();
 
-        // Benchmark parallel parsing
-        group.bench_function("parallel", |b| {
-            b.iter(|| {
-                files
-                    .par_iter()
-                    .map(|d| parse(black_box(d)))
-                    .collect::<Result<Vec<String>, ParserError>>()
-            })
-        });
+        // Run a quick pre-benchmark to check duration
+        let start = Instant::now();
+        files
+            .par_iter()
+            .map(|d| parse(d))
+            .collect::<Result<Vec<String>, ParserError>>()
+            .unwrap();
+        let duration = start.elapsed();
 
-        // // Benchmark sequential parsing
-        // group.bench_function("sequential", |b| {
-        //     b.iter(|| {
-        //         files
-        //             .iter()
-        //             .map(|d| parse(black_box(d)))
-        //             .collect::<Result<Vec<String>, ParserError>>()
-        //     })
-        // });
-
-        group.finish();
+        // Only run the full benchmark if under threshold
+        if duration < max_time_threshold {
+            group.bench_function(format!("{} PDF files", count), |b| {
+                b.iter(|| {
+                    files
+                        .par_iter()
+                        .map(|d| parse(black_box(d)))
+                        .collect::<Result<Vec<String>, ParserError>>()
+                })
+            });
+            count *= 2;
+        } else {
+            break;
+        }
     }
+
+    group.finish();
 }
 
 criterion_group!(
