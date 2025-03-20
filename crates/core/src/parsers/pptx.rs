@@ -93,22 +93,3 @@ This is the text of the second slide"
         );
     }
 }
-
-#[cfg(test)]
-pub mod benchmarks {
-    use super::*;
-    use criterion::{black_box, Criterion};
-    use parser_test_utils::read_test_file;
-
-    pub fn benchmark_parse_pptx(c: &mut Criterion) {
-        let pptx_data = read_test_file("test_pptx_1.pptx");
-
-        let mut group = c.benchmark_group("PPTX Parser");
-
-        group.bench_function("parse_pptx", |b| {
-            b.iter(|| parse_pptx(black_box(&pptx_data)))
-        });
-
-        group.finish();
-    }
-}

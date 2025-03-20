@@ -144,34 +144,3 @@ mod tests {
         );
     }
 }
-
-#[cfg(test)]
-pub mod benchmarks {
-    use super::*;
-    use criterion::{black_box, Criterion};
-    use parser_test_utils::read_test_file;
-
-    pub fn benchmark_parse_image(c: &mut Criterion) {
-        let png_data = read_test_file("test_png_1.png");
-        let jpg_data = read_test_file("test_jpg_1.jpg");
-        let webp_data = read_test_file("test_webp_1.webp");
-
-        let mut group = c.benchmark_group("Image Parser");
-
-        group.bench_function("parse_image (PNG)", |b| {
-            b.iter(|| parse_image(black_box(&png_data)))
-        });
-
-        group.bench_function("parse_image (JPG)", |b| {
-            b.iter(|| parse_image(black_box(&jpg_data)))
-        });
-
-        group.bench_function("parse_image (WebP)", |b| {
-            b.iter(|| parse_image(black_box(&webp_data)))
-        });
-
-        group.sample_size(10); // Reduce sample size for OCR which is slow
-
-        group.finish();
-    }
-}
