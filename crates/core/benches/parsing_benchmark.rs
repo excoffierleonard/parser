@@ -35,12 +35,12 @@ const TEST_FILENAMES_WITH_OCR: &[&str] = &[
 ];
 
 fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Sequential vs Parallel Parsing");
+
     let files: Vec<Vec<u8>> = TEST_FILENAMES_WITHOUT_OCR
         .iter()
         .map(|&filename| read_test_file(filename))
         .collect();
-
-    let mut group = c.benchmark_group("Sequential vs Parallel Parsing");
 
     // Benchmark parallel parsing
     group.bench_function("parallel", |b| {
@@ -49,7 +49,6 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
                 .par_iter()
                 .map(|d| parse(black_box(d)))
                 .collect::<Result<Vec<String>, ParserError>>()
-                .unwrap()
         })
     });
 
@@ -60,7 +59,6 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
                 .iter()
                 .map(|d| parse(black_box(d)))
                 .collect::<Result<Vec<String>, ParserError>>()
-                .unwrap()
         })
     });
 
@@ -70,12 +68,11 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
 fn benchmark_individual_files(c: &mut Criterion) {
     let mut group = c.benchmark_group("Individual File Parsing");
 
+    // Benchmark parsing for individual files
     for &filename in TEST_FILENAMES_WITH_OCR {
-        let file_data = read_test_file(filename);
+        let file = read_test_file(filename);
 
-        group.bench_function(filename, |b| {
-            b.iter(|| parse(black_box(&file_data)).unwrap())
-        });
+        group.bench_function(filename, |b| b.iter(|| parse(black_box(&file))));
     }
 
     group.finish();
