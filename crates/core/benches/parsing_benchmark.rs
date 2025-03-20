@@ -27,7 +27,7 @@ fn load_test_files() -> Vec<Vec<u8>> {
         .collect()
 }
 
-fn benchmark_sequential_vs_parralel(c: &mut Criterion) {
+fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
     let files = load_test_files();
 
     let mut group = c.benchmark_group("Parsing Comparison");
@@ -57,5 +57,5 @@ fn benchmark_sequential_vs_parralel(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, benchmark_sequential_vs_parralel);
+criterion_group!(benches, benchmark_sequential_vs_parallel);
 criterion_main!(benches);
