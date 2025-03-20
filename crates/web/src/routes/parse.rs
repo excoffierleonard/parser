@@ -4,7 +4,7 @@ use crate::errors::ApiError;
 use actix_multipart::Multipart;
 use actix_web::{body::BoxBody, post, HttpRequest, HttpResponse, Responder};
 use futures_util::TryStreamExt;
-use parser_core::parse;
+use parser_core::{parse, ParserError};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 
@@ -52,7 +52,9 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
     let parsed_text = files
         .par_iter()
         .map(|data| parse(data))
-        .collect::<Result<Vec<_>, _>>()?;
+        .collect::<Result<Vec<String>, ParserError>>();
 
-    Ok(ParseResponse { texts: parsed_text })
+    Ok(ParseResponse {
+        texts: parsed_text?,
+    })
 }

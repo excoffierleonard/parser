@@ -1,7 +1,7 @@
 use clap::Parser;
-use parser_core::parse;
+use parser_core::{parse, ParserError};
 use rayon::prelude::*;
-use std::{fs::read, path::PathBuf};
+use std::{fs::read, io::Error, path::PathBuf};
 
 /// CLI arguments parser
 #[derive(Parser)]
@@ -13,17 +13,16 @@ pub struct Cli {
 }
 
 /// Parses files in parallel and returns a Result containing either all parsed texts or the first error
-pub fn parse_files(files: &[PathBuf]) -> Result<Vec<String>, parser_core::ParserError> {
-    let results: Vec<_> = files
-        .par_iter()
-        .filter_map(|path| read(path).ok().map(|data| parse(&data)))
-        .collect();
+pub fn parse_files(paths: &[PathBuf]) -> Result<Vec<String>, ParserError> {
+    // Read files into memory
+    let files = paths
+        .iter()
+        .map(read)
+        .collect::<Result<Vec<Vec<u8>>, Error>>()?;
 
-    // Check if all results are Ok
-    if results.iter().all(|r| r.is_ok()) {
-        Ok(results.into_iter().filter_map(Result::ok).collect())
-    } else {
-        // Return the first error
-        Err(results.into_iter().find_map(|r| r.err()).unwrap())
-    }
+    // Process files in parallel
+    files
+        .par_iter()
+        .map(|data| parse(data))
+        .collect::<Result<Vec<String>, ParserError>>()
 }
