@@ -3,8 +3,8 @@ use parser_core::parse;
 use parser_test_utils::read_test_file;
 use rayon::prelude::*;
 
-fn load_test_files() -> Vec<Vec<u8>> {
-    let test_files = [
+fn get_test_filenames() -> Vec<&'static str> {
+    vec![
         "test_csv_1.csv",
         "test_docx_1.docx",
         "test_docx_2.docx",
@@ -19,9 +19,11 @@ fn load_test_files() -> Vec<Vec<u8>> {
         "test_webp_1.webp",
         "test_xlsx_1.xlsx",
         "test_xlsx_2.xlsx",
-    ];
+    ]
+}
 
-    test_files
+fn load_test_files() -> Vec<Vec<u8>> {
+    get_test_filenames()
         .iter()
         .map(|&filename| read_test_file(filename))
         .collect()
@@ -57,5 +59,20 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, benchmark_sequential_vs_parallel);
+fn benchmark_individual_files(c: &mut Criterion) {
+    let filenames = get_test_filenames();
+    let mut group = c.benchmark_group("Individual File Parsing");
+
+    for (index, &filename) in filenames.iter().enumerate() {
+        let file_data = read_test_file(filename);
+
+        group.bench_function(filename, |b| {
+            b.iter(|| parse(&file_data).expect(&format!("Failed to parse {}", filename)))
+        });
+    }
+
+    group.finish();
+}
+
+criterion_group!(benches, benchmark_individual_files);
 criterion_main!(benches);
