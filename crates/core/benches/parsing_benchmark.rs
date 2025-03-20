@@ -78,9 +78,41 @@ fn benchmark_individual_files(c: &mut Criterion) {
     group.finish();
 }
 
+fn benchmark_input_number(c: &mut Criterion) {
+    let mut group = c.benchmark_group("A lot of PDFs in parallel");
+
+    // Build a vector of 1000 pdf files from the same pdf file
+    let files: Vec<Vec<u8>> = (0..1000)
+        .map(|_| read_test_file("test_pdf_1.pdf"))
+        .collect();
+
+    // Benchmark parallel parsing
+    group.bench_function("parallel", |b| {
+        b.iter(|| {
+            files
+                .par_iter()
+                .map(|d| parse(black_box(d)))
+                .collect::<Result<Vec<String>, ParserError>>()
+        })
+    });
+
+    // Benchmark sequential parsing
+    group.bench_function("sequential", |b| {
+        b.iter(|| {
+            files
+                .iter()
+                .map(|d| parse(black_box(d)))
+                .collect::<Result<Vec<String>, ParserError>>()
+        })
+    });
+
+    group.finish();
+}
+
 criterion_group!(
     benches,
-    benchmark_sequential_vs_parallel,
-    benchmark_individual_files
+    //benchmark_sequential_vs_parallel,
+    //benchmark_individual_files,
+    benchmark_input_number
 );
 criterion_main!(benches);
