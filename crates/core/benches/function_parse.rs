@@ -219,7 +219,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
         let threshold_count = low;
 
         // Define percentages to test around the threshold
-        let percentages = [90.0, 99.0, 99.9, 100.0, 100.1, 101.0, 110.0];
+        let percentages = [99.0, 99.9, 100.0, 100.1, 101.0];
 
         // Generate test points based on percentages of the threshold
         let mut test_points: Vec<usize> = percentages
