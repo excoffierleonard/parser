@@ -1,6 +1,6 @@
 use std::time::{Duration, Instant};
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
 use rayon::prelude::*;
 
 use parser_core::{parse, ParserError};
@@ -76,37 +76,28 @@ fn benchmark_individual_files(c: &mut Criterion) {
 }
 
 fn benchmark_parallel_threshold(c: &mut Criterion) {
-    // Threshold is 1 frame at 60 FPS
     let max_time_threshold = Duration::from_millis(16);
 
-    // Test each file type separately
     for &filename in TEST_FILESNAMES_NO_TEXT_NO_OCR {
         let file_extension = filename.split('.').last().unwrap_or("unknown");
         let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
         let mut group = c.benchmark_group(&group_name);
 
-        // First phase: exponential search to find upper bound
-        let mut count = 1;
-        let mut last_good_count = 0;
-
-        loop {
-            // Build test files
+        // Closure to measure processing time for a given count
+        let quick_test = |count: usize| -> Duration {
             let files: Vec<Vec<u8>> = (0..count).map(|_| read_test_file(filename)).collect();
-
-            // Run a quick test
             let start = Instant::now();
             files
                 .par_iter()
                 .map(|d| parse(d))
                 .collect::<Result<Vec<String>, ParserError>>()
                 .unwrap();
-            let duration = start.elapsed();
+            start.elapsed()
+        };
 
-            if duration > max_time_threshold {
-                break; // Exceeded threshold, break to begin binary search
-            }
-
-            // Still under threshold, benchmark this count
+        // Closure to benchmark a specific count
+        let benchmark_count = |group: &mut BenchmarkGroup<_>, count: usize| {
+            let files: Vec<Vec<u8>> = (0..count).map(|_| read_test_file(filename)).collect();
             group.bench_function(format!("{} files", count), |b| {
                 b.iter(|| {
                     files
@@ -115,52 +106,35 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
                         .collect::<Result<Vec<String>, ParserError>>()
                 })
             });
+        };
 
+        // Phase 1: Exponential search to find upper bound
+        let mut count = 1;
+        let mut last_good_count = 0;
+        loop {
+            let duration = quick_test(count);
+            if duration > max_time_threshold {
+                break;
+            }
+            benchmark_count(&mut group, count);
             last_good_count = count;
             count *= 2;
         }
 
-        // Second phase: binary search to find exact threshold
+        // Phase 2: Binary search to find exact threshold
         let mut low = last_good_count;
         let mut high = count;
-
         println!("Binary searching between {} and {} files", low, high);
-
         while high - low > 1 {
             let mid = low + (high - low) / 2;
             println!("Trying {} files", mid);
-
-            // Build test files
-            let files: Vec<Vec<u8>> = (0..mid).map(|_| read_test_file(filename)).collect();
-
-            // Run a quick test
-            let start = Instant::now();
-            files
-                .par_iter()
-                .map(|d| parse(d))
-                .collect::<Result<Vec<String>, ParserError>>()
-                .unwrap();
-            let duration = start.elapsed();
-
+            let duration = quick_test(mid);
             println!("  Duration: {:?}", duration);
-
             if duration <= max_time_threshold {
-                // This count is under threshold
                 low = mid;
-
-                // Benchmark this count
-                group.bench_function(format!("{} files", mid), |b| {
-                    b.iter(|| {
-                        files
-                            .par_iter()
-                            .map(|d| parse(black_box(d)))
-                            .collect::<Result<Vec<String>, ParserError>>()
-                    })
-                });
-
+                benchmark_count(&mut group, mid);
                 println!("  Updated low = {}", low);
             } else {
-                // This count exceeds threshold
                 high = mid;
                 println!("  Updated high = {}", high);
             }
