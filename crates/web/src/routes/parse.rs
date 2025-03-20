@@ -52,7 +52,9 @@ async fn parse_file(mut payload: Multipart) -> Result<ParseResponse, ApiError> {
     let parsed_text = files
         .par_iter()
         .map(|data| parse(data))
-        .collect::<Result<Vec<String>, ParserError>>()?;
+        .collect::<Result<Vec<String>, ParserError>>();
 
-    Ok(ParseResponse { texts: parsed_text })
+    Ok(ParseResponse {
+        texts: parsed_text?,
+    })
 }
