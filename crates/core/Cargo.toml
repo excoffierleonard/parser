@@ -16,7 +16,6 @@ categories = ["text-processing", "parsing", "encoding"]
 pkg-config = "0.3.29"
 
 [dependencies]
-rayon = { workspace = true }
 calamine = "0.26.1"
 docx-rs = "0.4.17"
 infer = "0.16.0"
@@ -32,7 +31,6 @@ zip = "2.3.0"
 criterion = "0.5"
 parser-test-utils = { workspace = true }
 rayon = { workspace = true }
-num_cpus = "1.16.0"
 
 [[bench]]
 name = "parsing_benchmark"

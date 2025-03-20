@@ -73,57 +73,48 @@ fn benchmark_individual_files(c: &mut Criterion) {
     group.finish();
 }
 
-fn create_test_sizes() -> Vec<usize> {
-    let max_size = 8 * num_cpus::get();
-    let mut sizes = Vec::new();
-
-    let mut current = 1;
-    while current <= max_size {
-        sizes.push(current);
-        current *= 2;
-    }
-
-    sizes
-}
-
 fn benchmark_parallel_threshold(c: &mut Criterion) {
     // Threshold is 1 frame at 60 FPS
     let max_time_threshold = Duration::from_millis(16);
-    let mut group = c.benchmark_group("Parallel PDF Processing");
 
-    let mut count = 1;
-    loop {
-        // Build test files
-        let files: Vec<Vec<u8>> = (0..count)
-            .map(|_| read_test_file("test_pdf_1.pdf"))
-            .collect();
+    // Test each file type separately
+    for &filename in TEST_FILENAMES_WITHOUT_OCR {
+        let file_extension = filename.split('.').last().unwrap_or("unknown");
+        let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
+        let mut group = c.benchmark_group(&group_name);
 
-        // Run a quick pre-benchmark to check duration
-        let start = Instant::now();
-        files
-            .par_iter()
-            .map(|d| parse(d))
-            .collect::<Result<Vec<String>, ParserError>>()
-            .unwrap();
-        let duration = start.elapsed();
+        let mut count = 1;
+        loop {
+            // Build test files of the current type
+            let files: Vec<Vec<u8>> = (0..count).map(|_| read_test_file(filename)).collect();
 
-        // Only run the full benchmark if under threshold
-        if duration < max_time_threshold {
-            group.bench_function(format!("{} PDF files", count), |b| {
-                b.iter(|| {
-                    files
-                        .par_iter()
-                        .map(|d| parse(black_box(d)))
-                        .collect::<Result<Vec<String>, ParserError>>()
-                })
-            });
-            count *= 2;
-        } else {
-            break;
+            // Run a quick pre-benchmark to check duration
+            let start = Instant::now();
+            files
+                .par_iter()
+                .map(|d| parse(d))
+                .collect::<Result<Vec<String>, ParserError>>()
+                .unwrap();
+            let duration = start.elapsed();
+
+            // Only run the full benchmark if under threshold
+            if duration < max_time_threshold {
+                group.bench_function(format!("{} files", count), |b| {
+                    b.iter(|| {
+                        files
+                            .par_iter()
+                            .map(|d| parse(black_box(d)))
+                            .collect::<Result<Vec<String>, ParserError>>()
+                    })
+                });
+                count *= 2;
+            } else {
+                break;
+            }
         }
-    }
 
-    group.finish();
+        group.finish();
+    }
 }
 
 criterion_group!(
