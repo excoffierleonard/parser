@@ -59,15 +59,15 @@ pub mod benchmarks {
         let pdf_data_2 = read_test_file("test_pdf_2.pdf");
 
         let mut group = c.benchmark_group("PDF Parser");
-        
+
         group.bench_function("parse_pdf (simple)", |b| {
             b.iter(|| parse_pdf(black_box(&pdf_data_1)))
         });
-        
+
         group.bench_function("parse_pdf (complex)", |b| {
             b.iter(|| parse_pdf(black_box(&pdf_data_2)))
         });
-        
+
         group.finish();
     }
 }

@@ -104,11 +104,11 @@ pub mod benchmarks {
         let pptx_data = read_test_file("test_pptx_1.pptx");
 
         let mut group = c.benchmark_group("PPTX Parser");
-        
+
         group.bench_function("parse_pptx", |b| {
             b.iter(|| parse_pptx(black_box(&pptx_data)))
         });
-        
+
         group.finish();
     }
 }

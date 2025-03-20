@@ -93,15 +93,15 @@ pub mod benchmarks {
         let docx_data_2 = read_test_file("test_docx_2.docx");
 
         let mut group = c.benchmark_group("DOCX Parser");
-        
+
         group.bench_function("parse_docx (simple)", |b| {
             b.iter(|| parse_docx(black_box(&docx_data_1)))
         });
-        
+
         group.bench_function("parse_docx (complex)", |b| {
             b.iter(|| parse_docx(black_box(&docx_data_2)))
         });
-        
+
         group.finish();
     }
 }
