@@ -9,13 +9,10 @@ use parser_test_utils::read_test_file;
 const TEST_FILESNAMES_BASE: &[&str] = &[
     "test_csv_1.csv",
     "test_docx_1.docx",
-    "test_jpg_1.jpg",
     "test_json_1.json",
     "test_pdf_1.pdf",
-    "test_png_1.png",
     "test_pptx_1.pptx",
     "test_txt_1.txt",
-    "test_webp_1.webp",
     "test_xlsx_1.xlsx",
 ];
 
@@ -222,7 +219,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
         let threshold_count = low;
 
         // Define percentages to test around the threshold
-        let percentages = [90.0, 99.0, 99.9, 100.0, 100.1, 101.0, 110.0];
+        let percentages = [99.0, 99.9, 100.0, 100.1, 101.0];
 
         // Generate test points based on percentages of the threshold
         let mut test_points: Vec<usize> = percentages
