@@ -32,6 +32,7 @@ zip = "2.3.0"
 criterion = "0.5"
 parser-test-utils = { workspace = true }
 rayon = { workspace = true }
+num_cpus = "1.16.0"
 
 [[bench]]
 name = "parsing_benchmark"

@@ -1,7 +1,10 @@
+use std::iter;
+
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use rayon::prelude::*;
+
 use parser_core::{parse, ParserError};
 use parser_test_utils::read_test_file;
-use rayon::prelude::*;
 
 const TEST_FILENAMES_WITHOUT_OCR: &[&str] = &[
     "test_csv_1.csv",
@@ -78,41 +81,59 @@ fn benchmark_individual_files(c: &mut Criterion) {
     group.finish();
 }
 
-fn benchmark_input_number(c: &mut Criterion) {
-    let mut group = c.benchmark_group("A lot of PDFs in parallel");
+fn create_test_sizes() -> Vec<usize> {
+    let max_size = 8 * num_cpus::get();
+    let mut sizes = Vec::new();
 
-    // Build a vector of 1000 pdf files from the same pdf file
-    let files: Vec<Vec<u8>> = (0..1000)
-        .map(|_| read_test_file("test_pdf_1.pdf"))
-        .collect();
+    let mut current = 1;
+    while current <= max_size {
+        sizes.push(current);
+        current *= 2;
+    }
 
-    // Benchmark parallel parsing
-    group.bench_function("parallel", |b| {
-        b.iter(|| {
-            files
-                .par_iter()
-                .map(|d| parse(black_box(d)))
-                .collect::<Result<Vec<String>, ParserError>>()
-        })
-    });
+    sizes
+}
 
-    // Benchmark sequential parsing
-    group.bench_function("sequential", |b| {
-        b.iter(|| {
-            files
-                .iter()
-                .map(|d| parse(black_box(d)))
-                .collect::<Result<Vec<String>, ParserError>>()
-        })
-    });
+fn benchmark_parallel_threshold(c: &mut Criterion) {
+    let test_sizes = create_test_sizes();
 
-    group.finish();
+    for &count in &test_sizes {
+        let group_name = format!("{} PDF files", count);
+        let mut group = c.benchmark_group(&group_name);
+
+        // Build a vector of `count` pdf files from the same pdf file
+        let files: Vec<Vec<u8>> = (0..count)
+            .map(|_| read_test_file("test_pdf_1.pdf"))
+            .collect();
+
+        // Benchmark parallel parsing
+        group.bench_function("parallel", |b| {
+            b.iter(|| {
+                files
+                    .par_iter()
+                    .map(|d| parse(black_box(d)))
+                    .collect::<Result<Vec<String>, ParserError>>()
+            })
+        });
+
+        // // Benchmark sequential parsing
+        // group.bench_function("sequential", |b| {
+        //     b.iter(|| {
+        //         files
+        //             .iter()
+        //             .map(|d| parse(black_box(d)))
+        //             .collect::<Result<Vec<String>, ParserError>>()
+        //     })
+        // });
+
+        group.finish();
+    }
 }
 
 criterion_group!(
     benches,
     //benchmark_sequential_vs_parallel,
     //benchmark_individual_files,
-    benchmark_input_number
+    benchmark_parallel_threshold
 );
 criterion_main!(benches);
