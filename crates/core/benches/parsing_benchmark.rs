@@ -1,8 +1,6 @@
 use std::time::{Duration, Instant};
 
-use criterion::{
-    black_box, criterion_group, criterion_main, BenchmarkGroup, BenchmarkId, Criterion, Throughput,
-};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
 use rayon::prelude::*;
 
 use parser_core::{parse, ParserError};
@@ -31,7 +29,7 @@ const TEST_FILENAMES: &[&str] = &[
     "test_xlsx_1.xlsx",
 ];
 
-const TEST_FILESNAMES_NO_TEXT_NO_OCR: &[&str] = &["test_xlsx_1.xlsx"];
+const TEST_FILESNAMES_NO_TEXT_NO_OCR: &[&str] = &["test_pdf_1.pdf"];
 
 fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
     let mut group = c.benchmark_group("Sequential vs Parallel Parsing");
@@ -96,7 +94,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
             let start = Instant::now();
             files
                 .par_iter()
-                .map(|d| parse(*d))
+                .map(|d| parse(black_box(*d)))
                 .collect::<Result<Vec<String>, ParserError>>()
                 .unwrap();
             start.elapsed()
@@ -125,14 +123,16 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
         // The threshold count is now in 'low'
         let threshold_count = low;
 
-        // Use parameterized benchmarking to test points around the threshold
-        let test_points = [
-            threshold_count - (threshold_count / 2),
-            threshold_count - (threshold_count / 4),
-            threshold_count,
-            threshold_count + (threshold_count / 4),
-            threshold_count + (threshold_count / 2),
-        ];
+        // Define percentages to test around the threshold
+        let percentages = [90.0, 99.0, 99.9, 100.0, 100.1, 101.0, 110.0];
+
+        // Generate test points based on percentages of the threshold
+        let mut test_points: Vec<usize> = percentages
+            .iter()
+            .map(|&p| ((threshold_count as f64 * p / 100.0).ceil() as usize).max(1))
+            .collect();
+
+        test_points.dedup();
 
         // Benchmark each test point with proper throughput measurement
         for &count in &test_points {
