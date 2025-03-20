@@ -6,17 +6,7 @@ use rayon::prelude::*;
 use parser_core::{parse, ParserError};
 use parser_test_utils::read_test_file;
 
-const TEST_FILENAMES_NO_OCR: &[&str] = &[
-    "test_csv_1.csv",
-    "test_docx_1.docx",
-    "test_json_1.json",
-    "test_pdf_1.pdf",
-    "test_pptx_1.pptx",
-    "test_txt_1.txt",
-    "test_xlsx_1.xlsx",
-];
-
-const TEST_FILENAMES: &[&str] = &[
+const TEST_FILESNAMES_BASE: &[&str] = &[
     "test_csv_1.csv",
     "test_docx_1.docx",
     "test_jpg_1.jpg",
@@ -29,15 +19,29 @@ const TEST_FILENAMES: &[&str] = &[
     "test_xlsx_1.xlsx",
 ];
 
-const TEST_FILESNAMES_NO_TEXT_NO_OCR: &[&str] = &["test_pdf_1.pdf"];
+const _TEST_FILESNAMES_IMAGES: &[&str] = &["test_jpg_1.jpg", "test_png_1.png", "test_webp_1.webp"];
+
+const TEST_FILESNAMES_FULL: &[&str] = &[
+    "test_csv_1.csv",
+    "test_docx_1.docx",
+    "test_jpg_1.jpg",
+    "test_json_1.json",
+    "test_pdf_1.pdf",
+    "test_png_1.png",
+    "test_pptx_1.pptx",
+    "test_txt_1.txt",
+    "test_webp_1.webp",
+    "test_xlsx_1.xlsx",
+];
 
 fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
+    // Create a vector of file data the size of the number of CPUs
+    let file_data = read_test_file("test_pdf_1.pdf");
+    let files: Vec<&[u8]> = vec![&file_data; num_cpus::get()];
+
     let mut group = c.benchmark_group("Sequential vs Parallel Parsing");
 
-    let files: Vec<Vec<u8>> = TEST_FILENAMES_NO_OCR
-        .iter()
-        .map(|&filename| read_test_file(filename))
-        .collect();
+    group.throughput(Throughput::Elements(files.len() as u64));
 
     // Benchmark parallel parsing
     group.bench_function("parallel", |b| {
@@ -62,24 +66,70 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
     group.finish();
 }
 
-fn benchmark_individual_files(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Individual File Parsing");
+fn benchmark_parallel_efficiency(c: &mut Criterion) {
+    let file_data = read_test_file("test_pdf_1.pdf");
 
-    // Benchmark parsing for individual files
-    for &filename in TEST_FILENAMES {
-        let file = read_test_file(filename);
+    let cpu_count = num_cpus::get();
+    let mut counts = vec![
+        cpu_count / 4,
+        cpu_count / 2,
+        cpu_count,
+        cpu_count * 2,
+        cpu_count * 4,
+    ];
+    counts.dedup();
 
-        group.bench_function(filename, |b| b.iter(|| parse(black_box(&file))));
+    let mut group = c.benchmark_group("Parallel Efficiency");
+
+    group.throughput(Throughput::Elements(1));
+
+    for &count in &counts {
+        let files: Vec<&[u8]> = vec![&file_data; count];
+
+        group.bench_function(BenchmarkId::new("files", count), |b| {
+            b.iter(|| {
+                files
+                    .par_iter()
+                    .map(|d| parse(black_box(d)))
+                    .collect::<Result<Vec<String>, ParserError>>()
+            })
+        });
     }
 
     group.finish();
 }
 
+fn benchmark_individual_files(c: &mut Criterion) {
+    let cpus = num_cpus::get();
+    let mut group = c.benchmark_group("Individual File Parsing");
+
+    // Set throughput to the number of CPUs
+    group.throughput(Throughput::Elements(cpus as u64));
+
+    // Benchmark parsing for each file type using num_cpus copies of file data and parallel iteration
+    for &filename in TEST_FILESNAMES_FULL {
+        let file = read_test_file(filename);
+        let files: Vec<&[u8]> = vec![&file; cpus];
+
+        group.bench_function(filename, |b| {
+            b.iter(|| {
+                files
+                    .par_iter()
+                    .map(|d| parse(black_box(d)))
+                    .collect::<Result<Vec<String>, ParserError>>()
+            })
+        });
+    }
+
+    group.finish();
+}
+
+// Finds the threshold number of files for each type that takes less than 16ms
 fn benchmark_parallel_threshold(c: &mut Criterion) {
     let max_time_threshold = Duration::from_millis(16);
 
     // Read each test file only once
-    for &filename in TEST_FILESNAMES_NO_TEXT_NO_OCR {
+    for &filename in TEST_FILESNAMES_BASE {
         let file_extension = filename.split('.').last().unwrap_or("unknown");
         let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
         let mut group = c.benchmark_group(&group_name);
@@ -97,7 +147,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
                 black_box(
                     files
                         .par_iter()
-                        .map(|d| parse(black_box(*d)))
+                        .map(|d| parse(black_box(d)))
                         .collect::<Result<Vec<String>, ParserError>>()
                         .unwrap(),
                 );
@@ -115,7 +165,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
                 black_box(
                     files
                         .par_iter()
-                        .map(|d| parse(black_box(*d)))
+                        .map(|d| parse(black_box(d)))
                         .collect::<Result<Vec<String>, ParserError>>()
                         .unwrap(),
                 );
@@ -172,7 +222,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
                 b.iter(|| {
                     files
                         .par_iter()
-                        .map(|d| parse(black_box(*d)))
+                        .map(|d| parse(black_box(d)))
                         .collect::<Result<Vec<String>, ParserError>>()
                 })
             });
@@ -193,6 +243,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
 criterion_group!(
     benches,
     benchmark_sequential_vs_parallel,
+    benchmark_parallel_efficiency,
     benchmark_individual_files,
     benchmark_parallel_threshold
 );
