@@ -1,6 +1,8 @@
 use std::time::{Duration, Instant};
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
+use criterion::{
+    black_box, criterion_group, criterion_main, BenchmarkGroup, BenchmarkId, Criterion, Throughput,
+};
 use rayon::prelude::*;
 
 use parser_core::{parse, ParserError};
@@ -79,7 +81,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
     let max_time_threshold = Duration::from_millis(16);
 
     // Read each test file only once
-    for &filename in TEST_FILENAMES_NO_OCR {
+    for &filename in TEST_FILESNAMES_NO_TEXT_NO_OCR {
         let file_extension = filename.split('.').last().unwrap_or("unknown");
         let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
         let mut group = c.benchmark_group(&group_name);
@@ -100,21 +102,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
             start.elapsed()
         };
 
-        // Run benchmark for a specific count
-        let benchmark_count = |group: &mut BenchmarkGroup<_>, count: usize| {
-            // Use references to the cached data
-            let files: Vec<&[u8]> = vec![&file_data; count];
-            group.bench_function(format!("{} files", count), |b| {
-                b.iter(|| {
-                    files
-                        .par_iter()
-                        .map(|d| parse(black_box(*d)))
-                        .collect::<Result<Vec<String>, ParserError>>()
-                })
-            });
-        };
-
-        // Binary search for threshold
+        // Finding and benchmarking the threshold count
         let mut low = 1;
         let mut high = 1;
 
@@ -134,10 +122,43 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
             }
         }
 
-        // Only benchmark the final threshold
-        benchmark_count(&mut group, low);
+        // The threshold count is now in 'low'
+        let threshold_count = low;
 
-        // Log the result
+        // Use parameterized benchmarking to test points around the threshold
+        let test_points = [
+            threshold_count - (threshold_count / 2),
+            threshold_count - (threshold_count / 4),
+            threshold_count,
+            threshold_count + (threshold_count / 4),
+            threshold_count + (threshold_count / 2),
+        ];
+
+        // Benchmark each test point with proper throughput measurement
+        for &count in &test_points {
+            // Set throughput for proper operations/second measurements
+            group.throughput(Throughput::Elements(count as u64));
+
+            // Benchmark with the current count
+            let files: Vec<&[u8]> = vec![&file_data; count];
+            group.bench_with_input(BenchmarkId::new("files", count), &count, |b, &_| {
+                b.iter(|| {
+                    files
+                        .par_iter()
+                        .map(|d| parse(black_box(*d)))
+                        .collect::<Result<Vec<String>, ParserError>>()
+                })
+            });
+        }
+
+        // Add custom threshold marker to output
+        println!(
+            "Threshold for {}: {} files within {}ms",
+            file_extension,
+            threshold_count,
+            max_time_threshold.as_millis()
+        );
+
         group.finish();
     }
 }
