@@ -17,7 +17,7 @@ pub fn parse_files(paths: &[PathBuf]) -> Result<Vec<String>, ParserError> {
     // Read files into memory
     let files = paths
         .iter()
-        .map(|path| read(path))
+        .map(read)
         .collect::<Result<Vec<Vec<u8>>, Error>>()?;
 
     // Process files in parallel
