@@ -89,15 +89,42 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
 
         // Function to measure processing time for a given count
         let measure_time = |count: usize| -> Duration {
-            // Create references to the same data instead of reading files multiple times
+            // Pre-allocate the vector of references outside timing
             let files: Vec<&[u8]> = vec![&file_data; count];
-            let start = Instant::now();
-            files
-                .par_iter()
-                .map(|d| parse(black_box(*d)))
-                .collect::<Result<Vec<String>, ParserError>>()
-                .unwrap();
-            start.elapsed()
+
+            // Perform warm-up runs to stabilize cache and runtime behavior
+            for _ in 0..3 {
+                black_box(
+                    files
+                        .par_iter()
+                        .map(|d| parse(black_box(*d)))
+                        .collect::<Result<Vec<String>, ParserError>>()
+                        .unwrap(),
+                );
+            }
+
+            // Take multiple measurements and use median for robustness
+            const SAMPLE_COUNT: usize = 5;
+            let mut durations = Vec::with_capacity(SAMPLE_COUNT);
+
+            for _ in 0..SAMPLE_COUNT {
+                // Clear caches between runs to ensure consistent starting state
+                black_box(());
+
+                let start = Instant::now();
+                black_box(
+                    files
+                        .par_iter()
+                        .map(|d| parse(black_box(*d)))
+                        .collect::<Result<Vec<String>, ParserError>>()
+                        .unwrap(),
+                );
+                durations.push(start.elapsed());
+            }
+
+            // Sort and take median duration (more robust against outliers)
+            durations.sort();
+            durations[SAMPLE_COUNT / 2]
         };
 
         // Finding and benchmarking the threshold count
@@ -165,8 +192,8 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
 
 criterion_group!(
     benches,
-    //benchmark_sequential_vs_parallel,
-    //benchmark_individual_files,
+    benchmark_sequential_vs_parallel,
+    benchmark_individual_files,
     benchmark_parallel_threshold
 );
 criterion_main!(benches);
