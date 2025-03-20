@@ -19,9 +19,9 @@ const TEST_FILESNAMES_BASE: &[&str] = &[
     "test_xlsx_1.xlsx",
 ];
 
-const _TEST_FILESNAMES_IMAGES: &[&str] = &["test_jpg_1.jpg", "test_png_1.png", "test_webp_1.webp"];
+const TEST_FILESNAMES_IMAGES: &[&str] = &["test_jpg_1.jpg", "test_png_1.png", "test_webp_1.webp"];
 
-const TEST_FILESNAMES_FULL: &[&str] = &[
+const _TEST_FILESNAMES_FULL: &[&str] = &[
     "test_csv_1.csv",
     "test_docx_1.docx",
     "test_jpg_1.jpg",
@@ -106,10 +106,25 @@ fn benchmark_individual_files(c: &mut Criterion) {
     // Set throughput to the number of CPUs
     group.throughput(Throughput::Elements(cpus as u64));
 
-    // Benchmark parsing for each file type using num_cpus copies of file data and parallel iteration
-    for &filename in TEST_FILESNAMES_FULL {
+    for &filename in TEST_FILESNAMES_BASE {
         let file = read_test_file(filename);
         let files: Vec<&[u8]> = vec![&file; cpus];
+
+        group.bench_function(filename, |b| {
+            b.iter(|| {
+                files
+                    .par_iter()
+                    .map(|d| parse(black_box(d)))
+                    .collect::<Result<Vec<String>, ParserError>>()
+            })
+        });
+    }
+
+    for &filename in TEST_FILESNAMES_IMAGES {
+        let file = read_test_file(filename);
+        let files: Vec<&[u8]> = vec![&file; cpus];
+
+        group.sample_size(10);
 
         group.bench_function(filename, |b| {
             b.iter(|| {
