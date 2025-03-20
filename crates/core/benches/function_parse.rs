@@ -99,18 +99,19 @@ fn benchmark_parallel_efficiency(c: &mut Criterion) {
     group.finish();
 }
 
-fn benchmark_individual_files(c: &mut Criterion) {
+fn benchmark_per_filetype(c: &mut Criterion) {
     let cpus = num_cpus::get();
-    let mut group = c.benchmark_group("Individual File Parsing");
 
-    // Set throughput to the number of CPUs
-    group.throughput(Throughput::Elements(cpus as u64));
+    // Create a group for base files
+    let mut base_group = c.benchmark_group("Per Filetype Parsing, Base");
+    base_group.throughput(Throughput::Elements(cpus as u64));
 
+    // Regular benchmarks with default sample size
     for &filename in TEST_FILESNAMES_BASE {
         let file = read_test_file(filename);
         let files: Vec<&[u8]> = vec![&file; cpus];
 
-        group.bench_function(filename, |b| {
+        base_group.bench_function(filename, |b| {
             b.iter(|| {
                 files
                     .par_iter()
@@ -119,14 +120,19 @@ fn benchmark_individual_files(c: &mut Criterion) {
             })
         });
     }
+
+    base_group.finish();
+
+    // Create a group for image files
+    let mut image_group = c.benchmark_group("Per Filetype Parsing, Images");
+    image_group.sample_size(10);
+    image_group.throughput(Throughput::Elements(cpus as u64));
 
     for &filename in TEST_FILESNAMES_IMAGES {
         let file = read_test_file(filename);
         let files: Vec<&[u8]> = vec![&file; cpus];
 
-        group.sample_size(10);
-
-        group.bench_function(filename, |b| {
+        image_group.bench_function(filename, |b| {
             b.iter(|| {
                 files
                     .par_iter()
@@ -136,7 +142,7 @@ fn benchmark_individual_files(c: &mut Criterion) {
         });
     }
 
-    group.finish();
+    image_group.finish();
 }
 
 // Finds the threshold number of files for each type that takes less than 16ms
@@ -259,7 +265,7 @@ criterion_group!(
     benches,
     benchmark_sequential_vs_parallel,
     benchmark_parallel_efficiency,
-    benchmark_individual_files,
+    benchmark_per_filetype,
     benchmark_parallel_threshold
 );
 criterion_main!(benches);
