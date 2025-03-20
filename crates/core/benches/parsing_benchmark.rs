@@ -29,7 +29,7 @@ const TEST_FILENAMES: &[&str] = &[
     "test_xlsx_1.xlsx",
 ];
 
-const TEST_FILESNAMES_NO_TEXT_NO_OCR: &[&str] = &["test_pdf_1.pdf"];
+const TEST_FILESNAMES_NO_TEXT_NO_OCR: &[&str] = &["test_xlsx_1.xlsx"];
 
 fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
     let mut group = c.benchmark_group("Sequential vs Parallel Parsing");
@@ -78,69 +78,66 @@ fn benchmark_individual_files(c: &mut Criterion) {
 fn benchmark_parallel_threshold(c: &mut Criterion) {
     let max_time_threshold = Duration::from_millis(16);
 
-    for &filename in TEST_FILESNAMES_NO_TEXT_NO_OCR {
+    // Read each test file only once
+    for &filename in TEST_FILENAMES_NO_OCR {
         let file_extension = filename.split('.').last().unwrap_or("unknown");
         let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
         let mut group = c.benchmark_group(&group_name);
 
-        // Closure to measure processing time for a given count
-        let quick_test = |count: usize| -> Duration {
-            let files: Vec<Vec<u8>> = (0..count).map(|_| read_test_file(filename)).collect();
+        // Cache the file data once
+        let file_data = read_test_file(filename);
+
+        // Function to measure processing time for a given count
+        let measure_time = |count: usize| -> Duration {
+            // Create references to the same data instead of reading files multiple times
+            let files: Vec<&[u8]> = vec![&file_data; count];
             let start = Instant::now();
             files
                 .par_iter()
-                .map(|d| parse(d))
+                .map(|d| parse(*d))
                 .collect::<Result<Vec<String>, ParserError>>()
                 .unwrap();
             start.elapsed()
         };
 
-        // Closure to benchmark a specific count
+        // Run benchmark for a specific count
         let benchmark_count = |group: &mut BenchmarkGroup<_>, count: usize| {
-            let files: Vec<Vec<u8>> = (0..count).map(|_| read_test_file(filename)).collect();
+            // Use references to the cached data
+            let files: Vec<&[u8]> = vec![&file_data; count];
             group.bench_function(format!("{} files", count), |b| {
                 b.iter(|| {
                     files
                         .par_iter()
-                        .map(|d| parse(black_box(d)))
+                        .map(|d| parse(black_box(*d)))
                         .collect::<Result<Vec<String>, ParserError>>()
                 })
             });
         };
 
-        // Phase 1: Exponential search to find upper bound
-        let mut count = 1;
-        let mut last_good_count = 0;
-        loop {
-            let duration = quick_test(count);
-            if duration > max_time_threshold {
-                break;
-            }
-            benchmark_count(&mut group, count);
-            last_good_count = count;
-            count *= 2;
+        // Binary search for threshold
+        let mut low = 1;
+        let mut high = 1;
+
+        // Phase 1: Find upper bound using exponential search
+        while measure_time(high) <= max_time_threshold {
+            low = high;
+            high *= 2;
         }
 
-        // Phase 2: Binary search to find exact threshold
-        let mut low = last_good_count;
-        let mut high = count;
-        println!("Binary searching between {} and {} files", low, high);
+        // Phase 2: Binary search between bounds
         while high - low > 1 {
             let mid = low + (high - low) / 2;
-            println!("Trying {} files", mid);
-            let duration = quick_test(mid);
-            println!("  Duration: {:?}", duration);
-            if duration <= max_time_threshold {
+            if measure_time(mid) <= max_time_threshold {
                 low = mid;
-                benchmark_count(&mut group, mid);
-                println!("  Updated low = {}", low);
             } else {
                 high = mid;
-                println!("  Updated high = {}", high);
             }
         }
 
-        println!("Final threshold: {} files", low);
+        // Only benchmark the final threshold
+        benchmark_count(&mut group, low);
+
+        // Log the result
         group.finish();
     }
 }
