@@ -105,3 +105,27 @@ johndoe123,4281,John"
         );
     }
 }
+
+#[cfg(test)]
+pub mod benchmarks {
+    use super::*;
+    use criterion::{black_box, Criterion};
+    use parser_test_utils::read_test_file;
+
+    pub fn benchmark_parse_xlsx(c: &mut Criterion) {
+        let xlsx_data_1 = read_test_file("test_xlsx_1.xlsx");
+        let xlsx_data_2 = read_test_file("test_xlsx_2.xlsx");
+
+        let mut group = c.benchmark_group("XLSX Parser");
+        
+        group.bench_function("parse_xlsx (single sheet)", |b| {
+            b.iter(|| parse_xlsx(black_box(&xlsx_data_1)))
+        });
+        
+        group.bench_function("parse_xlsx (multiple sheets)", |b| {
+            b.iter(|| parse_xlsx(black_box(&xlsx_data_2)))
+        });
+        
+        group.finish();
+    }
+}

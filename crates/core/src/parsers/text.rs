@@ -80,3 +80,32 @@ grey07;2070;Laura;Grey"
         );
     }
 }
+
+#[cfg(test)]
+pub mod benchmarks {
+    use super::*;
+    use criterion::{black_box, Criterion};
+    use parser_test_utils::read_test_file;
+
+    pub fn benchmark_parse_text(c: &mut Criterion) {
+        let txt_data = read_test_file("test_txt_1.txt");
+        let csv_data = read_test_file("test_csv_1.csv");
+        let json_data = read_test_file("test_json_1.json");
+
+        let mut group = c.benchmark_group("Text Parser");
+        
+        group.bench_function("parse_text (TXT)", |b| {
+            b.iter(|| parse_text(black_box(&txt_data)))
+        });
+        
+        group.bench_function("parse_text (CSV)", |b| {
+            b.iter(|| parse_text(black_box(&csv_data)))
+        });
+        
+        group.bench_function("parse_text (JSON)", |b| {
+            b.iter(|| parse_text(black_box(&json_data)))
+        });
+        
+        group.finish();
+    }
+}

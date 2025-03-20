@@ -47,3 +47,27 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+pub mod benchmarks {
+    use super::*;
+    use criterion::{black_box, Criterion};
+    use parser_test_utils::read_test_file;
+
+    pub fn benchmark_parse_pdf(c: &mut Criterion) {
+        let pdf_data_1 = read_test_file("test_pdf_1.pdf");
+        let pdf_data_2 = read_test_file("test_pdf_2.pdf");
+
+        let mut group = c.benchmark_group("PDF Parser");
+        
+        group.bench_function("parse_pdf (simple)", |b| {
+            b.iter(|| parse_pdf(black_box(&pdf_data_1)))
+        });
+        
+        group.bench_function("parse_pdf (complex)", |b| {
+            b.iter(|| parse_pdf(black_box(&pdf_data_2)))
+        });
+        
+        group.finish();
+    }
+}
