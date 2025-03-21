@@ -4,15 +4,16 @@ The core engine of the parser project, providing functionality for extracting te
 
 ## Features
 
-- Parse a wide variety of document formats:
+- Parse multiple document formats:
   - PDF files (`.pdf`)
   - Office documents (`.docx`, `.xlsx`, `.pptx`)
   - Plain text files (`.txt`, `.csv`, `.json`)
   - Images with OCR (`.png`, `.jpg`, `.webp`)
-- Automatic format detection
-- Parallel processing support via Rayon
+- Automatic format detection based on content
+- Parallel processing via Rayon
+- OCR support with language detection
 
-## Dependencies
+## System Dependencies
 
 This package requires the following system libraries:
 
@@ -39,6 +40,13 @@ Follow the instructions at [Tesseract GitHub repository](https://github.com/tess
 ## Usage
 
 Add as a dependency in your `Cargo.toml`:
+
+```toml
+[dependencies]
+parser-core = "0.1.0"
+```
+
+Or using cargo:
 
 ```bash
 cargo add parser-core
@@ -83,16 +91,20 @@ Each parser is implemented in its own module:
 
 ### Testing
 
-Run tests with:
-
 ```bash
 cargo test
 ```
 
 ### Benchmarking
 
-Benchmark sequential vs. parallel parsing:
-
 ```bash
 cargo bench
 ```
+
+### Performance
+
+The library is optimized for both speed and memory usage:
+
+- Streams large files when possible instead of loading entirely into memory
+- Uses parallel processing for large documents
+- Implements efficient text extraction algorithms for each format
