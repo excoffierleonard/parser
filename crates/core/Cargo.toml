@@ -2,7 +2,6 @@
 name = "parser-core"
 version = "0.1.3"
 edition = "2021"
-build = "build.rs"
 authors = ["Leonard Excoffier"]
 description = "A library for extracting text from various file formats including PDF, DOCX, XLSX, PPTX, images via OCR, and more"
 license = "MIT"
@@ -11,9 +10,6 @@ documentation = "https://docs.rs/parser-core"
 readme = "README.md"
 keywords = ["parser", "pdf", "docx", "text-extraction", "ocr"]
 categories = ["text-processing", "parsing", "encoding"]
-
-[build-dependencies]
-pkg-config = "0.3.29"
 
 [dependencies]
 calamine = "0.26.1"

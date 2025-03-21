@@ -1875,7 +1875,6 @@ dependencies = [
  "num_cpus",
  "parser-test-utils",
  "pdf-extract",
- "pkg-config",
  "rayon",
  "regex",
  "tempfile",
