@@ -1,33 +1,33 @@
 [package]
 name = "parser-core"
-version = "0.1.3"
-edition = "2021"
-authors = ["Leonard Excoffier"]
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
 description = "A library for extracting text from various file formats including PDF, DOCX, XLSX, PPTX, images via OCR, and more"
-license = "MIT"
-repository = "https://github.com/excoffierleonard/parser"
 documentation = "https://docs.rs/parser-core"
 readme = "README.md"
 keywords = ["parser", "pdf", "docx", "text-extraction", "ocr"]
 categories = ["text-processing", "parsing", "encoding"]
 
 [dependencies]
-calamine = "0.26.1"
-docx-rs = "0.4.17"
-infer = "0.16.0"
-lazy_static = "1.4.0"
-mime = "0.3.17"
-pdf-extract = "0.8.0"
-regex = "1.11.1"
-tempfile = "3.9.0"
-tesseract = "0.15.1"
-zip = "2.3.0"
+calamine = { workspace = true }
+docx-rs = { workspace = true }
+infer = { workspace = true }
+lazy_static = { workspace = true }
+mime = { workspace = true }
+pdf-extract = { workspace = true }
+regex = { workspace = true }
+tempfile = { workspace = true }
+tesseract = { workspace = true }
+zip = { workspace = true }
 
 [dev-dependencies]
-criterion = "0.5"
+criterion = { workspace = true }
 parser-test-utils = { workspace = true }
 rayon = { workspace = true }
-num_cpus = "1.16.0"
+num_cpus = { workspace = true }
 
 [[bench]]
 name = "function_parse"
