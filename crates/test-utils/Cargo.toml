@@ -9,6 +9,6 @@ description = "Test utilities for the parser project"
 documentation = "https://docs.rs/parser-test-utils"
 readme = "README.md"
 keywords = ["parser", "test", "utilities"]
-categories = ["testing", "utilities"]
+categories = ["development-tools::testing"]
 
 [dependencies]
