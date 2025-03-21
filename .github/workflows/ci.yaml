@@ -96,6 +96,12 @@ jobs:
             ~/.cargo
             target
           key: ${{ runner.os }}-rust-${{ hashFiles('.github/workflows/**.yaml') }}
+
+      - name: Verify Package
+        uses: actions-rs/cargo@v1
+        with:
+          command: package
+          args: --workspace
       
       # TODO: Find way to fail when version already exists on crates.io
       - name: Dry run publish for core crate

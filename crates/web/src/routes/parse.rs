@@ -2,9 +2,9 @@
 
 use crate::errors::ApiError;
 use actix_multipart::Multipart;
-use actix_web::{body::BoxBody, post, HttpRequest, HttpResponse, Responder};
+use actix_web::{HttpRequest, HttpResponse, Responder, body::BoxBody, post};
 use futures_util::TryStreamExt;
-use parser_core::{parse, ParserError};
+use parser_core::{ParserError, parse};
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 

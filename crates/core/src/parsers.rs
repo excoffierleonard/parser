@@ -22,7 +22,7 @@ use crate::{
 };
 use infer::Infer;
 use lazy_static::lazy_static;
-use mime::{Mime, IMAGE, TEXT, TEXT_PLAIN};
+use mime::{IMAGE, Mime, TEXT, TEXT_PLAIN};
 use std::str;
 
 // Create a static infer instance to avoid recreating it on every call

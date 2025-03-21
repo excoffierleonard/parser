@@ -1,9 +1,9 @@
 use std::time::{Duration, Instant};
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
 use rayon::prelude::*;
 
-use parser_core::{parse, ParserError};
+use parser_core::{ParserError, parse};
 use parser_test_utils::read_test_file;
 
 const TEST_FILESNAMES_BASE: &[&str] = &[

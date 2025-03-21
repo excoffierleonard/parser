@@ -2,7 +2,7 @@
 //!
 //! This module defines common error types and their integration with the Actix Web framework.
 
-use actix_web::{http::StatusCode, HttpResponse, ResponseError};
+use actix_web::{HttpResponse, ResponseError, http::StatusCode};
 use serde::Serialize;
 
 /// The response body for an error response

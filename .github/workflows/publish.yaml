@@ -40,12 +40,12 @@ jobs:
         with:
           command: login
           args: ${{ secrets.CRATES_IO_TOKEN }}
-
-      - name: Publish core crate to crates.io
-        uses: actions-rs/cargo@v1
-        with:
-          command: publish
-          args: -p parser-core
+      # Uncomment when have correct pipeline to deploy the core then the dependant crates with auto-incremented versions
+      # - name: Publish core crate to crates.io
+      #   uses: actions-rs/cargo@v1
+      #   with:
+      #     command: publish
+      #     args: -p parser-core
 
   publish-docker:
     name: Build and Push Docker image

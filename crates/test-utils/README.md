@@ -1,15 +1,23 @@
 # Parser Test Utilities
 
-This crate provides common testing utilities for the Parser project. It centralizes test files and helper functions that are shared across the different crates in the workspace.
+Shared testing utilities and sample files for the Parser project ecosystem.
 
-## Assets
+## Features
 
-The `assets` directory contains sample files used in tests:
+- Standardized test file access across workspace crates
+- Common test helper functions
+- Comprehensive sample files covering all supported formats
+
+## Test Assets
+
+The `assets` directory contains sample files for testing:
 
 - PDF files (`.pdf`)
 - Office documents (`.docx`, `.xlsx`, `.pptx`)
 - Plain text files (`.txt`, `.csv`, `.json`)
 - Images (`.png`, `.jpg`, `.webp`)
+
+All test files are small and contain known content for predictable testing.
 
 ## Usage
 
@@ -36,3 +44,10 @@ fn test_something() {
     // Use the file data in your tests...
 }
 ```
+
+## Available Helpers
+
+- `test_file_path(filename)` - Returns the absolute path to a test file
+- `read_test_file(filename)` - Reads a test file and returns its contents as `Vec<u8>`
+- `get_test_file_list()` - Returns a list of all available test files
+- `create_temp_file(extension, content)` - Creates a temporary test file with the given content

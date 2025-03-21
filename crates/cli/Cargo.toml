@@ -1,9 +1,17 @@
 [package]
 name = "parser-cli"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+description = "Command-line interface for extracting text from various file formats"
+documentation = "https://docs.rs/parser-cli"
+readme = "README.md"
+keywords = ["parser", "cli", "text-extraction", "pdf", "docx"]
+categories = ["command-line-utilities", "text-processing"]
 
 [dependencies]
 parser-core = { workspace = true }
 rayon = { workspace = true }
-clap = { version = "4.5.1", features = ["derive"] }
+clap = { workspace = true }

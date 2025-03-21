@@ -1,115 +1,150 @@
-# [Parser](https://parser.excoffierleonard.com)
+# Parser
 
-REST API service in Rust that takes in any file and returns its parsed content.
+A Rust-based document parsing system that extracts text content from various file formats.
 
-Multithreading was used to improve the performance of the service. The service is able to handle multiple requests concurrently.
-
-Demonstration URL: [https://parser.excoffierleonard.com](https://parser.excoffierleonard.com)
-
-Demonstration Endpoint: [https://parser.excoffierleonard.com/parse](https://parser.excoffierleonard.com/parse)
+[Live Demo](https://parser.excoffierleonard.com) | [API Endpoint](https://parser.excoffierleonard.com/parse)
 
 ![Website Preview](website_preview.png)
 
-## 📚 Table of Contents
+## 📚 Overview
 
-- [Supported File Types](#-supported-file-types)
-- [Prerequisites](#-prerequisites)
-- [Configuration](#-configuration)
-- [Deployment](#-deployment)
-- [API Documentation](#-api-documentation)
-- [Development](#-development)
-- [License](#-license)
+Parser is a modular Rust project that provides comprehensive document parsing capabilities through multiple interfaces:
 
-## 📦 Supported File Types
+- **Core library**: The foundation providing parsing functionality for various file formats
+- **CLI tool**: Command-line interface for quick file parsing
+- **Web API**: REST service for parsing files via HTTP requests
+- **Web UI**: Simple interface for testing the parser functionality
 
-The API supports the following file formats:
+## 📦 Project Structure
 
-- PDF (`.pdf`)
-- Word Documents (`.docx`)
-- Excel Spreadsheets (`.xlsx`)
-- PowerPoint Presentations (`.pptx`)
-- All text-based files including but not limited to:
-  - Plain text (`.txt`)
-  - Source code files (`.rs`, `.py`, `.js`, `etc.`)
-  - Configuration files (`.json`, `.yaml`, `.toml`, `etc.`)
-  - Markup files (`.html`, `.md`, `.xml`)
-  - Data files (`.csv`, `.tsv`)
-  - Log files (`.log`)
-- All image-based files (OCR) including but not limited to:
-  - Raster images (`.png`, `.jpg`, `.jpeg`, `.gif`, `.bmp`, `.webp`, `etc.`)
-  - Icon files (`.ico`)
-  - Animated images (`.gif`)
+The project is organized as a Rust workspace with multiple crates:
+
+- **parser-core**: The core parsing engine
+- **parser-cli**: Command-line interface
+- **parser-web**: Web API and frontend
+- **test-utils**: Shared testing utilities
+
+## 📄 Supported File Types
+
+- **Documents**: PDF (`.pdf`), Word (`.docx`), PowerPoint (`.pptx`), Excel (`.xlsx`)
+- **Text**: Plain text (`.txt`), CSV, JSON, YAML, source code, and other text-based formats
+- **Images**: PNG, JPEG, WebP, and other image formats with OCR (Optical Character Recognition)
 
 The OCR functionality supports English and French languages.
 
-## 🛠 Prerequisites
+## 🛠️ Getting Started
 
-For local build:
+### Prerequisites
 
-- [Rust](https://www.rust-lang.org/learn/get-started)
-- Libraries (For Tessaract OCR):
+- [Rust](https://www.rust-lang.org/learn/get-started) (latest stable)
+- OCR Dependencies:
   - Tesseract development libraries
   - Leptonica development libraries
   - Clang development libraries
-  - English Language Data
-  - French Language Data
 
-### Installing Dependencies
+#### Installing OCR Dependencies
 
-#### Debian/Ubuntu
+**Debian/Ubuntu:**
 
 ```bash
 sudo apt install libtesseract-dev libleptonica-dev libclang-dev
 ```
 
-#### macOS
+**macOS:**
 
 ```bash
 brew install tesseract
 ```
 
-#### Windows
-
+**Windows:**
 Follow the instructions at [Tesseract GitHub repository](https://github.com/tesseract-ocr/tesseract).
 
-For deployment:
+### Building from Source
 
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
+```bash
+# Build all crates
+cargo build
 
-## ⚙ Configuration
+# Build in release mode
+cargo build --release
+```
 
-The service can be configured using the following environment variables.
+### Using the CLI
 
-- `PARSER_APP_PORT`: _INT_, The port on which the program listens on. (default: 8080)
-- `ENABLE_FILE_SERVING`: _BOOL_, Enable serving files for the frontend. (default: false, just the API is enabled)
+```bash
+# Run directly with cargo
+cargo run -p parser-cli -- path/to/file1.pdf path/to/file2.docx
+
+# Or use the built binary
+./target/release/parser-cli path/to/file1.pdf path/to/file2.docx
+```
+
+### Running the Web Server
+
+```bash
+# Run the web server
+cargo run -p parser-web
+
+# With custom port
+PARSER_APP_PORT=9000 cargo run -p parser-web
+
+# With file serving enabled (for frontend)
+ENABLE_FILE_SERVING=true cargo run -p parser-web
+```
 
 ## 🚀 Deployment
+
+The easiest way to deploy the service is using Docker:
 
 ```bash
 curl -o compose.yaml https://raw.githubusercontent.com/excoffierleonard/parser/refs/heads/main/compose.yaml && \
 docker compose up -d
 ```
 
-## 📖 API Documentation
+### Environment Variables
 
-API documentation and examples are available in [docs/api.md](docs/api.md).
+- `PARSER_APP_PORT`: The port on which the web service listens (default: 8080)
+- `ENABLE_FILE_SERVING`: Enable serving frontend files (default: false)
 
 ## 🧪 Development
 
-Useful commands for development:
-
-- Full build:
+### Testing
 
 ```bash
-chmod +x ./scripts/build.sh && \
-./scripts/build.sh
+# Run all tests
+cargo test --workspace
+
+# Run specific test
+cargo test test_name
 ```
 
-- Deployment tests:
+### Benchmarking
 
 ```bash
-chmod +x ./scripts/deploy-tests.sh && \
+# Run benchmarks
+cargo bench --workspace
+
+# Run benchmark script
+./scripts/benchmark.sh
+```
+
+### Code Quality
+
+```bash
+# Run linter
+cargo clippy --workspace -- -D warnings
+
+# Format code
+cargo fmt --all
+```
+
+### Building with Scripts
+
+```bash
+# Full build script
+./scripts/build.sh
+
+# Deployment tests
 ./scripts/deploy-tests.sh
 ```
 
