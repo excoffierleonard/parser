@@ -1,19 +1,27 @@
 [package]
 name = "parser-web"
-version = "0.1.0"
-edition = "2021"
+version = { workspace = true }
+edition = { workspace = true }
+authors = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+description = "Web API for extracting text from various file formats"
+documentation = "https://docs.rs/parser-web"
+readme = "README.md"
+keywords = ["parser", "web", "api", "text-extraction", "pdf"]
+categories = ["web-programming::http-server", "text-processing"]
 
 [dependencies]
 parser-core = { workspace = true }
-actix-web = "4.9.0"
+actix-web = { workspace = true }
 rayon = { workspace = true }
-serde = { version = "1.0.217", features = ["derive"] }
-futures-util = "0.3.31"
-actix-multipart = "0.7.2"
-mime_guess = "2.0.5"
-rust-embed = { version = "8.5.0", features = ["interpolate-folder-path"] }
-env_logger = "0.11.6"
-dotenvy = "0.15.7"
+serde = { workspace = true }
+futures-util = { workspace = true }
+actix-multipart = { workspace = true }
+mime_guess = { workspace = true }
+rust-embed = { workspace = true }
+env_logger = { workspace = true }
+dotenvy = { workspace = true }
 
 [dev-dependencies]
 parser-test-utils = { workspace = true }

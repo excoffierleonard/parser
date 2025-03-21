@@ -1855,7 +1855,7 @@ checksum = "487f2ccd1e17ce8c1bfab3a65c89525af41cfad4c8659021a1e9a2aacd73b89b"
 
 [[package]]
 name = "parser-cli"
-version = "0.1.0"
+version = "0.1.3"
 dependencies = [
  "clap",
  "parser-core",
@@ -1875,7 +1875,6 @@ dependencies = [
  "num_cpus",
  "parser-test-utils",
  "pdf-extract",
- "pkg-config",
  "rayon",
  "regex",
  "tempfile",
@@ -1885,11 +1884,11 @@ dependencies = [
 
 [[package]]
 name = "parser-test-utils"
-version = "0.1.0"
+version = "0.1.3"
 
 [[package]]
 name = "parser-web"
-version = "0.1.0"
+version = "0.1.3"
 dependencies = [
  "actix-multipart",
  "actix-web",
