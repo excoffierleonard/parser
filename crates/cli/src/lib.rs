@@ -1,5 +1,5 @@
 use clap::Parser;
-use parser_core::{parse, ParserError};
+use parser_core::{ParserError, parse};
 use rayon::prelude::*;
 use std::{fs::read, io::Error, path::PathBuf};
 

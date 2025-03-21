@@ -1,5 +1,5 @@
 use clap::Parser;
-use parser_cli::{parse_files, Cli};
+use parser_cli::{Cli, parse_files};
 
 fn main() {
     let cli = Cli::parse();

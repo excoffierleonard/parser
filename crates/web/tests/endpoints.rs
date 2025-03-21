@@ -1,6 +1,7 @@
 use actix_web::{
+    App,
     http::header::{HeaderName, HeaderValue},
-    test, App,
+    test,
 };
 use parser_test_utils::test_file_path;
 use parser_web::parse_file;

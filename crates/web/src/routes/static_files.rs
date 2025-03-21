@@ -1,7 +1,7 @@
 //! Static files route.
 
 use crate::errors::ApiError;
-use actix_web::{body::BoxBody, get, web, HttpRequest, HttpResponse, Responder};
+use actix_web::{HttpRequest, HttpResponse, Responder, body::BoxBody, get, web};
 use mime_guess::from_path;
 use rust_embed::RustEmbed;
 use serde::Serialize;
