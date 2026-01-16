@@ -25,7 +25,7 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           source: "compose.yaml"
-          target: "/home/${{ secrets.PROD_USERNAME }}/${{ github.event.repository.name }}/"
+          target: "/opt/${{ github.event.repository.name }}/"
 
       - name: Deploy to production
         uses: appleboy/ssh-action@master
@@ -34,7 +34,7 @@ jobs:
           username: ${{ secrets.PROD_USERNAME }}
           key: ${{ secrets.PROD_SSH_KEY }}
           script: |
-            export COMPOSE_PATH="/home/${{ secrets.PROD_USERNAME }}/${{ github.event.repository.name }}/compose.yaml"
+            export COMPOSE_PATH="/opt/${{ github.event.repository.name }}/compose.yaml"
             # Create docker config directory if it doesn't exist
             mkdir -p ~/.docker
             # Login using docker config to avoid token in shell history
