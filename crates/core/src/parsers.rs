@@ -114,10 +114,10 @@ pub fn parse(data: &[u8]) -> Result<String, ParserError> {
 fn determine_mime_type(data: &[u8]) -> Option<Mime> {
     // Use the static infer instance
     // Try to detect using file signatures
-    if let Some(kind) = INFER.get(data) {
-        if let Ok(mime) = kind.mime_type().parse() {
-            return Some(mime);
-        }
+    if let Some(kind) = INFER.get(data)
+        && let Ok(mime) = kind.mime_type().parse()
+    {
+        return Some(mime);
     }
 
     // Finally, check if it could be plain text (if it's UTF-8 decodable)
