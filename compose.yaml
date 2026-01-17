@@ -1,7 +1,6 @@
 services:
   app:
     image: ghcr.io/excoffierleonard/parser:latest
-    container_name: parser-app
     build:
       context: .
     restart: unless-stopped
