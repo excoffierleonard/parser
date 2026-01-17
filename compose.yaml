@@ -6,8 +6,6 @@ services:
     restart: unless-stopped
     environment:
       - ENABLE_FILE_SERVING=${ENABLE_FILE_SERVING:-false}
-    ports:
-      - "${PARSER_APP_PORT:-8080}:8080"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.parser.rule=Host(`parser.excoffierleonard.com`)"
