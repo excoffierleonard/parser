@@ -1,6 +1,7 @@
 use std::time::{Duration, Instant};
 
-use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
+use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
+use std::hint::black_box;
 use rayon::prelude::*;
 
 use parser::{ParserError, parse};
@@ -156,7 +157,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
 
     // Read each test file only once
     for &filename in TEST_FILESNAMES_BASE {
-        let file_extension = filename.split('.').last().unwrap_or("unknown");
+        let file_extension = filename.split('.').next_back().unwrap_or("unknown");
         let group_name = format!("Parallel {} Processing", file_extension.to_uppercase());
         let mut group = c.benchmark_group(&group_name);
 

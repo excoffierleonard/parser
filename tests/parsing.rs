@@ -1,6 +1,5 @@
-mod common;
+use std::{fs, path::PathBuf};
 
-use common::read_test_file;
 use parser::parse;
 use rayon::prelude::*;
 
@@ -67,7 +66,17 @@ grey07;2070;Laura;Grey"
 #[test]
 fn parse_success() {
     let (file_names, expected_texts) = get_test_data();
-    let data: Vec<Vec<u8>> = file_names.iter().map(|name| read_test_file(name)).collect();
+    let data: Vec<Vec<u8>> = file_names
+        .iter()
+        .map(|name| {
+            fs::read(
+                PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("tests/assets")
+                    .join(name),
+            )
+            .unwrap()
+        })
+        .collect();
 
     let result: Vec<String> = data.par_iter().map(|d| parse(d).unwrap()).collect();
 

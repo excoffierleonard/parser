@@ -1,6 +1,4 @@
-mod common;
-
-use common::test_file_path;
+use std::path::PathBuf;
 
 // Note: The endpoint tests require the web module to be exposed publicly.
 // For now, we'll keep this as a placeholder. The web functionality can be tested
@@ -21,7 +19,9 @@ fn test_file_paths_exist() {
     ];
 
     for name in file_names {
-        let path = test_file_path(name);
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("tests/assets")
+            .join(name);
         assert!(path.exists(), "Test file should exist: {:?}", path);
     }
 }
