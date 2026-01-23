@@ -615,7 +615,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6088f3ae8c3608d19260cd7445411865a485688711b78b5be70d78cd96136f83"
 dependencies = [
  "clap_builder",
- "clap_derive",
 ]
 
 [[package]]
@@ -624,22 +623,8 @@ version = "4.5.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "22a7ef7f676155edfb82daa97f99441f3ebf4a58d5e32f295a56259f1b6facc8"
 dependencies = [
- "anstream",
  "anstyle",
  "clap_lex",
- "strsim",
-]
-
-[[package]]
-name = "clap_derive"
-version = "4.5.32"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09176aae279615badda0765c0c0b3f6ed53f4709118af73cf4655d85d1530cd7"
-dependencies = [
- "heck",
- "proc-macro2",
- "quote",
- "syn 2.0.100",
 ]
 
 [[package]]
@@ -1204,12 +1189,6 @@ name = "hashbrown"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
-
-[[package]]
-name = "heck"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "hermit-abi"
@@ -1854,53 +1833,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "487f2ccd1e17ce8c1bfab3a65c89525af41cfad4c8659021a1e9a2aacd73b89b"
 
 [[package]]
-name = "parser-cli"
-version = "0.1.7"
-dependencies = [
- "clap",
- "parser-core",
- "rayon",
-]
-
-[[package]]
-name = "parser-core"
-version = "0.1.7"
-dependencies = [
- "calamine",
- "criterion",
- "docx-rs",
- "infer",
- "lazy_static",
- "mime",
- "num_cpus",
- "parser-test-utils",
- "pdf-extract",
- "rayon",
- "regex",
- "tempfile",
- "tesseract",
- "zip 2.3.0",
-]
-
-[[package]]
-name = "parser-test-utils"
-version = "0.1.7"
-
-[[package]]
-name = "parser-web"
+name = "parser"
 version = "0.1.7"
 dependencies = [
  "actix-multipart",
  "actix-web",
+ "calamine",
+ "criterion",
+ "docx-rs",
  "dotenvy",
  "env_logger",
  "futures-util",
+ "infer",
+ "lazy_static",
+ "mime",
  "mime_guess",
- "parser-core",
- "parser-test-utils",
+ "num_cpus",
+ "pdf-extract",
  "rayon",
+ "regex",
  "rust-embed",
  "serde",
+ "tempfile",
+ "tesseract",
+ "zip 2.3.0",
 ]
 
 [[package]]

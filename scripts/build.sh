@@ -13,19 +13,19 @@ sudo apt install -y \
 # Clean and check
 cargo update
 # cargo clean # Uncomment if previous build is broken
-cargo check --workspace
-cargo clippy --workspace -- -D warnings
-cargo fmt --all
+cargo check
+cargo clippy -- -D warnings
+cargo fmt
 cargo audit
-# cargo udeps --workspace # Uncomment when out of nightly
+# cargo udeps # Uncomment when out of nightly
 
 # Documentation
-cargo doc --workspace --no-deps
+cargo doc --no-deps
 
 # Testing and benchmarking
-cargo test --workspace
-# cargo bench --workspace # Pretty long so commented out
-cargo test --workspace -- --ignored 
+cargo test
+# cargo bench # Pretty long so commented out
+cargo test -- --ignored
 
 # Build for production
 cargo build --release
