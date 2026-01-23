@@ -1,8 +1,8 @@
 use std::time::{Duration, Instant};
 
 use criterion::{BenchmarkId, Criterion, Throughput, criterion_group, criterion_main};
-use std::hint::black_box;
 use rayon::prelude::*;
+use std::hint::black_box;
 
 use parser::{ParserError, parse};
 
