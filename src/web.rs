@@ -1,6 +1,6 @@
-//! Web API functionality.
+//! Web server functionality.
 
-mod errors;
+pub mod errors;
 mod routes;
 
 pub use routes::{parse_file, serve_files};

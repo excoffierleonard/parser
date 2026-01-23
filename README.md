@@ -42,4 +42,4 @@ Requires Tesseract OCR libraries:
 
 ## License
 
-MIT
+[MIT](LICENSE)

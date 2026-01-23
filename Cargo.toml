@@ -5,10 +5,10 @@ edition = "2024"
 authors = ["Leonard Excoffier"]
 license = "MIT"
 repository = "https://github.com/excoffierleonard/parser"
-description = "A library and web API for extracting text from various file formats including PDF, DOCX, XLSX, PPTX, images via OCR, and more"
+description = "A library for extracting text from various file formats including PDF, DOCX, XLSX, PPTX, images via OCR, and more"
 readme = "README.md"
 keywords = ["parser", "pdf", "docx", "text-extraction", "ocr"]
-categories = ["text-processing", "parsing", "web-programming::http-server"]
+categories = ["text-processing", "parsing"]
 
 [lib]
 name = "parser"
@@ -20,31 +20,31 @@ path = "src/main.rs"
 
 [dependencies]
 # Core parsing dependencies
-calamine = "0.26.1"
-docx-rs = "0.4.17"
-infer = "0.16.0"
-lazy_static = "1.4.0"
+calamine = "0.32.0"
+docx-rs = "0.4.18"
+infer = "0.19.0"
+lazy_static = "1.5.0"
 mime = "0.3.17"
-pdf-extract = "0.8.0"
-regex = "1.11.1"
-tempfile = "3.9.0"
-tesseract = "0.15.1"
-zip = "2.3.0"
+pdf-extract = "0.10.0"
+regex = "1.12.2"
+tempfile = "3.24.0"
+tesseract = "0.15.2"
+zip = "7.2.0"
 
-# Web API dependencies
-actix-web = "4.9.0"
+# Web server dependencies
+actix-web = "4.12.1"
 actix-multipart = "0.7.2"
 futures-util = "0.3.31"
-rayon = "1.10.0"
-serde = { version = "1.0.217", features = ["derive"] }
+rayon = "1.11.0"
+serde = { version = "1.0.228", features = ["derive"] }
 mime_guess = "2.0.5"
-rust-embed = { version = "8.5.0", features = ["interpolate-folder-path"] }
-env_logger = "0.11.6"
+rust-embed = { version = "8.11.0", features = ["interpolate-folder-path"] }
 dotenvy = "0.15.7"
+env_logger = "0.11.8"
 
 [dev-dependencies]
-criterion = "0.5"
-num_cpus = "1.16.0"
+criterion = "0.8"
+num_cpus = "1.17.0"
 
 [[bench]]
 name = "function_parse"
