@@ -4,8 +4,6 @@ services:
     build:
       context: .
     restart: unless-stopped
-    environment:
-      - ENABLE_FILE_SERVING=${ENABLE_FILE_SERVING:-false}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.parser.rule=Host(`parser.excoffierleonard.com`)"
