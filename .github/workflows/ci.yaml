@@ -75,40 +75,6 @@ jobs:
         with:
           command: test
           args: --all
-  
-  pre-publish-crates:
-    name: Pre publish Checks for Crates.io
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install and Cache system dependencies
-        uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: libtesseract-dev libleptonica-dev libclang-dev
-          version: 1.0
-
-      - name: Cache Rust toolchain and dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.rustup
-            ~/.cargo
-            target
-          key: ${{ runner.os }}-rust-${{ hashFiles('.github/workflows/**.yaml') }}
-
-      - name: Verify Package
-        uses: actions-rs/cargo@v1
-        with:
-          command: package
-          args: --workspace
-      
-      # TODO: Find way to fail when version already exists on crates.io
-      - name: Dry run publish for core crate
-        uses: actions-rs/cargo@v1
-        with:
-          command: publish
-          args: -p parser-core --dry-run
 
   build-docker:
     name: Build Docker image

@@ -13,40 +13,6 @@ on:
       - main
 
 jobs:
-  publish-crates:
-    name: Publish Crates
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install and Cache system dependencies
-        uses: awalsh128/cache-apt-pkgs-action@v1
-        with:
-          packages: libtesseract-dev libleptonica-dev libclang-dev
-          version: 1.0
-
-      - name: Cache Rust toolchain and dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.rustup
-            ~/.cargo
-            target
-          key: ${{ runner.os }}-rust-${{ hashFiles('.github/workflows/**.yaml') }}
-
-      - name: Login to crates.io registry
-        uses: actions-rs/cargo@v1
-        with:
-          command: login
-          args: ${{ secrets.CRATES_IO_TOKEN }}
-      # Uncomment when have correct pipeline to deploy the core then the dependant crates with auto-incremented versions
-      # - name: Publish core crate to crates.io
-      #   uses: actions-rs/cargo@v1
-      #   with:
-      #     command: publish
-      #     args: -p parser-core
-
   publish-docker:
     name: Build and Push Docker image
     runs-on: ubuntu-latest
@@ -64,6 +30,6 @@ jobs:
       - name: Build and Push Docker image to Github Container Registry
         uses: docker/build-push-action@v2
         with:
-            context: .
-            push: true
-            tags: ghcr.io/${{ github.repository }}:latest
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:latest
