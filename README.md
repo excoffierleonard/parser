@@ -1,6 +1,6 @@
 # Parser
 
-A Rust library for extracting text from various document formats.
+A Rust library/website for extracting text from various document formats.
 
 [Website](https://parser.excoffierleonard.com)
 
@@ -11,13 +11,6 @@ A Rust library for extracting text from various document formats.
 - PDF, DOCX, XLSX, PPTX documents
 - OCR for images (PNG, JPEG, WebP) with English and French support
 - Plain text formats (TXT, CSV, JSON)
-
-## Installation
-
-```toml
-[dependencies]
-parser = "0.1"
-```
 
 ## Usage
 
