@@ -8,6 +8,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.parser.rule=Host(`parser.excoffierleonard.com`)"
       - "traefik.http.routers.parser.tls.certresolver=le"
+      - "traefik.http.services.parser.loadbalancer.server.port=8080"
     networks:
       - proxy
 
