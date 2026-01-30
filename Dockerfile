@@ -2,8 +2,6 @@
 # Stage 1: Prepare the Recipe
 ##############################
 FROM rust:alpine AS chef
-ENV RUSTFLAGS="-C target-feature=-crt-static"
-RUN apk add --no-cache tesseract-ocr-dev leptonica-dev clang-dev
 RUN cargo install cargo-chef
 WORKDIR /app
 COPY . .
