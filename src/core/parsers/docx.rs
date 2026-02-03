@@ -1,7 +1,7 @@
 //! DOCX parser module.
 //!
 //! This module provides functionality for extracting text from Microsoft Word DOCX
-//! documents using the docx_rs library.
+//! documents using the `docx_rs` library.
 
 use super::super::errors::ParserError;
 use docx_rs::read_docx;
@@ -22,7 +22,7 @@ use docx_rs::read_docx;
 ///
 /// # Implementation Notes
 ///
-/// * Uses the docx_rs library for DOCX parsing
+/// * Uses the `docx_rs` library for DOCX parsing
 /// * Extracts text by traversing document structure: documents → paragraphs → runs → text
 /// * Joins paragraphs with newlines and trims whitespace from the result
 /// * TODO: Consider simplifying the document traversal logic

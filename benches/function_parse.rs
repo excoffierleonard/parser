@@ -56,7 +56,7 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
                 .par_iter()
                 .map(|d| parse(black_box(d)))
                 .collect::<Result<Vec<String>, ParserError>>()
-        })
+        });
     });
 
     // Benchmark sequential parsing
@@ -66,7 +66,7 @@ fn benchmark_sequential_vs_parallel(c: &mut Criterion) {
                 .iter()
                 .map(|d| parse(black_box(d)))
                 .collect::<Result<Vec<String>, ParserError>>()
-        })
+        });
     });
 
     group.finish();
@@ -98,7 +98,7 @@ fn benchmark_parallel_efficiency(c: &mut Criterion) {
                     .par_iter()
                     .map(|d| parse(black_box(d)))
                     .collect::<Result<Vec<String>, ParserError>>()
-            })
+            });
         });
     }
 
@@ -123,7 +123,7 @@ fn benchmark_per_filetype(c: &mut Criterion) {
                     .par_iter()
                     .map(|d| parse(black_box(d)))
                     .collect::<Result<Vec<String>, ParserError>>()
-            })
+            });
         });
     }
 
@@ -144,7 +144,7 @@ fn benchmark_per_filetype(c: &mut Criterion) {
                     .par_iter()
                     .map(|d| parse(black_box(d)))
                     .collect::<Result<Vec<String>, ParserError>>()
-            })
+            });
         });
     }
 
@@ -153,6 +153,7 @@ fn benchmark_per_filetype(c: &mut Criterion) {
 
 // Finds the threshold number of files for each type that takes less than 16ms
 fn benchmark_parallel_threshold(c: &mut Criterion) {
+    const SAMPLE_COUNT: usize = 5;
     let max_time_threshold = Duration::from_millis(16);
 
     // Read each test file only once
@@ -181,7 +182,6 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
             }
 
             // Take multiple measurements and use median for robustness
-            const SAMPLE_COUNT: usize = 5;
             let mut durations = Vec::with_capacity(SAMPLE_COUNT);
 
             for _ in 0..SAMPLE_COUNT {
@@ -227,13 +227,16 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
         // The threshold count is now in 'low'
         let threshold_count = low;
 
-        // Define percentages to test around the threshold
-        let percentages = [99.0, 99.9, 100.0, 100.1, 101.0];
+        // Permille values for percentages: 99.0%, 99.9%, 100.0%, 100.1%, 101.0%
+        let permille_values: [usize; 5] = [990, 999, 1000, 1001, 1010];
 
-        // Generate test points based on percentages of the threshold
-        let mut test_points: Vec<usize> = percentages
+        // Generate test points based on percentages of the threshold using integer math
+        let mut test_points: Vec<usize> = permille_values
             .iter()
-            .map(|&p| ((threshold_count as f64 * p / 100.0).ceil() as usize).max(1))
+            .map(|&p| {
+                let product = threshold_count.saturating_mul(p);
+                product.div_ceil(1000).max(1)
+            })
             .collect();
 
         test_points.dedup();
@@ -251,7 +254,7 @@ fn benchmark_parallel_threshold(c: &mut Criterion) {
                         .par_iter()
                         .map(|d| parse(black_box(d)))
                         .collect::<Result<Vec<String>, ParserError>>()
-                })
+                });
             });
         }
 

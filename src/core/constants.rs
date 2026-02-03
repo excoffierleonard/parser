@@ -13,6 +13,6 @@ pub const APPLICATION_DOCX: &str =
 pub const APPLICATION_XLSX: &str =
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-/// MIME type for PPTX (Microsoft PowerPoint) presentations
+/// MIME type for PPTX (Microsoft `PowerPoint`) presentations
 pub const APPLICATION_PPTX: &str =
     "application/vnd.openxmlformats-officedocument.presentationml.presentation";

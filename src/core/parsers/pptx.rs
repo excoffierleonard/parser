@@ -1,6 +1,6 @@
 //! PPTX parser module.
 //!
-//! This module provides functionality for extracting text from Microsoft PowerPoint
+//! This module provides functionality for extracting text from Microsoft `PowerPoint`
 //! PPTX presentation files. It uses the zip crate to extract slide XML files and
 //! regex to extract text content.
 
@@ -46,7 +46,10 @@ pub(crate) fn parse_pptx(data: &[u8]) -> Result<String, ParserError> {
         let mut file = archive.by_index(i)?;
 
         // Only process slide XML files
-        if file.name().starts_with("ppt/slides/slide") && file.name().ends_with(".xml") {
+        let is_xml = std::path::Path::new(file.name())
+            .extension()
+            .is_some_and(|ext| ext.eq_ignore_ascii_case("xml"));
+        if file.name().starts_with("ppt/slides/slide") && is_xml {
             slide_count += 1;
             if slide_count > 1 {
                 text.push_str("\n--- Slide ");

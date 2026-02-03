@@ -15,10 +15,9 @@ categories = ["text-processing", "parsing"]
 calamine = "0.32.0"
 docx-rs = "0.4.18"
 infer = "0.19.0"
-lazy_static = "1.5.0"
 mime = "0.3.17"
 pdf-extract = "0.10.0"
-regex = "1.12.2"
+regex = "1.12.3"
 tempfile = "3.24.0"
 tesseract = "0.15.2"
 zip = "7.2.0"
@@ -37,6 +36,9 @@ env_logger = "0.11.8"
 [dev-dependencies]
 criterion = "0.8"
 num_cpus = "1.17.0"
+
+[lints.clippy]
+pedantic = "warn"
 
 [[bench]]
 name = "function_parse"
