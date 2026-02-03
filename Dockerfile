@@ -23,7 +23,7 @@ RUN cargo build --release
 ##############################
 # Stage 3: Final Image
 ##############################
-FROM alpine
+FROM alpine:3
 RUN apk add --no-cache tesseract-ocr
 WORKDIR /app
 COPY --from=builder /app/target/release/parser .
