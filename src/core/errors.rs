@@ -31,14 +31,14 @@ pub enum ParserError {
 impl std::fmt::Display for ParserError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ParserError::IoError(msg) => write!(f, "IO error: {}", msg),
-            ParserError::ParseError(msg) => write!(f, "Parse error: {}", msg),
-            ParserError::InvalidFormat(msg) => write!(f, "Invalid format: {}", msg),
+            ParserError::IoError(msg) => write!(f, "IO error: {msg}"),
+            ParserError::ParseError(msg) => write!(f, "Parse error: {msg}"),
+            ParserError::InvalidFormat(msg) => write!(f, "Invalid format: {msg}"),
         }
     }
 }
 
-/// Implements the std::error::Error trait for ParserError to allow it to be used
+/// Implements the `std::error::Error` trait for `ParserError` to allow it to be used
 /// with the ? operator and to be boxed as a dyn Error.
 impl std::error::Error for ParserError {}
 

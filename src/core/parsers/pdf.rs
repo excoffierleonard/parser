@@ -1,7 +1,7 @@
 //! PDF parser module.
 //!
 //! This module provides functionality for extracting text from PDF documents using
-//! the pdf_extract library.
+//! the `pdf_extract` library.
 
 use super::super::errors::ParserError;
 use pdf_extract::extract_text_from_mem;
@@ -22,7 +22,7 @@ use pdf_extract::extract_text_from_mem;
 ///
 /// # Implementation Notes
 ///
-/// * Uses the pdf_extract library for PDF text extraction
+/// * Uses the `pdf_extract` library for PDF text extraction
 /// * Trims whitespace from the result before returning
 /// * TODO: Need to find a way to silence the output of that function since on
 ///   unknown characters it outputs a lot of errors, cluttering the logs.

@@ -21,14 +21,12 @@ use super::{
     errors::ParserError,
 };
 use infer::Infer;
-use lazy_static::lazy_static;
 use mime::{IMAGE, Mime, TEXT, TEXT_PLAIN};
 use std::str;
+use std::sync::LazyLock;
 
 // Create a static infer instance to avoid recreating it on every call
-lazy_static! {
-    static ref INFER: Infer = Infer::new();
-}
+static INFER: LazyLock<Infer> = LazyLock::new(Infer::new);
 
 /// Parses the given data into plain text.
 ///
@@ -74,6 +72,11 @@ lazy_static! {
 /// // Verify the result
 /// assert_eq!(result, "Hello, world! This is a sample text file.");
 /// ```
+///
+/// # Errors
+///
+/// Returns [`ParserError::InvalidFormat`] if the file type is unsupported or unrecognized.
+/// May return other [`ParserError`] variants if an error occurs during parsing.
 pub fn parse(data: &[u8]) -> Result<String, ParserError> {
     match determine_mime_type(data) {
         Some(mime) if mime == APPLICATION_PDF => parse_pdf(data),
@@ -83,8 +86,7 @@ pub fn parse(data: &[u8]) -> Result<String, ParserError> {
         Some(mime) if mime.type_() == TEXT => parse_text(data),
         Some(mime) if mime.type_() == IMAGE => parse_image(data),
         Some(mime) => Err(ParserError::InvalidFormat(format!(
-            "Unsupported file type: {}",
-            mime
+            "Unsupported file type: {mime}"
         ))),
         None => Err(ParserError::InvalidFormat(
             "Could not determine file type.".to_string(),

@@ -22,6 +22,6 @@ fn test_file_paths_exist() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("tests/assets")
             .join(name);
-        assert!(path.exists(), "Test file should exist: {:?}", path);
+        assert!(path.exists(), "Test file should exist: {path:?}");
     }
 }

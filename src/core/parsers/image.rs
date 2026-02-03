@@ -5,7 +5,7 @@
 //! various image formats including PNG, JPEG, and WebP.
 
 use super::super::errors::ParserError;
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 use std::{fs, io::Write};
 use tempfile::{NamedTempFile, TempDir};
 use tesseract::Tesseract;
@@ -20,20 +20,18 @@ const TESSDATA_FRA: &[u8] = include_bytes!(concat!(
     "/assets/ocr/fra.traineddata"
 ));
 
-lazy_static! {
-    static ref TESSDATA_DIR: TempDir = {
-        let dir = tempfile::tempdir().expect("Failed to create tessdata directory");
-        let dir_path = dir.path();
+static TESSDATA_DIR: LazyLock<TempDir> = LazyLock::new(|| {
+    let dir = tempfile::tempdir().expect("Failed to create tessdata directory");
+    let dir_path = dir.path();
 
-        // Write language files to tessdata directory (only done once)
-        fs::write(dir_path.join("eng.traineddata"), TESSDATA_ENG)
-            .expect("Failed to write English training data");
-        fs::write(dir_path.join("fra.traineddata"), TESSDATA_FRA)
-            .expect("Failed to write French training data");
+    // Write language files to tessdata directory (only done once)
+    fs::write(dir_path.join("eng.traineddata"), TESSDATA_ENG)
+        .expect("Failed to write English training data");
+    fs::write(dir_path.join("fra.traineddata"), TESSDATA_FRA)
+        .expect("Failed to write French training data");
 
-        dir
-    };
-}
+    dir
+});
 
 /// Parses image data and extracts text using OCR.
 ///

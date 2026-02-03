@@ -26,9 +26,9 @@ pub enum ApiError {
 impl std::fmt::Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ApiError::BadRequest(msg) => write!(f, "Bad Request: {}", msg),
-            ApiError::InternalError(msg) => write!(f, "Internal Error: {}", msg),
-            ApiError::ConfigError(msg) => write!(f, "Configuration Error: {}", msg),
+            ApiError::BadRequest(msg) => write!(f, "Bad Request: {msg}"),
+            ApiError::InternalError(msg) => write!(f, "Internal Error: {msg}"),
+            ApiError::ConfigError(msg) => write!(f, "Configuration Error: {msg}"),
         }
     }
 }
@@ -47,16 +47,18 @@ impl ResponseError for ApiError {
 
         match self {
             ApiError::BadRequest(_) => HttpResponse::BadRequest().json(error_response),
-            ApiError::InternalError(_) => HttpResponse::InternalServerError().json(error_response),
-            ApiError::ConfigError(_) => HttpResponse::InternalServerError().json(error_response),
+            ApiError::InternalError(_) | ApiError::ConfigError(_) => {
+                HttpResponse::InternalServerError().json(error_response)
+            }
         }
     }
 
     fn status_code(&self) -> StatusCode {
         match self {
             ApiError::BadRequest(_) => StatusCode::BAD_REQUEST,
-            ApiError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            ApiError::ConfigError(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            ApiError::InternalError(_) | ApiError::ConfigError(_) => {
+                StatusCode::INTERNAL_SERVER_ERROR
+            }
         }
     }
 }

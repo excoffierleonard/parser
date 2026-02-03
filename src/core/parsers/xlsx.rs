@@ -30,7 +30,7 @@ use std::io::Cursor;
 /// * Adds sheet headers for multi-sheet workbooks
 /// * Memory-efficient implementation using cursors instead of temporary files
 /// * TODO: Need proper logic to escape commas and quotes
-/// * TODO: Consider using the csv crate to convert each sheet and pass it through the parse_text function
+/// * TODO: Consider using the csv crate to convert each sheet and pass it through the `parse_text` function
 pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
     // Create a cursor from the bytes for memory-based reading
     let cursor = Cursor::new(data);
@@ -42,7 +42,7 @@ pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
     let mut csv_data = String::new();
 
     // Copy the sheet names to avoid borrowing issues
-    let sheet_names = excel.sheet_names().to_vec();
+    let sheet_names = excel.sheet_names().clone();
 
     for name in sheet_names {
         if let Ok(range) = excel.worksheet_range(&name) {
@@ -55,7 +55,7 @@ pub(crate) fn parse_xlsx(data: &[u8]) -> Result<String, ParserError> {
                 .rows()
                 .map(|row| {
                     row.iter()
-                        .map(|cell| cell.to_string())
+                        .map(std::string::ToString::to_string)
                         .collect::<Vec<String>>()
                         .join(",")
                 })
